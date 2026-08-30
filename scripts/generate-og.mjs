@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -35,6 +36,26 @@ async function ensureFont(fileName, url, fallbacks = []) {
     throw new Error(`failed to download ${fileName}: ${response.status}`)
   }
   writeFileSync(dest, Buffer.from(await response.arrayBuffer()))
+  return dest
+}
+
+function instanceWeight(variablePath, destName, axis) {
+  const dest = join(tmpdir(), 'og-fonts', destName)
+  if (existsSync(dest)) {
+    return dest
+  }
+  mkdirSync(dirname(dest), { recursive: true })
+  const script = `
+from fontTools.varLib.instancer import instantiateVariableFont
+from fontTools.ttLib import TTFont
+font = TTFont(${JSON.stringify(variablePath)})
+instantiateVariableFont(font, {"wght": ${axis}}, inplace=True)
+font.save(${JSON.stringify(dest)})
+`
+  const result = spawnSync('python3', ['-c', script], { encoding: 'utf8' })
+  if (result.status !== 0 || !existsSync(dest)) {
+    throw new Error(result.stderr || `failed to instance ${destName}`)
+  }
   return dest
 }
 
@@ -82,75 +103,57 @@ function squareIconSvg(size, { pad = 0, border = true } = {}) {
 </svg>`
 }
 
-const [sharp, bebasPath, interPath] = await Promise.all([
+const [sharp, displayVar, prizeVar] = await Promise.all([
   loadSharp(),
   ensureFont(
-    'BebasNeue-Regular.ttf',
-    'https://github.com/google/fonts/raw/refs/heads/main/ofl/bebasneue/BebasNeue-Regular.ttf',
+    'BigShouldersDisplay.ttf',
+    'https://github.com/google/fonts/raw/refs/heads/main/ofl/bigshouldersdisplay/BigShouldersDisplay%5Bwght%5D.ttf',
   ),
   ensureFont(
-    'Inter-Bold.ttf',
-    'https://github.com/rsms/inter/raw/master/docs/font-files/Inter-Bold.ttf',
-    [
-      '/usr/share/fonts/truetype/macos/Inter-Bold.ttf',
-      '/usr/share/fonts/truetype/inter/Inter-Bold.ttf',
-    ],
+    'Outfit.ttf',
+    'https://github.com/google/fonts/raw/refs/heads/main/ofl/outfit/Outfit%5Bwght%5D.ttf',
   ),
 ])
 
-const display = fontFace('BebasOG', bebasPath)
-const body = fontFace('InterOG', interPath)
+const displayPath = instanceWeight(displayVar, 'BigShoulders-800.ttf', 800)
+const prizePath = instanceWeight(prizeVar, 'Outfit-600.ttf', 600)
+const display = fontFace('DisplayOG', displayPath)
+const prize = fontFace('PrizeOG', prizePath)
 
 const ogSvg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <style>
       ${display}
-      ${body}
+      ${prize}
     </style>
-    <radialGradient id="goldWash" cx="50%" cy="0%" r="70%">
-      <stop offset="0%" stop-color="#e3b23c" stop-opacity="0.22"/>
-      <stop offset="55%" stop-color="#0c0b09" stop-opacity="0"/>
+    <radialGradient id="goldWash" cx="50%" cy="18%" r="62%">
+      <stop offset="0%" stop-color="#e3b23c" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#0c0b09" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="adamGlow" cx="22%" cy="48%" r="38%">
-      <stop offset="0%" stop-color="#7eb6ff" stop-opacity="0.28"/>
-      <stop offset="70%" stop-color="#0c0b09" stop-opacity="0"/>
+    <radialGradient id="adamGlow" cx="24%" cy="46%" r="34%">
+      <stop offset="0%" stop-color="#7eb6ff" stop-opacity="0.22"/>
+      <stop offset="75%" stop-color="#0c0b09" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="yagizGlow" cx="78%" cy="48%" r="38%">
-      <stop offset="0%" stop-color="#ff7a55" stop-opacity="0.26"/>
-      <stop offset="70%" stop-color="#0c0b09" stop-opacity="0"/>
+    <radialGradient id="yagizGlow" cx="76%" cy="46%" r="34%">
+      <stop offset="0%" stop-color="#ff7a55" stop-opacity="0.2"/>
+      <stop offset="75%" stop-color="#0c0b09" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#e3b23c" stop-opacity="0"/>
-      <stop offset="50%" stop-color="#e3b23c" stop-opacity="0.55"/>
-      <stop offset="100%" stop-color="#e3b23c" stop-opacity="0"/>
-    </linearGradient>
   </defs>
 
   <rect width="1200" height="630" fill="#0c0b09"/>
   <rect width="1200" height="630" fill="url(#goldWash)"/>
   <rect width="1200" height="630" fill="url(#adamGlow)"/>
   <rect width="1200" height="630" fill="url(#yagizGlow)"/>
-  <rect x="28" y="28" width="1144" height="574" fill="none" stroke="#e3c996" stroke-opacity="0.22" stroke-width="1.5"/>
-  <rect x="36" y="36" width="1128" height="558" fill="none" stroke="#e3b23c" stroke-opacity="0.12" stroke-width="1"/>
+  <rect x="64" y="56" width="1072" height="518" fill="none" stroke="#e3b23c" stroke-opacity="0.28" stroke-width="1.5"/>
 
-  <text x="600" y="92" text-anchor="middle" fill="#e3b23c" font-family="InterOG" font-size="18" letter-spacing="6">LIVE CHALLENGE HQ</text>
+  <text x="292" y="318" text-anchor="middle" fill="#7eb6ff" font-family="DisplayOG" font-size="148" letter-spacing="2">ADAM</text>
+  <text x="908" y="318" text-anchor="middle" fill="#ff7a55" font-family="DisplayOG" font-size="148" letter-spacing="2">YAGIZ</text>
 
-  <text x="250" y="168" text-anchor="middle" fill="#7eb6ff" font-family="InterOG" font-size="16" letter-spacing="5">BLUE CORNER</text>
-  <text x="950" y="168" text-anchor="middle" fill="#ff7a55" font-family="InterOG" font-size="16" letter-spacing="5">RED CORNER</text>
+  <circle cx="600" cy="268" r="40" fill="#1a160e" stroke="#e3b23c" stroke-width="1.75"/>
+  <text x="600" y="280" text-anchor="middle" fill="#e3b23c" font-family="DisplayOG" font-size="36" letter-spacing="3">VS</text>
 
-  <text x="250" y="318" text-anchor="middle" fill="#7eb6ff" font-family="BebasOG" font-size="168">ADAM</text>
-  <text x="950" y="318" text-anchor="middle" fill="#ff7a55" font-family="BebasOG" font-size="168">YAGIZ</text>
-
-  <circle cx="600" cy="268" r="52" fill="#1a160e" stroke="#e3b23c" stroke-width="2"/>
-  <circle cx="600" cy="268" r="62" fill="none" stroke="#e3b23c" stroke-opacity="0.16" stroke-width="8"/>
-  <text x="600" y="280" text-anchor="middle" fill="#e3b23c" font-family="BebasOG" font-size="42" letter-spacing="4">VS</text>
-
-  <rect x="180" y="392" width="840" height="1" fill="url(#rule)"/>
-
-  <text x="600" y="460" text-anchor="middle" fill="#f3d78a" font-family="BebasOG" font-size="54" letter-spacing="2">$3,000 SPRING BREAK FITNESS CHALLENGE</text>
-  <text x="600" y="512" text-anchor="middle" fill="#b8ad96" font-family="InterOG" font-size="20" letter-spacing="3">SEP 1, 2026  —  APR 11, 2027  ·  32 WEEKS</text>
-  <text x="600" y="554" text-anchor="middle" fill="#7d7566" font-family="InterOG" font-size="16" letter-spacing="3.5">WINNER TAKES THE PURSE</text>
+  <text x="600" y="478" text-anchor="middle" fill="#f3d78a" font-family="PrizeOG" font-size="64" letter-spacing="6">$3,000</text>
 </svg>`
 
 async function writePng(svg, file, size) {
