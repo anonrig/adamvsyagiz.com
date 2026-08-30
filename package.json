@@ -11,7 +11,8 @@
     "astro": "astro",
     "lint": "wrangler types && astro sync && oxlint . && oxfmt --check",
     "lint-fix": "wrangler types && astro sync && oxlint --fix . && oxfmt",
-    "test": "node --experimental-strip-types --test src/lib/*.test.ts"
+    "test": "node --experimental-strip-types --test src/lib/*.test.ts",
+    "og": "node scripts/generate-og.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.2.3",
