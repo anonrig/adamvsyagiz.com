@@ -125,7 +125,7 @@ function validateNumber(
   value: number,
 ): { ok: true; value: number } | { ok: false; error: string } {
   const limit = FIELD_LIMITS[name]
-  if (limit.integer && !Number.isInteger(value)) {
+  if ('integer' in limit && limit.integer && !Number.isInteger(value)) {
     return { ok: false, error: `${name} must be a whole number.` }
   }
   if (value < limit.min || value > limit.max) {
@@ -163,7 +163,14 @@ export function parseCheckinPatch(
     if (note.length > NOTE_MAX) {
       return { ok: false, error: `note must be ${NOTE_MAX} characters or fewer.` }
     }
-    patch.note = note.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '')
+    let cleaned = ''
+    for (const char of note) {
+      const code = char.codePointAt(0) ?? 0
+      if (code >= 32 || code === 9) {
+        cleaned += char
+      }
+    }
+    patch.note = cleaned
   }
 
   const numericFields = ['weight', 'stepDays', 'pushUps', 'invertedRows', 'overheadPress'] as const

@@ -97,7 +97,10 @@ async function readBody(request: Request): Promise<Record<string, unknown>> {
 
 async function bustStandingsCache(request: Request): Promise<void> {
   const origin = new URL(request.url).origin
-  const cache = caches.default
+  const cache = (caches as typeof caches & { default?: Cache }).default
+  if (!cache) {
+    return
+  }
   await Promise.all([
     cache.delete(new Request(`${origin}/`)),
     cache.delete(new Request(`${origin}/standings.json`)),
