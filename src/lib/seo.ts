@@ -41,8 +41,8 @@ export function absoluteUrl(path = '/'): string {
   return new URL(normalized, `${websiteUrl}/`).href
 }
 
-export function latestCheckinDate(): string {
-  return checkins.at(-1)?.date ?? CHALLENGE_START.slice(0, 10)
+export function latestCheckinDate(rows: { date: string }[] = checkins): string {
+  return rows.at(-1)?.date ?? CHALLENGE_START.slice(0, 10)
 }
 
 export function homepageJsonLd() {

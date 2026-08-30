@@ -1,4 +1,10 @@
-import { checkins, strengthLifts, type PersonLog, type StrengthLift } from '../data/checkins.ts'
+import {
+  checkins as seedCheckins,
+  strengthLifts,
+  type Checkin,
+  type PersonLog,
+  type StrengthLift,
+} from '../data/checkins.ts'
 import {
   ACTIVITY_MAX,
   STEP_DAYS_TO_SCORE,
@@ -66,10 +72,11 @@ export type Standings = {
   trailer: PersonId | null
   margin: number
   rounds: WeekRound[]
+  checkins: Checkin[]
 }
 
-function firstNumber(id: PersonId, field: keyof PersonLog): number | null {
-  for (const row of checkins) {
+function firstNumber(rows: Checkin[], id: PersonId, field: keyof PersonLog): number | null {
+  for (const row of rows) {
     const value = row[id][field]
     if (typeof value === 'number') {
       return value
@@ -78,9 +85,9 @@ function firstNumber(id: PersonId, field: keyof PersonLog): number | null {
   return null
 }
 
-function latestNumber(id: PersonId, field: keyof PersonLog): number | null {
-  for (let index = checkins.length - 1; index >= 0; index -= 1) {
-    const value = checkins[index]?.[id][field]
+function latestNumber(rows: Checkin[], id: PersonId, field: keyof PersonLog): number | null {
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    const value = rows[index]?.[id][field]
     if (typeof value === 'number') {
       return value
     }
@@ -88,14 +95,16 @@ function latestNumber(id: PersonId, field: keyof PersonLog): number | null {
   return null
 }
 
-export function activityWeeksEarned(id: PersonId): number {
-  return checkins.filter((row) => row.week >= 1 && (row[id].stepDays ?? 0) >= STEP_DAYS_TO_SCORE)
-    .length
+export function activityWeeksEarned(id: PersonId, rows: Checkin[] = seedCheckins): number {
+  return rows.filter((row) => row.week >= 1 && (row[id].stepDays ?? 0) >= STEP_DAYS_TO_SCORE).length
 }
 
-export function activityStreaks(id: PersonId): { current: number; best: number } {
+export function activityStreaks(
+  id: PersonId,
+  rows: Checkin[] = seedCheckins,
+): { current: number; best: number } {
   const weeks = new Map<number, boolean>()
-  for (const row of checkins) {
+  for (const row of rows) {
     if (row.week >= 1) {
       weeks.set(row.week, (row[id].stepDays ?? 0) >= STEP_DAYS_TO_SCORE)
     }
@@ -126,10 +135,10 @@ export function activityStreaks(id: PersonId): { current: number; best: number }
   return { current, best }
 }
 
-export function liftProgress(id: PersonId): LiftProgress[] {
+export function liftProgress(id: PersonId, rows: Checkin[] = seedCheckins): LiftProgress[] {
   return strengthLifts.map((lift) => {
-    const baseline = firstNumber(id, lift)
-    const current = latestNumber(id, lift)
+    const baseline = firstNumber(rows, id, lift)
+    const current = latestNumber(rows, id, lift)
     let improvementPct: number | null = null
     if (baseline && baseline > 0 && current !== null) {
       improvementPct = ((current - baseline) / baseline) * 100
@@ -149,21 +158,21 @@ export function strengthPointsFromLifts(lifts: LiftProgress[]): number {
   return Math.min(STRENGTH_POINTS, Math.max(0, average))
 }
 
-function buildPerson(person: Contestant, calendarWeek: number): PersonStats {
-  const currentWeight = latestNumber(person.id, 'weight') ?? person.startWeight
+function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]): PersonStats {
+  const currentWeight = latestNumber(rows, person.id, 'weight') ?? person.startWeight
   const poundsLost = Math.max(0, person.startWeight - currentWeight)
   const poundsLeft = Math.max(0, currentWeight - person.goalWeight)
   const cutPct = Math.min(100, (poundsLost / person.toLose) * 100)
   const weightPts = weightPoints(poundsLost, person.toLose)
-  const lifts = liftProgress(person.id)
+  const lifts = liftProgress(person.id, rows)
   const strengthPts = strengthPointsFromLifts(lifts)
-  const activityPts = Math.min(ACTIVITY_MAX, activityWeeksEarned(person.id))
+  const activityPts = Math.min(ACTIVITY_MAX, activityWeeksEarned(person.id, rows))
   const total = weightPts + strengthPts + activityPts
   const weekForPace = Math.max(calendarWeek, 0)
   const expectedLost = person.toLose * (weekForPace / TOTAL_WEEKS)
   const paceDelta = poundsLost - expectedLost
   const onPace = weekForPace === 0 ? true : poundsLost + 0.4 >= expectedLost
-  const streaks = activityStreaks(person.id)
+  const streaks = activityStreaks(person.id, rows)
 
   return {
     id: person.id,
@@ -193,7 +202,7 @@ function buildPerson(person: Contestant, calendarWeek: number): PersonStats {
   }
 }
 
-function weekWinner(row: (typeof checkins)[number]): PersonId | null {
+function weekWinner(row: Checkin): PersonId | null {
   const score = (id: PersonId): number => {
     const person = contestants[id]
     const weight = row[id].weight
@@ -210,10 +219,10 @@ function weekWinner(row: (typeof checkins)[number]): PersonId | null {
   return adamScore > yagizScore ? 'adam' : 'yagiz'
 }
 
-export function buildStandings(now = new Date()): Standings {
+export function buildStandings(now = new Date(), rows: Checkin[] = seedCheckins): Standings {
   const calendarWeek = weekNumber(now)
-  const adamStats = buildPerson(adam, calendarWeek)
-  const yagizStats = buildPerson(yagiz, calendarWeek)
+  const adamStats = buildPerson(adam, calendarWeek, rows)
+  const yagizStats = buildPerson(yagiz, calendarWeek, rows)
   const margin = Math.abs(adamStats.total - yagizStats.total)
   let leader: PersonId | null = null
   if (adamStats.total > yagizStats.total) leader = 'adam'
@@ -227,7 +236,7 @@ export function buildStandings(now = new Date()): Standings {
     leader,
     trailer: leader === 'adam' ? 'yagiz' : leader === 'yagiz' ? 'adam' : null,
     margin,
-    rounds: checkins.map((row) => ({
+    rounds: rows.map((row) => ({
       week: row.week,
       date: row.date,
       adam: row.adam,
@@ -235,15 +244,17 @@ export function buildStandings(now = new Date()): Standings {
       winner: row.week === 0 ? null : weekWinner(row),
       note: row.note,
     })),
+    checkins: rows,
   }
 }
 
 export function cutSeries(
   id: PersonId,
+  rows: Checkin[] = seedCheckins,
 ): { week: number; pct: number | null; weight: number | null }[] {
   const person = contestants[id]
   const byWeek = new Map<number, number>()
-  for (const row of checkins) {
+  for (const row of rows) {
     if (row[id].weight !== null) {
       byWeek.set(row.week, row[id].weight)
     }

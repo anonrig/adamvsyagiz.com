@@ -1,10 +1,15 @@
+import { env } from 'cloudflare:workers'
+
+import { checkins as seedCheckins } from '@/data/checkins'
 import { achievementsFor, earnedCount } from '@/lib/achievements'
+import { loadCheckins } from '@/lib/checkin-store'
 import { buildStandings } from '@/lib/scoring'
 
 export const prerender = false
 
-export function GET(): Response {
-  const standings = buildStandings()
+export async function GET(): Promise<Response> {
+  const rows = await loadCheckins(env.CHECKINS, seedCheckins)
+  const standings = buildStandings(new Date(), rows)
   return Response.json(
     {
       generatedAt: standings.now.toISOString(),

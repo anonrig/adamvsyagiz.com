@@ -1,5 +1,4 @@
 ---
-import { checkins } from '@/data/checkins'
 import { STEP_DAYS_TO_SCORE, TOTAL_WEEKS } from '@/lib/challenge'
 import type { PersonId } from '@/lib/challenge'
 import type { Standings } from '@/lib/scoring'
@@ -12,7 +11,7 @@ const { standings } = Astro.props
 const weeks = Array.from({ length: TOTAL_WEEKS }, (_, index) => index + 1)
 
 function cell(id: PersonId, week: number) {
-  const row = checkins.find((item) => item.week === week)
+  const row = standings.rounds.find((item) => item.week === week)
   const future = week > standings.calendarWeek
   const days = row?.[id].stepDays
   const earned = (days ?? 0) >= STEP_DAYS_TO_SCORE

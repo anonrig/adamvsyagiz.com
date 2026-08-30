@@ -1,7 +1,13 @@
 ---
 import { contestants, TOTAL_WEEKS } from '@/lib/challenge'
 import { polyline, ticks } from '@/lib/chart'
-import { cutSeries, formatLbs } from '@/lib/scoring'
+import { cutSeries, formatLbs, type Standings } from '@/lib/scoring'
+
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
 
 const width = 720
 const height = 220
@@ -13,7 +19,7 @@ const yBot = height - pad.b
 
 const panels = (['adam', 'yagiz'] as const).map((id) => {
   const person = contestants[id]
-  const series = cutSeries(id)
+  const series = cutSeries(id, standings.checkins)
   const weights = series.map((row) => row.weight)
   const known = weights.filter((value): value is number => value !== null)
   const min = Math.min(person.goalWeight - 8, ...known)

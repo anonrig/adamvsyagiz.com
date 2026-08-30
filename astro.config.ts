@@ -7,7 +7,7 @@ import { defineConfig, fontProviders } from 'astro/config'
 import { websiteUrl } from './src/lib/challenge.ts'
 import { latestCheckinDate } from './src/lib/seo.ts'
 
-const pageCache = { maxAge: 3600, swr: 86_400, tags: ['page'] }
+const pageCache = { maxAge: 60, swr: 30, tags: ['page'] }
 
 export default defineConfig({
   site: websiteUrl,

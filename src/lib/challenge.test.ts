@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { TOTAL_WEEKS, weekNumber, weightPoints } from './challenge.ts'
+import { TOTAL_WEEKS, weekLogDate, weekNumber, weightPoints } from './challenge.ts'
 
 describe('weekNumber', () => {
   it('is 0 before the start', () => {
@@ -22,6 +22,14 @@ describe('weekNumber', () => {
 
   it('stays at 32 after the challenge', () => {
     assert.equal(weekNumber(new Date('2027-04-12T00:00:00-04:00')), TOTAL_WEEKS)
+  })
+})
+
+describe('weekLogDate', () => {
+  it('anchors week 0, week 1, and the final day', () => {
+    assert.equal(weekLogDate(0), '2026-09-01')
+    assert.equal(weekLogDate(1), '2026-09-07')
+    assert.equal(weekLogDate(32), '2027-04-11')
   })
 })
 

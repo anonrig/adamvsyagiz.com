@@ -2,5 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /404
 Disallow: /404.html
+Disallow: /log
+Disallow: /api/
 
 Sitemap: https://adamvsyagiz.com/sitemap-index.xml

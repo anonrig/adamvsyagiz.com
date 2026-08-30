@@ -72,6 +72,21 @@ export function weekStartIso(week: number): string {
   return day.toISOString().slice(0, 10)
 }
 
+/** Official log date for a week: opening day, week-ending Sunday, or the final weigh-in. */
+export function weekLogDate(week: number): string {
+  if (week <= 0) {
+    return '2026-09-01'
+  }
+  if (week >= TOTAL_WEEKS) {
+    return '2027-04-11'
+  }
+  const utc = new Date(Date.UTC(2026, 8, 1 + week * 7 - 1))
+  const year = utc.getUTCFullYear()
+  const month = String(utc.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(utc.getUTCDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export function weightPoints(poundsLost: number, goalPounds: number): number {
   if (goalPounds <= 0) {
     return 0

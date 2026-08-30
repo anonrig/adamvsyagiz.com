@@ -22,6 +22,7 @@ interface Props {
   robots?: string
   canonical?: string | false
   jsonLd?: object
+  modifiedDate?: string
 }
 
 const {
@@ -30,6 +31,7 @@ const {
   robots = indexRobots,
   canonical,
   jsonLd,
+  modifiedDate,
 } = Astro.props
 
 const pageTitle = title ? `${title} · ${siteName}` : websiteTitle
@@ -37,7 +39,7 @@ const selfUrl = absoluteUrl(Astro.url.pathname)
 const canonicalUrl = canonical === false ? undefined : canonical ?? selfUrl
 const imageUrl = absoluteUrl(ogImage.path)
 const imageAlt = websiteTitle
-const modified = `${latestCheckinDate()}T12:00:00-04:00`
+const modified = `${modifiedDate ?? latestCheckinDate()}T12:00:00-04:00`
 ---
 
 <html lang={htmlLang} class="bg-bg text-ink">

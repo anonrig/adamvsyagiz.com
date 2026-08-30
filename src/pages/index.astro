@@ -26,14 +26,18 @@ import {
   adam,
   yagiz,
 } from '@/lib/challenge'
-import { homepageJsonLd, supportTweetUrl } from '@/lib/seo'
+import { homepageJsonLd, latestCheckinDate, supportTweetUrl } from '@/lib/seo'
 import { buildStandings, formatPts } from '@/lib/scoring'
+import { loadCheckins } from '@/lib/checkin-store'
+import { checkins as seedCheckins } from '@/data/checkins'
 import Layout from '@/layouts/Layout.astro'
+import { env } from 'cloudflare:workers'
 
-const standings = buildStandings()
+const rows = await loadCheckins(env.CHECKINS, seedCheckins)
+const standings = buildStandings(new Date(), rows)
 ---
 
-<Layout jsonLd={homepageJsonLd()}>
+<Layout jsonLd={homepageJsonLd()} modifiedDate={latestCheckinDate(rows)}>
   <Hud standings={standings} />
 
   <main id="main">
@@ -107,8 +111,8 @@ const standings = buildStandings()
         ({yagiz.toLose} lbs). Same scoreboard, personal mountains.
       </p>
       <div class="grid gap-3">
-        <RaceChart />
-        <WeightCharts />
+        <RaceChart standings={standings} />
+        <WeightCharts standings={standings} />
       </div>
     </section>
 
@@ -208,6 +212,8 @@ const standings = buildStandings()
       </a>
       ·
       <a href="/standings.json">standings.json</a>
+      ·
+      <a href="/log">log a week</a>
     </p>
   </footer>
 </Layout>

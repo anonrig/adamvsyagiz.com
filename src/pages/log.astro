@@ -1,0 +1,259 @@
+---
+export const prerender = false
+
+import { env } from 'cloudflare:workers'
+
+import { checkins as seedCheckins, liftLabels, liftUnits } from '@/data/checkins'
+import Layout from '@/layouts/Layout.astro'
+import { websiteUrl, weekNumber } from '@/lib/challenge'
+import { secretsReady } from '@/lib/checkin-api'
+import { loadCheckins } from '@/lib/checkin-store'
+import { buildStandings, formatPts } from '@/lib/scoring'
+
+const rows = await loadCheckins(env.CHECKINS, seedCheckins)
+const standings = buildStandings(new Date(), rows)
+const calendarWeek = weekNumber(new Date())
+const webhookReady = Boolean(env.CHECKINS) && secretsReady({
+  adam: env.ADAM_CHECKIN_TOKEN,
+  yagiz: env.YAGIZ_CHECKIN_TOKEN,
+})
+const params = Astro.url.searchParams
+const result = params.get('result')
+const error = params.get('error')
+const resultWeek = params.get('week')
+const webhookUrl = `${websiteUrl}/api/checkin`
+---
+
+<Layout
+  title="Log a week"
+  description="Private check-in for Adam and Yagiz. Token required."
+  robots="noindex, nofollow"
+>
+  <main id="main" class="mx-auto w-full max-w-xl px-[clamp(1.1rem,4vw,2rem)] py-10">
+    <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Fighters only</p>
+    <h1 class="mt-2 mb-2 font-display text-[clamp(2.6rem,10vw,4.4rem)] leading-none">Log a week</h1>
+    <p class="mt-0 mb-6 text-ink-dim">
+      Token identifies you. Nobody else can post. Same week twice updates that row — it never adds a
+      second copy.
+    </p>
+    {
+      !webhookReady && (
+        <p class="mb-5 border border-line bg-card px-4 py-3 text-ink-dim">
+          Webhook secrets are not on this Worker yet. Set <code class="text-gold">ADAM_CHECKIN_TOKEN</code> and{' '}
+          <code class="text-gold">YAGIZ_CHECKIN_TOKEN</code> in the Cloudflare dashboard, then paste each token
+          into your Shortcut.
+        </p>
+      )
+    }
+
+    {
+      result === 'saved' && (
+        <p class="mb-5 border border-gold bg-[#1a160e] px-4 py-3 text-gold-2">
+          Saved week {resultWeek ?? calendarWeek}. Scoreboard: Adam {formatPts(standings.adam.total)} — Yagiz{' '}
+          {formatPts(standings.yagiz.total)}.
+        </p>
+      )
+    }
+    {
+      result === 'unchanged' && (
+        <p class="mb-5 border border-line bg-card px-4 py-3 text-ink-dim">
+          Week {resultWeek ?? calendarWeek} already had those numbers. Nothing was duplicated.
+        </p>
+      )
+    }
+    {
+      error && (
+        <p class="mb-5 border border-[#5a2a22] bg-[#2a1612] px-4 py-3 text-[#ffb4a2]">
+          {error === 'unauthorized' ? 'That token is not valid.' : error}
+        </p>
+      )
+    }
+
+    <form
+      id="checkin-form"
+      class="mb-10 space-y-4 border border-line bg-card p-4"
+      method="post"
+      action="/api/checkin"
+      autocomplete="off"
+    >
+      <label class="block">
+        <span class="text-[0.72rem] font-semibold tracking-widest text-mute uppercase">Your token</span>
+        <input
+          class="mt-1 w-full border border-line bg-bg px-3 py-3 text-ink"
+          type="password"
+          name="token"
+          required
+          minlength="20"
+          spellcheck="false"
+        />
+      </label>
+      <label class="block">
+        <span class="text-[0.72rem] font-semibold tracking-widest text-mute uppercase">Week</span>
+        <input
+          class="mt-1 w-full border border-line bg-bg px-3 py-3 text-ink"
+          type="number"
+          name="week"
+          min="0"
+          max="32"
+          value={calendarWeek}
+        />
+      </label>
+      <label class="block">
+        <span class="text-[0.72rem] font-semibold tracking-widest text-mute uppercase">Weight (lbs)</span>
+        <input
+          class="mt-1 w-full border border-line bg-bg px-3 py-3 text-ink"
+          type="number"
+          name="weight"
+          inputmode="decimal"
+          step="0.1"
+          min="80"
+          max="450"
+        />
+      </label>
+      <label class="block">
+        <span class="text-[0.72rem] font-semibold tracking-widest text-mute uppercase">
+          Days at 10,000 steps (0–7)
+        </span>
+        <input
+          class="mt-1 w-full border border-line bg-bg px-3 py-3 text-ink"
+          type="number"
+          name="stepDays"
+          inputmode="numeric"
+          min="0"
+          max="7"
+        />
+      </label>
+      <div class="grid gap-3 sm:grid-cols-3">
+        {
+          (['pushUps', 'invertedRows', 'overheadPress'] as const).map((lift) => (
+            <label class="block">
+              <span class="text-[0.72rem] font-semibold tracking-widest text-mute uppercase">
+                {liftLabels[lift]}
+                <span class="normal-case tracking-normal text-mute"> ({liftUnits[lift]})</span>
+              </span>
+              <input
+                class="mt-1 w-full border border-line bg-bg px-3 py-3 text-ink"
+                type="number"
+                name={lift}
+                inputmode="decimal"
+                step="1"
+                min="1"
+              />
+            </label>
+          ))
+        }
+      </div>
+      <button
+        class="w-full bg-gold px-4 py-3 font-bold text-[#1a1406]"
+        type="submit"
+      >
+        Post to the book
+      </button>
+      <p id="checkin-status" class="m-0 text-[0.88rem] text-mute" hidden></p>
+    </form>
+
+    <section class="mb-10">
+      <h2 class="mt-0 mb-2 font-display text-4xl leading-none">iPhone Shortcut</h2>
+      <p class="mt-0 mb-4 text-ink-dim">
+        Build this once on your phone. Keep the shortcut private — the token lives inside it.
+      </p>
+      <ol class="m-0 list-decimal space-y-3 pl-5 text-[0.95rem] text-ink-dim">
+        <li>
+          Shortcuts → <strong class="text-ink">+</strong> → name it <strong class="text-ink">Log Adam vs Yagiz</strong>.
+        </li>
+        <li>
+          Add <strong class="text-ink">Text</strong>. Paste your token. That is the only secret. Do not share this
+          shortcut.
+        </li>
+        <li>
+          Add <strong class="text-ink">Ask for Input</strong> three to five times (Number): Weight (lbs), Days at 10k
+          (0–7), then optional push-ups, inverted rows, overhead press. Leave a lift empty to skip it.
+        </li>
+        <li>
+          Add <strong class="text-ink">Dictionary</strong> with keys <code class="text-gold">weight</code>,
+          <code class="text-gold">stepDays</code>, <code class="text-gold">pushUps</code>,
+          <code class="text-gold">invertedRows</code>, <code class="text-gold">overheadPress</code> pointing at those
+          answers. Omit empty lifts.
+        </li>
+        <li>
+          Add <strong class="text-ink">Get Contents of URL</strong>:
+          <ul class="mt-2 list-disc space-y-1 pl-5">
+            <li>URL: <code class="break-all text-gold">{webhookUrl}</code></li>
+            <li>Method: POST</li>
+            <li>Headers: <code class="text-gold">Authorization</code> = <code class="text-gold">Bearer</code> + the Text token, and <code class="text-gold">Content-Type</code> = <code class="text-gold">application/json</code></li>
+            <li>Request Body: JSON from the Dictionary</li>
+          </ul>
+        </li>
+        <li>
+          Add <strong class="text-ink">Show Result</strong>, then <strong class="text-ink">Open URLs</strong> →
+          <a class="text-gold" href="/">{websiteUrl}</a>.
+        </li>
+      </ol>
+      <p class="mt-4 text-[0.88rem] text-mute">
+        Optional: <strong class="text-ink">Find Health Samples</strong> → Body Mass, latest, then confirm it is pounds
+        (if it looks like kilograms, multiply by 2.20462). Steps are easier to count by hand — four days at 10k is the
+        only number that scores.
+      </p>
+      <p class="text-[0.88rem] text-mute">
+        Run it twice in the same week and the second post updates that week in place. If the numbers match, the API
+        replies <code class="text-gold">unchanged</code> and the book stays the same.
+      </p>
+    </section>
+
+    <p class="mb-8 text-center">
+      <a class="text-gold no-underline hover:underline" href="/">Back to the live card</a>
+    </p>
+  </main>
+
+  <script>
+    const form = document.getElementById('checkin-form')
+    const status = document.getElementById('checkin-status')
+    if (form instanceof HTMLFormElement && status) {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault()
+        status.hidden = false
+        status.textContent = 'Posting…'
+        const data = new FormData(form)
+        const token = String(data.get('token') ?? '')
+        const body: Record<string, string | number> = {}
+        for (const key of ['week', 'weight', 'stepDays', 'pushUps', 'invertedRows', 'overheadPress']) {
+          const value = String(data.get(key) ?? '').trim()
+          if (value !== '') {
+            body[key] = Number(value)
+          }
+        }
+        try {
+          const response = await fetch('/api/checkin', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+            body: JSON.stringify(body),
+          })
+          const payload = (await response.json()) as {
+            ok?: boolean
+            unchanged?: boolean
+            week?: number
+            message?: string
+            error?: string
+            total?: number
+          }
+          if (!response.ok || !payload.ok) {
+            status.textContent =
+              payload.error === 'unauthorized'
+                ? 'That token is not valid.'
+                : (payload.message ?? payload.error ?? 'Could not save.')
+            return
+          }
+          status.textContent = payload.unchanged
+            ? `Week ${payload.week} already had those numbers. Nothing duplicated.`
+            : `Saved week ${payload.week}. Your total is now ${payload.total}.`
+        } catch {
+          status.textContent = 'Network error. Try again.'
+        }
+      })
+    }
+  </script>
+</Layout>

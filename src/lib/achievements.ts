@@ -1,4 +1,3 @@
-import { checkins } from '../data/checkins.ts'
 import { ACTIVITY_POINTS, TOTAL_WEEKS, type PersonId } from './challenge.ts'
 import { buildStandings, type PersonStats, type Standings } from './scoring.ts'
 
@@ -230,7 +229,7 @@ export function weeklyQuests(standings: Standings): {
   done: (person: PersonStats) => boolean
 }[] {
   const week = Math.max(standings.calendarWeek, 1)
-  const row = checkins.find((item) => item.week === week)
+  const row = standings.rounds.find((item) => item.week === week)
   return [
     {
       title: 'Weigh in',

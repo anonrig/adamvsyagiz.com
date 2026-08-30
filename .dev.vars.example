@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local wrangler / astro preview.
+# Production secrets go on the Worker — never commit real tokens.
+ADAM_CHECKIN_TOKEN=replace-me-adam-use-openssl-rand-hex-24
+YAGIZ_CHECKIN_TOKEN=replace-me-yagiz-use-openssl-rand-hex-24

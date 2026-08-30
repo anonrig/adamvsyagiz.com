@@ -1,10 +1,15 @@
 import { handle } from '@astrojs/cloudflare/handler'
 
-const PAGE_CDN_CACHE = 'public, max-age=3600, stale-while-revalidate=86400'
+const PAGE_CDN_CACHE = 'public, max-age=60, stale-while-revalidate=30'
 const ASSET_CDN_CACHE = 'public, max-age=31536000, immutable'
+const LIVE_NO_STORE = new Set(['/log', '/standings.json'])
 
 function isImmutableAsset(pathname: string): boolean {
   return pathname.startsWith('/_astro/') || pathname.startsWith('/fonts/')
+}
+
+function isLivePath(pathname: string): boolean {
+  return pathname.startsWith('/api/') || LIVE_NO_STORE.has(pathname)
 }
 
 function withHeaders(response: Response, mutate: (headers: Headers) => void): Response {
@@ -31,6 +36,11 @@ function applyCdnCache(request: Request, response: Response): Response {
       return
     }
     const { pathname } = new URL(request.url)
+    if (isLivePath(pathname)) {
+      headers.set('Cache-Control', 'no-store')
+      headers.set('Cloudflare-CDN-Cache-Control', 'no-store')
+      return
+    }
     headers.set(
       'Cloudflare-CDN-Cache-Control',
       isImmutableAsset(pathname) ? ASSET_CDN_CACHE : PAGE_CDN_CACHE,

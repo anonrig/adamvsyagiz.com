@@ -1,10 +1,15 @@
 ---
 import { TOTAL_WEEKS } from '@/lib/challenge'
 import { areaPath, polyline, ticks } from '@/lib/chart'
-import { cutSeries, paceSeries } from '@/lib/scoring'
+import { cutSeries, paceSeries, type Standings } from '@/lib/scoring'
 
-const adamCut = cutSeries('adam')
-const yagizCut = cutSeries('yagiz')
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
+const adamCut = cutSeries('adam', standings.checkins)
+const yagizCut = cutSeries('yagiz', standings.checkins)
 const pace = paceSeries()
 
 const width = 720

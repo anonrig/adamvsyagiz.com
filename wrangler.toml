@@ -18,3 +18,8 @@ run_worker_first = true
 
 [observability]
 enabled = true
+
+# Auto-provisioned on deploy — no namespace id required.
+# https://developers.cloudflare.com/workers/wrangler/configuration/#automatic-provisioning
+[[kv_namespaces]]
+binding = "CHECKINS"

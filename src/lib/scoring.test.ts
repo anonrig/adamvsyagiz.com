@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { checkins } from '../data/checkins.ts'
+import { checkins, emptyLog } from '../data/checkins.ts'
 import { adam, weekNumber, weightPoints } from './challenge.ts'
 import { activityWeeksEarned, buildStandings, strengthPointsFromLifts } from './scoring.ts'
 
@@ -63,5 +63,25 @@ describe('weight math still holds', () => {
 describe('calendar week', () => {
   it('is 1 on opening day', () => {
     assert.equal(weekNumber(new Date('2026-09-01T00:00:00-04:00')), 1)
+  })
+})
+
+describe('live rows', () => {
+  it('scores a webhook week without mutating the seed log', () => {
+    const rows = [
+      ...checkins,
+      {
+        week: 1,
+        date: '2026-09-07',
+        adam: { ...emptyLog(), weight: 282, stepDays: 5 },
+        yagiz: emptyLog(),
+      },
+    ]
+    const standings = buildStandings(new Date('2026-09-07T12:00:00-04:00'), rows)
+    assert.equal(standings.adam.activityPts, 1)
+    assert.equal(standings.adam.currentWeight, 282)
+    assert.equal(standings.yagiz.currentWeight, 185)
+    assert.equal(checkins.length, 1)
+    assert.equal(buildStandings(new Date('2026-09-07T12:00:00-04:00')).adam.activityPts, 0)
   })
 })

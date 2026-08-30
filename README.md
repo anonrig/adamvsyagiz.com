@@ -48,19 +48,43 @@ Non-interactive (CI / Workers Builds):
 
 ## Log a week
 
-Standings, charts, quests, and badges all read from `src/data/checkins.ts`.
+Live standings read the opening weigh-in in `src/data/checkins.ts`, then overlay whatever Adam and Yagiz post to the webhook. Opening week is `0`. You do not redeploy for a normal Sunday log.
 
-Opening weigh-in is already in as week `0`. After each challenge week, append a row:
+Only two tokens can write. Generate them on a machine you trust:
 
-```ts
-{
-  week: 1,
-  date: '2026-09-07',
-  adam: { weight: 282.4, stepDays: 5, pushUps: 20, invertedRows: 8, overheadPress: 95 },
-  yagiz: { weight: 183.0, stepDays: 6, pushUps: 35, invertedRows: 12, overheadPress: 75 },
-}
+```bash
+openssl rand -hex 24
+openssl rand -hex 24
 ```
 
-- `stepDays`: days that week with 10,000+ steps. `4+` earns the activity point.
-- Strength fields are optional. The first logged value for a lift becomes that person's baseline.
-- Redeploy after you save. Live JSON: `/standings.json`
+Set them as **Worker secrets** (not repo files, not `wrangler.toml`):
+
+```bash
+npx wrangler secret put ADAM_CHECKIN_TOKEN
+npx wrangler secret put YAGIZ_CHECKIN_TOKEN
+```
+
+Or Cloudflare Dashboard → Workers → `adamvsyagiz` → Settings → Variables and Secrets. For local preview, copy `.dev.vars.example` to `.dev.vars`.
+
+The `CHECKINS` KV namespace is declared without an id so Wrangler provisions it on deploy.
+
+### Webhook
+
+`POST https://adamvsyagiz.com/api/checkin`
+
+```http
+Authorization: Bearer <your token>
+Content-Type: application/json
+
+{"weight":282.4,"stepDays":5,"pushUps":20,"invertedRows":8,"overheadPress":95}
+```
+
+The token picks the person. A `person` field in the body is ignored. `week` defaults to the current challenge week. Posting the same week again updates that row in place. Posting the exact same numbers again returns `{ "unchanged": true }` and does not write a second copy.
+
+Optional fields: `week`, `date`, `weight`, `stepDays`, `pushUps`, `invertedRows`, `overheadPress`, `note`. Send at least one value. Form posts from `/log` work too.
+
+### iPhone Shortcut
+
+Build it on the phone from the numbered steps on [adamvsyagiz.com/log](https://adamvsyagiz.com/log). Put your token in a **Text** action, ask for the numbers, then **Get Contents of URL** → POST the JSON with `Authorization: Bearer …`. Do not share that shortcut.
+
+Safari backup: [adamvsyagiz.com/log](https://adamvsyagiz.com/log). Live JSON: `/standings.json`.
