@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -39,29 +39,11 @@ async function ensureFont(fileName, url, fallbacks = []) {
   return dest
 }
 
-function instanceWeight(variablePath, destName, axis) {
-  const dest = join(tmpdir(), 'og-fonts', destName)
-  if (existsSync(dest)) {
-    return dest
-  }
+function installFont(filePath) {
+  const dest = join(homedir(), '.local/share/fonts', filePath.split('/').at(-1))
   mkdirSync(dirname(dest), { recursive: true })
-  const script = `
-from fontTools.varLib.instancer import instantiateVariableFont
-from fontTools.ttLib import TTFont
-font = TTFont(${JSON.stringify(variablePath)})
-instantiateVariableFont(font, {"wght": ${axis}}, inplace=True)
-font.save(${JSON.stringify(dest)})
-`
-  const result = spawnSync('python3', ['-c', script], { encoding: 'utf8' })
-  if (result.status !== 0 || !existsSync(dest)) {
-    throw new Error(result.stderr || `failed to instance ${destName}`)
-  }
-  return dest
-}
-
-function fontFace(family, filePath) {
-  const bytes = readFileSync(filePath).toString('base64')
-  return `@font-face{font-family:'${family}';src:url('data:font/ttf;base64,${bytes}') format('truetype');font-weight:400;font-style:normal;}`
+  copyFileSync(filePath, dest)
+  spawnSync('fc-cache', ['-f', dirname(dest)], { stdio: 'ignore' })
 }
 
 function encodeIco(images) {
@@ -103,30 +85,19 @@ function squareIconSvg(size, { pad = 0, border = true } = {}) {
 </svg>`
 }
 
-const [sharp, displayVar, prizeVar] = await Promise.all([
+const [sharp, displayPath] = await Promise.all([
   loadSharp(),
   ensureFont(
-    'BigShouldersDisplay.ttf',
-    'https://github.com/google/fonts/raw/refs/heads/main/ofl/bigshouldersdisplay/BigShouldersDisplay%5Bwght%5D.ttf',
-  ),
-  ensureFont(
-    'Outfit.ttf',
-    'https://github.com/google/fonts/raw/refs/heads/main/ofl/outfit/Outfit%5Bwght%5D.ttf',
+    'ArchivoBlack-Regular.ttf',
+    'https://github.com/google/fonts/raw/refs/heads/main/ofl/archivoblack/ArchivoBlack-Regular.ttf',
   ),
 ])
 
-const displayPath = instanceWeight(displayVar, 'BigShoulders-800.ttf', 800)
-const prizePath = instanceWeight(prizeVar, 'Outfit-600.ttf', 600)
-const display = fontFace('DisplayOG', displayPath)
-const prize = fontFace('PrizeOG', prizePath)
+installFont(displayPath)
 
 const ogSvg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
-    <style>
-      ${display}
-      ${prize}
-    </style>
     <radialGradient id="goldWash" cx="50%" cy="18%" r="62%">
       <stop offset="0%" stop-color="#e3b23c" stop-opacity="0.18"/>
       <stop offset="60%" stop-color="#0c0b09" stop-opacity="0"/>
@@ -147,13 +118,13 @@ const ogSvg = `<?xml version="1.0" encoding="UTF-8"?>
   <rect width="1200" height="630" fill="url(#yagizGlow)"/>
   <rect x="64" y="56" width="1072" height="518" fill="none" stroke="#e3b23c" stroke-opacity="0.28" stroke-width="1.5"/>
 
-  <text x="292" y="318" text-anchor="middle" fill="#7eb6ff" font-family="DisplayOG" font-size="148" letter-spacing="2">ADAM</text>
-  <text x="908" y="318" text-anchor="middle" fill="#ff7a55" font-family="DisplayOG" font-size="148" letter-spacing="2">YAGIZ</text>
+  <text x="300" y="322" text-anchor="middle" fill="#7eb6ff" font-family="Archivo Black" font-size="118">ADAM</text>
+  <text x="900" y="322" text-anchor="middle" fill="#ff7a55" font-family="Archivo Black" font-size="118">YAGIZ</text>
 
-  <circle cx="600" cy="268" r="40" fill="#1a160e" stroke="#e3b23c" stroke-width="1.75"/>
-  <text x="600" y="280" text-anchor="middle" fill="#e3b23c" font-family="DisplayOG" font-size="36" letter-spacing="3">VS</text>
+  <circle cx="600" cy="274" r="42" fill="#1a160e" stroke="#e3b23c" stroke-width="2"/>
+  <text x="600" y="288" text-anchor="middle" fill="#e3b23c" font-family="Archivo Black" font-size="28">VS</text>
 
-  <text x="600" y="478" text-anchor="middle" fill="#f3d78a" font-family="PrizeOG" font-size="64" letter-spacing="6">$3,000</text>
+  <text x="600" y="478" text-anchor="middle" fill="#f3d78a" font-family="Archivo Black" font-size="42" letter-spacing="4">FITNESS CHALLENGE</text>
 </svg>`
 
 async function writePng(svg, file, size) {
