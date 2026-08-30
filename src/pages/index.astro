@@ -1,48 +1,53 @@
 ---
-export const prerender = true
+export const prerender = false
 
+import ActivityHeatmap from '@/components/ActivityHeatmap.astro'
+import BadgeWall from '@/components/BadgeWall.astro'
+import BeltBanner from '@/components/BeltBanner.astro'
 import Countdown from '@/components/Countdown.astro'
+import FighterCard from '@/components/FighterCard.astro'
+import Hud from '@/components/Hud.astro'
+import LogTable from '@/components/LogTable.astro'
+import QuestBoard from '@/components/QuestBoard.astro'
+import RaceChart from '@/components/RaceChart.astro'
+import ScoreDuel from '@/components/ScoreDuel.astro'
+import SectionHead from '@/components/SectionHead.astro'
+import StrengthBoard from '@/components/StrengthBoard.astro'
+import WeightCharts from '@/components/WeightCharts.astro'
 import {
   ACTIVITY_BONUS,
   ACTIVITY_POINTS,
   MAXIMUM_SCORE,
   NORMAL_SCORE,
+  PRIZE_USD,
   STRENGTH_POINTS,
   TOTAL_WEEKS,
   WEIGHT_POINTS,
   adam,
   yagiz,
 } from '@/lib/challenge'
+import { buildStandings, formatPts } from '@/lib/scoring'
 import Layout from '@/layouts/Layout.astro'
 
-const weeks = Array.from({ length: TOTAL_WEEKS }, (_, index) => index + 1)
+const standings = buildStandings()
 ---
 
 <Layout>
-  <header
-    class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-bg/88 px-[clamp(1.1rem,4vw,2rem)] py-3 backdrop-blur-md"
-    style="padding-top: max(0.75rem, env(safe-area-inset-top))"
-  >
-    <a href="#top" class="font-display text-[1.35rem] tracking-widest text-ink no-underline">
-      Adam <span class="px-1 text-gold">vs</span> Yagiz
-    </a>
-    <p class="m-0 text-right text-[0.78rem] tracking-wider text-ink-dim uppercase" data-topbar-status>
-      32 weeks · $3,000
-    </p>
-  </header>
+  <Hud standings={standings} />
 
   <main id="main">
-    <section class="mx-auto w-full max-w-5xl px-[clamp(1.1rem,4vw,2rem)] pt-[clamp(1.75rem,5vw,3.5rem)] pb-10 text-center" id="top">
-      <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Official challenge card</p>
+    <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pt-8 pb-8 text-center" id="top">
+      <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Live challenge HQ</p>
       <p class="mt-2 text-ink-dim tracking-wide">August 31, 2026 — April 11, 2027</p>
 
-      <div class="my-8 grid items-center gap-3 max-[520px]:grid-cols-1 min-[521px]:grid-cols-[1fr_auto_1fr]">
+      <div class="my-7 grid items-center gap-3 max-[520px]:grid-cols-1 min-[521px]:grid-cols-[1fr_auto_1fr]">
         <div class="min-[521px]:text-right max-[520px]:text-center">
-          <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Blue corner</p>
-          <h1 class="m-0 font-display text-[clamp(3.6rem,16vw,8.5rem)] leading-none text-adam">{adam.name}</h1>
-          <p class="mt-2 text-ink-dim">
-            {adam.startWeight} → {adam.goalWeight} lbs
+          <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">{adam.corner}</p>
+          <h1 class="m-0 font-display text-[clamp(3.4rem,15vw,8rem)] leading-none text-adam">{adam.name}</h1>
+          <p class="mt-1 font-display text-[clamp(2rem,7vw,3.2rem)] leading-none text-adam">
+            {formatPts(standings.adam.total)}
           </p>
+          <p class="mt-1 text-ink-dim">{standings.adam.title}</p>
         </div>
         <div
           class="grid size-[clamp(3.4rem,10vw,5rem)] place-items-center justify-self-center rounded-full border border-gold bg-[#1a160e] font-display text-[clamp(1.3rem,4vw,1.8rem)] tracking-widest text-gold shadow-[0_0_0_8px_rgb(227_178_60_/_0.06)]"
@@ -51,244 +56,125 @@ const weeks = Array.from({ length: TOTAL_WEEKS }, (_, index) => index + 1)
           VS
         </div>
         <div class="min-[521px]:text-left max-[520px]:text-center">
-          <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Red corner</p>
-          <h1 class="m-0 font-display text-[clamp(3.6rem,16vw,8.5rem)] leading-none text-yagiz">{yagiz.name}</h1>
-          <p class="mt-2 text-ink-dim">
-            {yagiz.startWeight} → {yagiz.goalWeight} lbs
+          <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">{yagiz.corner}</p>
+          <h1 class="m-0 font-display text-[clamp(3.4rem,15vw,8rem)] leading-none text-yagiz">{yagiz.name}</h1>
+          <p class="mt-1 font-display text-[clamp(2rem,7vw,3.2rem)] leading-none text-yagiz">
+            {formatPts(standings.yagiz.total)}
           </p>
+          <p class="mt-1 text-ink-dim">{standings.yagiz.title}</p>
         </div>
       </div>
 
       <h2 class="m-0 font-display text-[clamp(1.7rem,5.4vw,3.2rem)] leading-none tracking-wide text-gold-2">
-        $3,000 Spring Break Fitness Challenge
+        ${PRIZE_USD.toLocaleString('en-US')} Spring Break Fitness Challenge
       </h2>
-      <p class="mx-auto mt-3 mb-6 max-w-md text-ink-dim">
-        Two good friends. Thirty-two weeks. Highest score takes the purse.
+      <p class="mx-auto mt-3 mb-6 max-w-lg text-ink-dim">
+        Two good friends. One belt. Highest score takes the purse. The site keeps score so neither of you can hide.
       </p>
       <Countdown />
     </section>
 
-    <section class="mx-auto grid w-full max-w-5xl grid-cols-2 gap-3 px-[clamp(1.1rem,4vw,2rem)] pb-10 md:grid-cols-4" aria-label="Scoring overview">
-      <article class="border border-line bg-card p-4">
-        <p class="m-0 font-display text-[2.4rem] leading-none text-gold">{WEIGHT_POINTS}</p>
-        <h3 class="mt-2 mb-0 text-base">Weight loss</h3>
-        <p class="m-0 text-[0.88rem] text-mute">% of your own goal</p>
-      </article>
-      <article class="border border-line bg-card p-4">
-        <p class="m-0 font-display text-[2.4rem] leading-none text-gold">{STRENGTH_POINTS}</p>
-        <h3 class="mt-2 mb-0 text-base">Strength</h3>
-        <p class="m-0 text-[0.88rem] text-mute">% improvement vs baseline</p>
-      </article>
-      <article class="border border-line bg-card p-4">
-        <p class="m-0 font-display text-[2.4rem] leading-none text-gold">
-          {ACTIVITY_POINTS}<span class="text-gold-2">+</span>
-        </p>
-        <h3 class="mt-2 mb-0 text-base">Activity</h3>
-        <p class="m-0 text-[0.88rem] text-mute">Weekly steps, plus bonus</p>
-      </article>
-      <article class="border border-line bg-linear-to-b from-[#2a220f] to-card p-4">
-        <p class="m-0 font-display text-[2.4rem] leading-none text-gold">{MAXIMUM_SCORE}</p>
-        <h3 class="mt-2 mb-0 text-base">Max score</h3>
-        <p class="m-0 text-[0.88rem] text-mute">{NORMAL_SCORE} normal · {ACTIVITY_BONUS} bonus</p>
-      </article>
-    </section>
-
-    <section class="mx-auto w-full max-w-5xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="weight">
-      <header class="mb-4 flex items-end gap-3.5 border-b border-line pb-3">
-        <p class="m-0 font-display text-[2.4rem] leading-none text-mute">01</p>
-        <div>
-          <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">{WEIGHT_POINTS} points</p>
-          <h2 class="m-0 font-display text-[clamp(2.2rem,8vw,3.4rem)] leading-none tracking-wide">Weight loss</h2>
-        </div>
-      </header>
-      <p class="mb-5 max-w-xl text-ink-dim">
-        Each person is scored on the percentage of <strong class="font-semibold text-ink">his own</strong> weight-loss
-        goal achieved. Hit the goal and you get {WEIGHT_POINTS}. Partial progress is proportional. The maximum is
-        {WEIGHT_POINTS} — no extra credit for going further.
-      </p>
-      <div class="grid gap-3.5 md:grid-cols-2">
-        {
-          [
-            { person: adam, tone: 'adam' as const },
-            { person: yagiz, tone: 'yagiz' as const },
-          ].map(({ person, tone }) => (
-            <article class:list={['border border-line bg-card p-4', tone === 'adam' ? 'border-t-[3px] border-t-adam' : 'border-t-[3px] border-t-yagiz']}>
-              <p class="mb-3 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">{person.name}</p>
-              <dl class="grid grid-cols-1 gap-2 min-[400px]:grid-cols-3">
-                <div>
-                  <dt class="text-[0.72rem] tracking-widest text-mute uppercase">Start</dt>
-                  <dd class="m-0 font-display text-[1.7rem] leading-none">{person.startWeight} lbs</dd>
-                </div>
-                <div>
-                  <dt class="text-[0.72rem] tracking-widest text-mute uppercase">Goal</dt>
-                  <dd class="m-0 font-display text-[1.7rem] leading-none">{person.goalWeight} lbs</dd>
-                </div>
-                <div>
-                  <dt class="text-[0.72rem] tracking-widest text-mute uppercase">To lose</dt>
-                  <dd class="m-0 font-display text-[1.7rem] leading-none">{person.toLose} lbs</dd>
-                </div>
-              </dl>
-              <div class="mt-4 h-1.5 overflow-hidden bg-[#2a261d]" aria-hidden="true">
-                <span class:list={['block h-full w-full', tone === 'adam' ? 'bg-adam' : 'bg-yagiz']}></span>
-              </div>
-              <p class="mt-3 text-[0.88rem] text-mute">
-                {person.toLose} lb target · {WEIGHT_POINTS} points if reached
-              </p>
-            </article>
-          ))
-        }
+    <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-10" id="score">
+      <BeltBanner standings={standings} />
+      <div class="mt-4 grid gap-3 md:grid-cols-2">
+        <FighterCard person={standings.adam} standings={standings} />
+        <FighterCard person={standings.yagiz} standings={standings} />
       </div>
-      <p class="mt-3 text-[0.88rem] text-mute">
-        Points = (pounds lost ÷ personal goal) × {WEIGHT_POINTS}, capped at {WEIGHT_POINTS}.
-      </p>
-    </section>
-
-    <section class="mx-auto w-full max-w-5xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="strength">
-      <header class="mb-4 flex items-end gap-3.5 border-b border-line pb-3">
-        <p class="m-0 font-display text-[2.4rem] leading-none text-mute">02</p>
-        <div>
-          <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">{STRENGTH_POINTS} points</p>
-          <h2 class="m-0 font-display text-[clamp(2.2rem,8vw,3.4rem)] leading-none tracking-wide">Strength</h2>
-        </div>
-      </header>
-      <p class="mb-5 max-w-xl text-ink-dim">
-        Three lifts, scored against your own starting baseline — not against each other. Starting performance is
-        recorded at the beginning. Final testing is on the last day. The score is percentage improvement across all
-        three exercises. Maximum {STRENGTH_POINTS} points.
-      </p>
-      <ul class="m-0 grid list-none gap-3.5 p-0 md:grid-cols-3">
-        <li class="min-h-28 border border-line bg-card p-4">
-          <span class="mb-2 inline-block text-gold" aria-hidden="true">↑</span>
-          <strong class="block font-display text-[1.7rem] font-normal tracking-wide">Push-ups</strong>
-          <p class="mt-1 text-ink-dim">Reps from your opening test</p>
-        </li>
-        <li class="min-h-28 border border-line bg-card p-4">
-          <span class="mb-2 inline-block text-gold" aria-hidden="true">↔</span>
-          <strong class="block font-display text-[1.7rem] font-normal tracking-wide">Inverted rows</strong>
-          <p class="mt-1 text-ink-dim">Reps from your opening test</p>
-        </li>
-        <li class="min-h-28 border border-line bg-card p-4">
-          <span class="mb-2 inline-block text-gold" aria-hidden="true">↑↑</span>
-          <strong class="block font-display text-[1.7rem] font-normal tracking-wide">Overhead press</strong>
-          <p class="mt-1 text-ink-dim">Load or reps from your opening test</p>
-        </li>
-      </ul>
-    </section>
-
-    <section class="mx-auto w-full max-w-5xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="activity">
-      <header class="mb-4 flex items-end gap-3.5 border-b border-line pb-3">
-        <p class="m-0 font-display text-[2.4rem] leading-none text-mute">03</p>
-        <div>
-          <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">
-            {ACTIVITY_POINTS} points + bonus
-          </p>
-          <h2 class="m-0 font-display text-[clamp(2.2rem,8vw,3.4rem)] leading-none tracking-wide">Activity</h2>
-        </div>
-      </header>
-      <p class="mb-5 max-w-xl text-ink-dim">
-        Every Monday–Sunday week: hit 10,000+ steps on at least four separate days and you earn 1 point. Verified
-        through Apple Health / Apple Watch. There are no designated off weeks. Miss a week and you simply don’t earn
-        the point.
-      </p>
-      <div class="grid gap-3.5 md:grid-cols-3">
-        <article class="border border-line bg-card p-4">
-          <p class="mb-2 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">The week</p>
-          <p class="m-0 font-display text-[3.2rem] leading-none text-gold-2">4 / 7</p>
-          <p class="mt-1">days at 10,000+ steps = 1 point</p>
-        </article>
-        <article class="border border-line bg-card p-4">
-          <p class="mb-2 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">The floor</p>
-          <p class="m-0 font-display text-[3.2rem] leading-none text-gold-2">{ACTIVITY_POINTS}</p>
-          <p class="mt-1">qualifying weeks = {ACTIVITY_POINTS} points</p>
-        </article>
-        <article class="border border-t-[3px] border-line border-t-gold bg-card p-4">
-          <p class="mb-2 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">The bonus</p>
-          <p class="m-0 font-display text-[3.2rem] leading-none text-gold-2">+{ACTIVITY_BONUS}</p>
-          <p class="mt-1">keep earning through week {TOTAL_WEEKS}</p>
-        </article>
+      <div class="mt-4">
+        <ScoreDuel standings={standings} />
       </div>
-      <div class="mt-4" aria-label="32 challenge weeks">
-        <p class="mb-2.5 text-[0.86rem] text-mute">
-          {TOTAL_WEEKS} weeks · first {ACTIVITY_POINTS} are the goal · last {ACTIVITY_BONUS} are bonus
-        </p>
-        <ol class="m-0 grid list-none grid-cols-8 gap-1.5 p-0 md:grid-cols-[repeat(16,minmax(0,1fr))]">
-          {
-            weeks.map((week) => (
-              <li
-                data-pip
-                class:list={[
-                  'aspect-square rounded-[2px]',
-                  week <= ACTIVITY_POINTS
-                    ? 'bg-[#3d3420] shadow-[inset_0_0_0_1px_rgb(227_178_60_/_0.28)]'
-                    : 'bg-gold/22 shadow-[inset_0_0_0_1px_var(--color-gold)]',
-                ]}
-                title={`Week ${week}${week > ACTIVITY_POINTS ? ' · bonus' : ''}`}
-              />
-            ))
-          }
-        </ol>
-      </div>
-      <p class="mt-3 text-[0.88rem] text-mute">
-        26 weeks = 26 points · {TOTAL_WEEKS} perfect weeks = {TOTAL_WEEKS} points. Activity max is {TOTAL_WEEKS}.
-      </p>
     </section>
 
-    <section class="mx-auto w-full max-w-5xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="scoring">
-      <header class="mb-4 flex items-end gap-3.5 border-b border-line pb-3">
-        <p class="m-0 font-display text-[2.4rem] leading-none text-mute">04</p>
-        <div>
-          <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Winner takes all</p>
-          <h2 class="m-0 font-display text-[clamp(2.2rem,8vw,3.4rem)] leading-none tracking-wide">Scoring</h2>
-        </div>
-      </header>
+    <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="quests">
+      <SectionHead num="01" kicker="This week" title="Quests" />
+      <p class="mb-4 max-w-2xl text-ink-dim">
+        Four boxes. Every week. Miss the walks and you donate a point to the void. The void does not split the $3,000.
+      </p>
+      <QuestBoard standings={standings} />
+    </section>
+
+    <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="cut">
+      <SectionHead num="02" kicker={`${WEIGHT_POINTS} points`} title="The cut" />
+      <p class="mb-4 max-w-2xl text-ink-dim">
+        Adam: {adam.startWeight} → {adam.goalWeight} ({adam.toLose} lbs). Yagiz: {yagiz.startWeight} → {yagiz.goalWeight}
+        ({yagiz.toLose} lbs). Same scoreboard, personal mountains.
+      </p>
+      <div class="grid gap-3">
+        <RaceChart />
+        <WeightCharts />
+      </div>
+    </section>
+
+    <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="strength">
+      <SectionHead num="03" kicker={`${STRENGTH_POINTS} points`} title="Strength" />
+      <p class="mb-4 max-w-2xl text-ink-dim">
+        Push-ups, inverted rows, overhead press. You are scored against yourself. Get stronger or get leftover points.
+      </p>
+      <StrengthBoard standings={standings} />
+    </section>
+
+    <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="steps">
+      <SectionHead num="04" kicker={`${ACTIVITY_POINTS}+${ACTIVITY_BONUS} points`} title="Step seasons" />
+      <p class="mb-4 max-w-2xl text-ink-dim">
+        10,000 steps on four days, every Monday–Sunday week. 25 is the floor. 32 is bragging rights.
+      </p>
+      <ActivityHeatmap standings={standings} />
+    </section>
+
+    <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="log">
+      <SectionHead num="05" kicker="Official book" title="Weekly log" />
+      <LogTable standings={standings} />
+    </section>
+
+    <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="belts">
+      <SectionHead num="06" kicker="Unlocks" title="Belts & badges" />
+      <p class="mb-4 max-w-2xl text-ink-dim">
+        Earn them in public. Locked badges are supposed to itch.
+      </p>
+      <BadgeWall standings={standings} />
+    </section>
+
+    <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="rules">
+      <SectionHead num="07" kicker="Winner takes all" title="How you win" />
       <table class="mb-5 w-full border-collapse border border-line bg-card">
         <caption class="sr-only">Score breakdown</caption>
         <thead>
           <tr>
             <th class="px-4 py-3 text-left text-[0.75rem] font-semibold tracking-widest text-mute uppercase">Category</th>
             <th class="px-4 py-3 text-right text-[0.75rem] font-semibold tracking-widest text-mute uppercase">Normal</th>
-            <th class="px-4 py-3 text-right text-[0.75rem] font-semibold tracking-widest text-mute uppercase">Maximum</th>
+            <th class="px-4 py-3 text-right text-[0.75rem] font-semibold tracking-widest text-mute uppercase">Max</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td class="border-t border-line px-4 py-3">Weight loss</td>
-            <td class="border-t border-line px-4 py-3 text-right tabular-nums">{WEIGHT_POINTS}</td>
-            <td class="border-t border-line px-4 py-3 text-right tabular-nums">{WEIGHT_POINTS}</td>
+            <td class="border-t border-line px-4 py-3">Weight loss · % of your goal</td>
+            <td class="border-t border-line px-4 py-3 text-right">{WEIGHT_POINTS}</td>
+            <td class="border-t border-line px-4 py-3 text-right">{WEIGHT_POINTS}</td>
           </tr>
           <tr>
-            <td class="border-t border-line px-4 py-3">Strength</td>
-            <td class="border-t border-line px-4 py-3 text-right tabular-nums">{STRENGTH_POINTS}</td>
-            <td class="border-t border-line px-4 py-3 text-right tabular-nums">{STRENGTH_POINTS}</td>
+            <td class="border-t border-line px-4 py-3">Strength · % vs your baseline</td>
+            <td class="border-t border-line px-4 py-3 text-right">{STRENGTH_POINTS}</td>
+            <td class="border-t border-line px-4 py-3 text-right">{STRENGTH_POINTS}</td>
           </tr>
           <tr>
-            <td class="border-t border-line px-4 py-3">Activity</td>
-            <td class="border-t border-line px-4 py-3 text-right tabular-nums">{ACTIVITY_POINTS}</td>
-            <td class="border-t border-line px-4 py-3 text-right tabular-nums">{TOTAL_WEEKS}</td>
+            <td class="border-t border-line px-4 py-3">Activity · 4 days at 10k / week</td>
+            <td class="border-t border-line px-4 py-3 text-right">{ACTIVITY_POINTS}</td>
+            <td class="border-t border-line px-4 py-3 text-right">{TOTAL_WEEKS}</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
-            <th class="border-t border-line px-4 py-3 text-left font-display text-[1.4rem] font-normal tracking-wide text-gold-2">
-              Total
-            </th>
-            <th class="border-t border-line px-4 py-3 text-right font-display text-[1.4rem] font-normal tracking-wide text-gold-2">
+            <th class="border-t border-line px-4 py-3 text-left font-display text-[1.4rem] font-normal text-gold-2">Total</th>
+            <th class="border-t border-line px-4 py-3 text-right font-display text-[1.4rem] font-normal text-gold-2">
               {NORMAL_SCORE}
             </th>
-            <th class="border-t border-line px-4 py-3 text-right font-display text-[1.4rem] font-normal tracking-wide text-gold-2">
+            <th class="border-t border-line px-4 py-3 text-right font-display text-[1.4rem] font-normal text-gold-2">
               {MAXIMUM_SCORE}
             </th>
           </tr>
         </tfoot>
       </table>
-      <p class="text-center text-ink-dim">
-        Highest total score wins. <strong class="text-ink">$3,000 — winner takes all.</strong>
-      </p>
-    </section>
-
-    <section class="mx-auto w-full max-w-5xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="finale">
-      <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">The calendar</p>
-      <div class="mt-3 grid gap-3.5 md:grid-cols-2">
+      <div class="grid gap-3 md:grid-cols-2">
         <article class="border border-line bg-card p-4">
           <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Final day</p>
           <h2 class="mt-1 mb-2 font-display text-[clamp(2rem,7vw,3rem)] leading-none">April 11, 2027</h2>
@@ -297,7 +183,7 @@ const weeks = Array.from({ length: TOTAL_WEEKS }, (_, index) => index + 1)
         <article class="border border-line bg-card p-4">
           <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Spring break</p>
           <h2 class="mt-1 mb-2 font-display text-[clamp(2rem,7vw,3rem)] leading-none">April 12, 2027</h2>
-          <p class="m-0 text-ink-dim">The day after. One of them is $3,000 lighter. The other isn’t.</p>
+          <p class="m-0 text-ink-dim">The day after. One of you is $3,000 lighter. The other paid for it.</p>
         </article>
       </div>
     </section>
@@ -307,7 +193,9 @@ const weeks = Array.from({ length: TOTAL_WEEKS }, (_, index) => index + 1)
     class="border-t border-line px-[clamp(1.1rem,4vw,2rem)] py-6 text-center text-[0.88rem] text-mute"
     style="padding-bottom: calc(1.6rem + env(safe-area-inset-bottom))"
   >
-    <p class="m-0">Adam vs Yagiz · Spring Break Fitness Challenge</p>
-    <p class="mt-1">August 31, 2026 – April 11, 2027 · 32 weeks</p>
+    <p class="m-0">Adam vs Yagiz · Live standings · Winner takes ${PRIZE_USD.toLocaleString('en-US')}</p>
+    <p class="mt-1">
+      <a href="/standings.json">standings.json</a>
+    </p>
   </footer>
 </Layout>

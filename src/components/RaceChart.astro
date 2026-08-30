@@ -1,0 +1,95 @@
+---
+import { TOTAL_WEEKS } from '@/lib/challenge'
+import { areaPath, polyline, ticks } from '@/lib/chart'
+import { cutSeries, paceSeries } from '@/lib/scoring'
+
+const adamCut = cutSeries('adam')
+const yagizCut = cutSeries('yagiz')
+const pace = paceSeries()
+
+const width = 720
+const height = 280
+const pad = { l: 42, r: 16, t: 16, b: 36 }
+const x0 = pad.l
+const x1 = width - pad.r
+const y0 = height - pad.b
+const y1 = pad.t
+const domainX: [number, number] = [0, TOTAL_WEEKS]
+const domainY: [number, number] = [0, 100]
+
+const adamLine = polyline(
+  adamCut.map((row) => row.pct),
+  domainX,
+  domainY,
+  [x0, x1],
+  [y0, y1],
+)
+const yagizLine = polyline(
+  yagizCut.map((row) => row.pct),
+  domainX,
+  domainY,
+  [x0, x1],
+  [y0, y1],
+)
+const paceLine = polyline(
+  pace.map((row) => row.pct),
+  domainX,
+  domainY,
+  [x0, x1],
+  [y0, y1],
+)
+const adamArea = areaPath(
+  adamCut.map((row) => row.pct),
+  domainX,
+  domainY,
+  [x0, x1],
+  [y0, y1],
+)
+const yTicks = ticks(0, 100, 5)
+const xTicks = [0, 8, 16, 24, 32]
+---
+
+<figure class="border border-line bg-card p-3 sm:p-4">
+  <figcaption class="mb-2 flex flex-wrap items-center justify-between gap-2">
+    <strong class="font-display text-2xl font-normal tracking-wide">The race — % of personal cut</strong>
+    <ul class="m-0 flex list-none gap-3 p-0 text-[0.75rem] text-ink-dim">
+      <li><span class="text-adam">●</span> Adam</li>
+      <li><span class="text-yagiz">●</span> Yagiz</li>
+      <li><span class="text-gold">– –</span> Required pace</li>
+    </ul>
+  </figcaption>
+  <svg viewBox={`0 0 ${width} ${height}`} class="h-auto w-full" role="img" aria-label="Cut progress from week 0 to 32">
+    {
+      yTicks.map((tick) => {
+        const y = y0 - (tick / 100) * (y0 - y1)
+        return (
+          <g>
+            <line x1={x0} x2={x1} y1={y} y2={y} stroke="rgba(227,201,150,0.12)" />
+            <text x={x0 - 8} y={y + 4} fill="#7d7566" font-size="11" text-anchor="end">
+              {tick}%
+            </text>
+          </g>
+        )
+      })
+    }
+    {
+      xTicks.map((tick) => {
+        const x = x0 + (tick / TOTAL_WEEKS) * (x1 - x0)
+        return (
+          <text x={x} y={height - 10} fill="#7d7566" font-size="11" text-anchor="middle">
+            W{tick}
+          </text>
+        )
+      })
+    }
+    {adamArea && <path d={adamArea} fill="rgba(126,182,255,0.12)" />}
+    {paceLine && (
+      <path d={paceLine} fill="none" stroke="#e3b23c" stroke-width="1.5" stroke-dasharray="6 6" />
+    )}
+    {adamLine && <path d={adamLine} fill="none" stroke="#7eb6ff" stroke-width="3" />}
+    {yagizLine && <path d={yagizLine} fill="none" stroke="#ff7a55" stroke-width="3" />}
+  </svg>
+  <p class="m-0 text-[0.86rem] text-mute">
+    Same mountain, different starting camps. Hitting 100% is 50 weight points — no extra credit past the goal.
+  </p>
+</figure>

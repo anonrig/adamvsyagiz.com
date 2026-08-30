@@ -1,0 +1,57 @@
+---
+import { liftLabels, liftUnits } from '@/data/checkins'
+import { formatPts, type Standings } from '@/lib/scoring'
+
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
+---
+
+<div class="grid gap-3 md:grid-cols-2">
+  {
+    (['adam', 'yagiz'] as const).map((id) => {
+      const person = standings[id]
+      return (
+        <article class:list={['border border-line bg-card p-4', id === 'adam' ? 'border-t-[3px] border-t-adam' : 'border-t-[3px] border-t-yagiz']}>
+          <div class="mb-3 flex items-baseline justify-between">
+            <h3 class:list={['m-0 font-display text-3xl leading-none', id === 'adam' ? 'text-adam' : 'text-yagiz']}>
+              {person.name}
+            </h3>
+            <p class="m-0 text-ink-dim">{formatPts(person.strengthPts)} / 25</p>
+          </div>
+          <ul class="m-0 list-none space-y-3 p-0">
+            {person.lifts.map((lift) => {
+              const pct = Math.max(0, Math.min(100, lift.improvementPct ?? 0))
+              return (
+                <li>
+                  <div class="flex justify-between gap-2 text-sm">
+                    <strong>{liftLabels[lift.lift]}</strong>
+                    <span class="text-ink-dim">
+                      {lift.baseline === null
+                        ? 'Baseline open'
+                        : `${lift.baseline} → ${lift.current ?? '—'} ${liftUnits[lift.lift]}`}
+                    </span>
+                  </div>
+                  <div class="mt-1.5 h-2 bg-[#2a261d]">
+                    <span
+                      class:list={['block h-full', id === 'adam' ? 'bg-adam' : 'bg-yagiz']}
+                      style={`width: ${lift.baseline === null ? 0 : pct}%`}
+                    />
+                  </div>
+                  <p class="mt-1 text-[0.78rem] text-mute">
+                    {lift.improvementPct === null ? 'Not tested yet' : `${lift.improvementPct.toFixed(1)}% vs baseline`}
+                  </p>
+                </li>
+              )
+            })}
+          </ul>
+        </article>
+      )
+    })
+  }
+</div>
+<p class="mt-3 text-[0.88rem] text-mute">
+  First logged number on a lift is the baseline. Score is the average percent improvement across the three lifts, capped at 25.
+</p>

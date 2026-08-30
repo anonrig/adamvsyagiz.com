@@ -1,0 +1,18 @@
+---
+import { lockerRoomLine } from '@/lib/achievements'
+import type { Standings } from '@/lib/scoring'
+
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
+const line = lockerRoomLine(standings)
+const holder = standings.leader ? standings[standings.leader].name : 'Vacant'
+---
+
+<aside class="border border-gold/40 bg-linear-to-r from-[#2a220f] via-card to-[#2a1812] px-4 py-4 text-center">
+  <p class="m-0 text-[0.72rem] font-semibold tracking-[0.18em] text-gold uppercase">Championship belt</p>
+  <p class="mt-1 font-display text-[clamp(1.8rem,6vw,2.8rem)] leading-none text-gold-2">{holder}</p>
+  <p class="mx-auto mt-2 max-w-xl text-ink-dim">{line}</p>
+</aside>

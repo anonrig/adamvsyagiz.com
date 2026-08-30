@@ -1,7 +1,7 @@
 export const websiteUrl = 'https://adamvsyagiz.com'
 export const websiteTitle = 'Adam vs Yagiz — $3,000 Spring Break Fitness Challenge'
 export const websiteDescription =
-  'Two friends. 32 weeks. Winner takes $3,000. Weight loss, strength, and daily activity — August 31, 2026 to April 11, 2027.'
+  'Live standings for two friends, 32 weeks, winner takes $3,000. Weight, strength, and steps — August 31, 2026 to April 11, 2027.'
 
 export const CHALLENGE_START = '2026-08-31T00:00:00-04:00'
 export const CHALLENGE_END = '2027-04-11T23:59:59-04:00'
@@ -13,22 +13,42 @@ export const WEIGHT_POINTS = 50
 export const STRENGTH_POINTS = 25
 export const ACTIVITY_POINTS = 25
 export const ACTIVITY_BONUS = 7
+export const ACTIVITY_MAX = 32
+export const STEP_DAY_TARGET = 10_000
+export const STEP_DAYS_TO_SCORE = 4
 export const NORMAL_SCORE = 100
 export const MAXIMUM_SCORE = 107
 
-export const adam = {
+export type PersonId = 'adam' | 'yagiz'
+
+export type Contestant = {
+  id: PersonId
+  name: string
+  corner: string
+  startWeight: number
+  goalWeight: number
+  toLose: number
+}
+
+export const adam: Contestant = {
+  id: 'adam',
   name: 'Adam',
+  corner: 'Blue corner',
   startWeight: 285,
   goalWeight: 230,
   toLose: 55,
-} as const
+}
 
-export const yagiz = {
+export const yagiz: Contestant = {
+  id: 'yagiz',
   name: 'Yagiz',
+  corner: 'Red corner',
   startWeight: 185,
   goalWeight: 165,
   toLose: 20,
-} as const
+}
+
+export const contestants = { adam, yagiz } as const
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
 
@@ -46,9 +66,24 @@ export function weekNumber(
   return Math.min(TOTAL_WEEKS, Math.floor((now.getTime() - start.getTime()) / MS_PER_WEEK) + 1)
 }
 
+export function weekStartIso(week: number): string {
+  const start = new Date(CHALLENGE_START)
+  const day = new Date(start.getTime() + (week - 1) * MS_PER_WEEK)
+  return day.toISOString().slice(0, 10)
+}
+
 export function weightPoints(poundsLost: number, goalPounds: number): number {
   if (goalPounds <= 0) {
     return 0
   }
   return Math.min(WEIGHT_POINTS, (poundsLost / goalPounds) * WEIGHT_POINTS)
+}
+
+export function titleForScore(total: number): string {
+  if (total >= 100) return 'Final boss'
+  if (total >= 75) return 'Title threat'
+  if (total >= 50) return 'Dangerous'
+  if (total >= 25) return 'In the cut'
+  if (total >= 10) return 'Heating up'
+  return 'Contender'
 }

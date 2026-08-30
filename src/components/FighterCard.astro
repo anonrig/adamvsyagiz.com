@@ -1,0 +1,80 @@
+---
+import { MAXIMUM_SCORE } from '@/lib/challenge'
+import { formatLbs, formatPts, type PersonStats, type Standings } from '@/lib/scoring'
+
+interface Props {
+  person: PersonStats
+  standings: Standings
+}
+
+const { person, standings } = Astro.props
+const isLeader = standings.leader === person.id
+const tone = person.id === 'adam' ? 'adam' : 'yagiz'
+const bar = Math.min(100, (person.total / MAXIMUM_SCORE) * 100)
+---
+
+<article
+  class:list={[
+    'border border-line bg-card p-4',
+    tone === 'adam' ? 'border-t-[3px] border-t-adam' : 'border-t-[3px] border-t-yagiz',
+  ]}
+>
+  <div class="flex items-start justify-between gap-3">
+    <div>
+      <p class="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-gold uppercase">{person.corner}</p>
+      <h3 class:list={['m-0 font-display text-5xl leading-none', tone === 'adam' ? 'text-adam' : 'text-yagiz']}>
+        {person.name}
+      </h3>
+      <p class="mt-1 text-sm text-ink-dim">{person.title}</p>
+    </div>
+    {
+      isLeader && (
+        <span class="border border-gold bg-[#2a220f] px-2 py-1 text-[0.68rem] font-bold tracking-widest text-gold uppercase">
+          Belt
+        </span>
+      )
+    }
+  </div>
+
+  <p class="mt-4 font-display text-[3.4rem] leading-none">{formatLbs(person.currentWeight)}<span class="text-2xl text-mute"> lbs</span></p>
+  <p class="mt-1 text-ink-dim">
+    {formatLbs(person.poundsLost)} down · {formatLbs(person.poundsLeft)} to goal · {person.cutPct.toFixed(0)}% of the cut
+  </p>
+
+  <div class="mt-4 h-2 overflow-hidden bg-[#2a261d]" aria-hidden="true">
+    <span
+      class:list={['block h-full', tone === 'adam' ? 'bg-adam' : 'bg-yagiz']}
+      style={`width: ${bar}%`}
+    ></span>
+  </div>
+  <p class="mt-2 text-[0.88rem] text-mute">
+    {formatPts(person.total)} / {MAXIMUM_SCORE} · {person.xp} XP
+  </p>
+
+  <dl class="mt-4 grid grid-cols-3 gap-2">
+    <div>
+      <dt class="text-[0.68rem] tracking-widest text-mute uppercase">Weight</dt>
+      <dd class="m-0 font-display text-2xl leading-none">{formatPts(person.weightPts)}</dd>
+    </div>
+    <div>
+      <dt class="text-[0.68rem] tracking-widest text-mute uppercase">Strength</dt>
+      <dd class="m-0 font-display text-2xl leading-none">{formatPts(person.strengthPts)}</dd>
+    </div>
+    <div>
+      <dt class="text-[0.68rem] tracking-widest text-mute uppercase">Steps</dt>
+      <dd class="m-0 font-display text-2xl leading-none">{formatPts(person.activityPts)}</dd>
+    </div>
+  </dl>
+
+  <div class="mt-4 flex flex-wrap gap-2 text-[0.75rem] font-semibold tracking-wide uppercase">
+    <span class:list={['border px-2 py-1', person.onPace ? 'border-gold text-gold' : 'border-yagiz text-yagiz']}>
+      {person.onPace ? 'On pace' : 'Behind pace'}
+    </span>
+    <span class="border border-line px-2 py-1 text-ink-dim">
+      {person.streak > 0 ? `🔥 ${person.streak} week streak` : 'No streak'}
+    </span>
+    <span class="border border-line px-2 py-1 text-ink-dim">
+      {formatLbs(person.weeklyPace)} lb / week
+    </span>
+  </div>
+</article>
