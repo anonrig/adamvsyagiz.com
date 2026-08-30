@@ -46,6 +46,15 @@ Non-interactive (CI / Workers Builds):
 - Deploy command: `npx wrangler deploy --config dist/server/wrangler.json`
 - Secret: `CLOUDFLARE_API_TOKEN` (and `CLOUDFLARE_ACCOUNT_ID` if the token can see more than one account)
 
+## Cloudflare MCP
+
+Official [Cloudflare API MCP](https://mcp.cloudflare.com/mcp) is declared in `.cursor/mcp.json` (OAuth, no tokens in git).
+
+- **Cursor IDE:** open the project, then Customize → MCP → connect `cloudflare-api` and finish Cloudflare OAuth.
+- **Cloud Agents:** repo `mcp.json` is not enough. Add the same HTTP URL in the [agents MCP dropdown](https://cursor.com/agents) and complete OAuth there.
+
+After it is connected, an agent can put Worker secrets (`ADAM_CHECKIN_TOKEN`, `YAGIZ_CHECKIN_TOKEN`) without committing them.
+
 ## Log a week
 
 Live standings read the opening weigh-in in `src/data/checkins.ts`, then overlay whatever Adam and Yagiz post to the webhook. Opening week is `0`. You do not redeploy for a normal Sunday log.
