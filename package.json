@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "wrangler types && astro dev --port 3000",
     "build": "wrangler types && astro check && astro build",
-    "deploy": "pnpm run build && wrangler deploy",
-    "preview": "wrangler dev",
+    "deploy": "pnpm run build && wrangler deploy --config dist/server/wrangler.json",
+    "preview": "wrangler dev --config dist/server/wrangler.json",
     "astro": "astro",
     "lint": "wrangler types && astro sync && oxlint . && oxfmt --check",
     "lint-fix": "wrangler types && astro sync && oxlint --fix . && oxfmt",

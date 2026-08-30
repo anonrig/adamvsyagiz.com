@@ -25,11 +25,26 @@ pnpm run preview
 
 ## Deploy
 
+Do not run bare `wrangler deploy`. Wrangler would rebundle `src/worker.ts` and fail on Astro virtual modules (`virtual:astro:app`, `astro:assets`, …).
+
 ```bash
+wrangler login
 pnpm run deploy
 ```
 
-That builds the Astro site and runs `wrangler deploy` as a Worker named `adamvsyagiz`. Attach **adamvsyagiz.com** as a custom domain on the Worker in the Cloudflare dashboard.
+That runs `astro build`, then deploys the already-bundled Worker:
+
+```bash
+wrangler deploy --config dist/server/wrangler.json
+```
+
+Worker name: `adamvsyagiz`. Attach **adamvsyagiz.com** as a custom domain on that Worker.
+
+Non-interactive (CI / Workers Builds):
+
+- Build command: `pnpm run build`
+- Deploy command: `npx wrangler deploy --config dist/server/wrangler.json`
+- Secret: `CLOUDFLARE_API_TOKEN` (and `CLOUDFLARE_ACCOUNT_ID` if the token can see more than one account)
 
 ## Log a week
 
