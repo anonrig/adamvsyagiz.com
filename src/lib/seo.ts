@@ -14,6 +14,7 @@ export const htmlLang = 'en-US'
 export const siteLocale = 'en_US'
 export const themeColor = '#0c0b09'
 export const twitterHandle = '@yagiznizipli'
+export const supportTweetUrl = 'https://x.com/yagiznizipli/status/2094196882524323952'
 export const authorName = 'Yagiz Nizipli'
 export const authorUrl = 'https://yagiz.co'
 export const authorSameAs = [

@@ -26,7 +26,7 @@ import {
   adam,
   yagiz,
 } from '@/lib/challenge'
-import { homepageJsonLd } from '@/lib/seo'
+import { homepageJsonLd, supportTweetUrl } from '@/lib/seo'
 import { buildStandings, formatPts } from '@/lib/scoring'
 import Layout from '@/layouts/Layout.astro'
 
@@ -71,6 +71,12 @@ const standings = buildStandings()
       </h1>
       <p class="mx-auto mt-3 mb-6 max-w-lg text-ink-dim">
         Two good friends. One belt. Highest score takes the purse. The site keeps score so neither of you can hide.
+      </p>
+      <p class="mx-auto mb-6 max-w-lg text-ink-dim">
+        To show support for Adam or Yagiz, leave a reply on
+        <a class="text-gold no-underline hover:underline" href={supportTweetUrl} target="_blank" rel="noopener noreferrer">
+          the announcement
+        </a>.
       </p>
       <Countdown />
     </section>
@@ -196,6 +202,11 @@ const standings = buildStandings()
   >
     <p class="m-0">Adam vs Yagiz · Live standings · Winner takes ${PRIZE_USD.toLocaleString('en-US')}</p>
     <p class="mt-1">
+      Show support:
+      <a class="text-gold no-underline hover:underline" href={supportTweetUrl} target="_blank" rel="noopener noreferrer">
+        reply on X
+      </a>
+      ·
       <a href="/standings.json">standings.json</a>
     </p>
   </footer>
