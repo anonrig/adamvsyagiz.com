@@ -1,0 +1,40 @@
+{
+  "name": "adamvsyagiz-com",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler types && astro dev --port 3000",
+    "build": "wrangler types && astro check && astro build",
+    "deploy": "pnpm run build && wrangler deploy",
+    "preview": "wrangler dev",
+    "astro": "astro",
+    "lint": "wrangler types && astro sync && oxlint . && oxfmt --check",
+    "lint-fix": "wrangler types && astro sync && oxlint --fix . && oxfmt",
+    "test": "node --experimental-strip-types --test src/lib/*.test.ts"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.2.3",
+    "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.4",
+    "tailwindcss": "^4.3.3",
+    "wrangler": "^4.125.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^26.2.0",
+    "oxfmt": "^0.65.0",
+    "oxlint": "^1.80.0",
+    "typescript": "^6.0.3"
+  },
+  "packageManager": "pnpm@10.34.5",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "esbuild",
+      "sharp",
+      "workerd"
+    ]
+  }
+}

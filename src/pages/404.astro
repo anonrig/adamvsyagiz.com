@@ -1,0 +1,18 @@
+---
+export const prerender = true
+
+import Layout from '@/layouts/Layout.astro'
+---
+
+<Layout title="Page not found" robots="noindex, follow" canonical={false}>
+  <main class="grid min-h-dvh place-items-center px-[clamp(1.1rem,4vw,2rem)]">
+    <div class="w-full max-w-md text-center">
+      <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Wrong corner</p>
+      <h1 class="mt-2 mb-3 font-display text-5xl leading-none">This page doesn’t exist.</h1>
+      <p class="text-ink-dim">The only fight on this site is Adam vs Yagiz.</p>
+      <a href="/" class="mt-4 inline-block bg-gold px-4 py-3 font-bold text-[#1a1406] no-underline">
+        Back to the challenge
+      </a>
+    </div>
+  </main>
+</Layout>
