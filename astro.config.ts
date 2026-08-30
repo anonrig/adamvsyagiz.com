@@ -1,0 +1,45 @@
+import cloudflare from '@astrojs/cloudflare'
+import { cacheCloudflare } from '@astrojs/cloudflare/cache'
+import sitemap from '@astrojs/sitemap'
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig, fontProviders } from 'astro/config'
+
+import { websiteUrl } from './src/lib/challenge.ts'
+
+const pageCache = { maxAge: 3600, swr: 86_400, tags: ['page'] }
+
+export default defineConfig({
+  site: websiteUrl,
+  output: 'server',
+  compressHTML: true,
+  session: false,
+  trailingSlash: 'never',
+  prefetch: true,
+  adapter: cloudflare({
+    imageService: 'compile',
+    prerenderEnvironment: 'node',
+  }),
+  cache: {
+    provider: cacheCloudflare(),
+  },
+  routeRules: {
+    '/': pageCache,
+  },
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: 'Bebas Neue',
+      cssVariable: '--font-bebas',
+    },
+    {
+      provider: fontProviders.google(),
+      name: 'Outfit',
+      cssVariable: '--font-outfit',
+      weights: [400, 500, 600, 700],
+    },
+  ],
+  integrations: [sitemap()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
+})

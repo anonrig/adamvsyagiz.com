@@ -1,0 +1,105 @@
+---
+import { CHALLENGE_END, CHALLENGE_START, TOTAL_WEEKS } from '@/lib/challenge'
+---
+
+<div
+  class="border border-line bg-linear-to-b from-[#1d1912] to-[#14110d] px-4 py-5"
+  data-start={CHALLENGE_START}
+  data-end={CHALLENGE_END}
+  data-weeks={TOTAL_WEEKS}
+  id="countdown"
+>
+  <p
+    class="mb-3 text-[0.75rem] tracking-[0.14em] text-mute uppercase"
+    data-countdown-label
+  >
+    Final day
+  </p>
+  <div class="grid grid-cols-4 gap-2">
+    {
+      [
+        ['d', 'Days'],
+        ['h', 'Hours'],
+        ['m', 'Min'],
+        ['s', 'Sec'],
+      ].map(([id, label]) => (
+        <div class="border border-line bg-[#0e0d0b] px-1 py-3">
+          <strong class="block font-display text-[clamp(1.8rem,7vw,3rem)] leading-none tracking-wide" data-unit={id}>
+            —
+          </strong>
+          <span class="mt-1 block text-[0.68rem] tracking-[0.12em] text-mute uppercase">{label}</span>
+        </div>
+      ))
+    }
+  </div>
+  <p class="mt-3.5 text-[0.92rem] text-ink-dim" data-week-line>
+    32 weeks · Winner takes $3,000
+  </p>
+</div>
+
+<script>
+  const root = document.getElementById('countdown')
+  const topbar = document.querySelector('[data-topbar-status]')
+  if (root instanceof HTMLElement) {
+    const start = new Date(root.dataset.start ?? '')
+    const end = new Date(root.dataset.end ?? '')
+    const totalWeeks = Number(root.dataset.weeks ?? 32)
+    const label = root.querySelector('[data-countdown-label]')
+    const weekLine = root.querySelector('[data-week-line]')
+    const units = {
+      d: root.querySelector('[data-unit="d"]'),
+      h: root.querySelector('[data-unit="h"]'),
+      m: root.querySelector('[data-unit="m"]'),
+      s: root.querySelector('[data-unit="s"]'),
+    }
+
+    const pad = (n: number) => String(Math.max(0, n)).padStart(2, '0')
+
+    function weekNumber(now: Date): number {
+      if (now < start) return 0
+      const week = Math.floor((now.getTime() - start.getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1
+      return Math.min(week, totalWeeks)
+    }
+
+    function tick() {
+      const now = new Date()
+      const upcoming = now < start
+      const done = now > end
+      const target = upcoming ? start : end
+      const week = weekNumber(now)
+
+      if (label) {
+        label.textContent = done ? 'Challenge complete' : upcoming ? 'Challenge starts' : 'Final day'
+      }
+
+      const diff = Math.max(0, target.getTime() - now.getTime())
+      if (units.d) units.d.textContent = String(Math.floor(diff / 86400000))
+      if (units.h) units.h.textContent = pad(Math.floor((diff % 86400000) / 3600000))
+      if (units.m) units.m.textContent = pad(Math.floor((diff % 3600000) / 60000))
+      if (units.s) units.s.textContent = pad(Math.floor((diff % 60000) / 1000))
+
+      let status: string
+      if (done) status = 'Final day was April 11, 2027'
+      else if (upcoming) status = '32 weeks · starts August 31 · winner takes $3,000'
+      else status = `Week ${week} of ${totalWeeks} · winner takes $3,000`
+
+      if (weekLine) weekLine.textContent = status
+      if (topbar) {
+        topbar.textContent = done
+          ? 'Challenge complete'
+          : upcoming
+            ? 'Starts Aug 31 · $3,000'
+            : `Week ${week}/${totalWeeks} · $3,000`
+      }
+
+      document.querySelectorAll<HTMLElement>('[data-pip]').forEach((pip, index) => {
+        const n = index + 1
+        pip.classList.toggle('bg-gold', !done && !upcoming && n === week)
+        pip.title = `Week ${n}${n > 25 ? ' · bonus' : ''}`
+      })
+    }
+
+    tick()
+    setInterval(tick, 1000)
+  }
+</script>

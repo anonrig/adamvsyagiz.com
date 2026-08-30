@@ -1,0 +1,60 @@
+---
+import { Font } from 'astro:assets'
+import { websiteDescription, websiteTitle, websiteUrl } from '@/lib/challenge'
+import '@/styles/globals.css'
+
+interface Props {
+  title?: string
+  description?: string
+  robots?: string
+  canonical?: string | false
+}
+
+const {
+  title,
+  description = websiteDescription,
+  robots = 'index, follow',
+  canonical,
+} = Astro.props
+
+const pageTitle = title ? `${title} · Adam vs Yagiz` : websiteTitle
+const selfUrl = new URL(Astro.url.pathname === '/' ? '/' : Astro.url.pathname, websiteUrl).href
+const canonicalUrl = canonical === false ? undefined : canonical ?? selfUrl
+---
+
+<html lang="en" class="bg-bg text-ink">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0c0b09" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="robots" content={robots} />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title ?? websiteTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={selfUrl} />
+    <meta property="og:site_name" content="Adam vs Yagiz" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@yagiznizipli" />
+    <meta name="twitter:title" content={title ?? websiteTitle} />
+    <meta name="twitter:description" content={description} />
+
+    <Font cssVariable="--font-bebas" preload />
+    <Font cssVariable="--font-outfit" preload />
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:bg-gold focus:px-3 focus:py-2 focus:text-[#1a1406]"
+    >
+      Skip to content
+    </a>
+    <slot />
+  </body>
+</html>
