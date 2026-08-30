@@ -3,17 +3,16 @@ compatibility_date = "2026-08-30"
 compatibility_flags = ["nodejs_compat"]
 send_metrics = false
 preview_urls = true
+# Dev + astro build entry. Production deploy uses dist/server/wrangler.json
+# (see package.json "deploy") so Wrangler does not rebundle this file.
 main = "./src/worker.ts"
 
 [cache]
 enabled = true
 
-[placement]
-mode = "smart"
-
 [assets]
 binding = "ASSETS"
-directory = "./dist"
+directory = "./dist/client"
 not_found_handling = "404-page"
 run_worker_first = true
 
