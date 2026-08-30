@@ -149,7 +149,7 @@ const ogSvg = `<?xml version="1.0" encoding="UTF-8"?>
   <rect x="180" y="392" width="840" height="1" fill="url(#rule)"/>
 
   <text x="600" y="460" text-anchor="middle" fill="#f3d78a" font-family="BebasOG" font-size="54" letter-spacing="2">$3,000 SPRING BREAK FITNESS CHALLENGE</text>
-  <text x="600" y="512" text-anchor="middle" fill="#b8ad96" font-family="InterOG" font-size="20" letter-spacing="3">AUG 31, 2026  —  APR 11, 2027  ·  32 WEEKS</text>
+  <text x="600" y="512" text-anchor="middle" fill="#b8ad96" font-family="InterOG" font-size="20" letter-spacing="3">SEP 1, 2026  —  APR 11, 2027  ·  32 WEEKS</text>
   <text x="600" y="554" text-anchor="middle" fill="#7d7566" font-family="InterOG" font-size="16" letter-spacing="3.5">WINNER TAKES THE PURSE</text>
 </svg>`
 

@@ -1,9 +1,9 @@
 export const websiteUrl = 'https://adamvsyagiz.com'
 export const websiteTitle = 'Adam vs Yagiz — $3,000 Spring Break Fitness Challenge'
 export const websiteDescription =
-  'Live standings for two friends, 32 weeks, winner takes $3,000. Weight, strength, and steps — August 31, 2026 to April 11, 2027.'
+  'Live standings for two friends, 32 weeks, winner takes $3,000. Weight, strength, and steps — September 1, 2026 to April 11, 2027.'
 
-export const CHALLENGE_START = '2026-08-31T00:00:00-04:00'
+export const CHALLENGE_START = '2026-09-01T00:00:00-04:00'
 export const CHALLENGE_END = '2027-04-11T23:59:59-04:00'
 export const SPRING_BREAK = '2027-04-12'
 export const TOTAL_WEEKS = 32

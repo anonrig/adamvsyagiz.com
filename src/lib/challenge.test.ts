@@ -5,15 +5,15 @@ import { TOTAL_WEEKS, weekNumber, weightPoints } from './challenge.ts'
 
 describe('weekNumber', () => {
   it('is 0 before the start', () => {
-    assert.equal(weekNumber(new Date('2026-08-30T12:00:00-04:00')), 0)
+    assert.equal(weekNumber(new Date('2026-08-31T12:00:00-04:00')), 0)
   })
 
   it('is 1 on opening day', () => {
-    assert.equal(weekNumber(new Date('2026-08-31T00:00:00-04:00')), 1)
+    assert.equal(weekNumber(new Date('2026-09-01T00:00:00-04:00')), 1)
   })
 
-  it('is 2 on the second Monday', () => {
-    assert.equal(weekNumber(new Date('2026-09-07T00:00:00-04:00')), 2)
+  it('is 2 on day eight', () => {
+    assert.equal(weekNumber(new Date('2026-09-08T00:00:00-04:00')), 2)
   })
 
   it('is 32 on the final day', () => {

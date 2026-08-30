@@ -1,9 +1,9 @@
 import type { PersonId } from '../lib/challenge.ts'
 
 /**
- * Weekly official log. Append a row after each Sunday.
+ * Weekly official log. Append a row at the end of each challenge week.
  *
- * week 0 = opening weigh-in (Aug 31). Weeks 1–32 = Monday–Sunday challenge weeks.
+ * week 0 = opening weigh-in (Sept 1). Weeks 1–32 = seven-day weeks from Sept 1.
  * stepDays = how many days that week hit 10,000+ steps. 4+ earns the activity point.
  * Strength numbers are optional. The first logged value for a lift becomes that
  * person's baseline. Later values are scored as % improvement.
@@ -52,7 +52,7 @@ export function emptyLog(): PersonLog {
 export const checkins: Checkin[] = [
   {
     week: 0,
-    date: '2026-08-31',
+    date: '2026-09-01',
     adam: {
       weight: 285,
       stepDays: null,

@@ -5,7 +5,7 @@ One-page site for the **$3,000 Spring Break Fitness Challenge**.
 Astro on [Cloudflare Workers](https://developers.cloudflare.com/workers/), same stack as [yagiz.co](https://github.com/anonrig/yagiz.co).
 
 - **Adam vs Yagiz**
-- August 31, 2026 – April 11, 2027
+- September 1, 2026 – April 11, 2027
 - 32 weeks · winner takes $3,000
 
 ## Getting started
@@ -50,12 +50,12 @@ Non-interactive (CI / Workers Builds):
 
 Standings, charts, quests, and badges all read from `src/data/checkins.ts`.
 
-Opening weigh-in is already in as week `0`. After each Sunday, append a row:
+Opening weigh-in is already in as week `0`. After each challenge week, append a row:
 
 ```ts
 {
   week: 1,
-  date: '2026-09-06',
+  date: '2026-09-07',
   adam: { weight: 282.4, stepDays: 5, pushUps: 20, invertedRows: 8, overheadPress: 95 },
   yagiz: { weight: 183.0, stepDays: 6, pushUps: 35, invertedRows: 12, overheadPress: 75 },
 }

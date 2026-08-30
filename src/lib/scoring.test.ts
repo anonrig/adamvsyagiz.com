@@ -7,7 +7,7 @@ import { activityWeeksEarned, buildStandings, strengthPointsFromLifts } from './
 
 describe('opening standings', () => {
   it('starts both men at the official card weights', () => {
-    const standings = buildStandings(new Date('2026-08-30T12:00:00-04:00'))
+    const standings = buildStandings(new Date('2026-08-31T12:00:00-04:00'))
     assert.equal(standings.calendarWeek, 0)
     assert.equal(standings.adam.currentWeight, 285)
     assert.equal(standings.yagiz.currentWeight, 185)
@@ -62,6 +62,6 @@ describe('weight math still holds', () => {
 
 describe('calendar week', () => {
   it('is 1 on opening day', () => {
-    assert.equal(weekNumber(new Date('2026-08-31T00:00:00-04:00')), 1)
+    assert.equal(weekNumber(new Date('2026-09-01T00:00:00-04:00')), 1)
   })
 })

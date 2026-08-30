@@ -80,7 +80,7 @@ import { CHALLENGE_END, CHALLENGE_START, TOTAL_WEEKS } from '@/lib/challenge'
 
       let status: string
       if (done) status = 'Final day was April 11, 2027'
-      else if (upcoming) status = '32 weeks · starts August 31 · winner takes $3,000'
+      else if (upcoming) status = '32 weeks · starts September 1 · winner takes $3,000'
       else status = `Week ${week} of ${totalWeeks} · winner takes $3,000`
 
       if (weekLine) weekLine.textContent = status
@@ -88,7 +88,7 @@ import { CHALLENGE_END, CHALLENGE_START, TOTAL_WEEKS } from '@/lib/challenge'
         topbar.textContent = done
           ? 'Challenge complete'
           : upcoming
-            ? 'Starts Aug 31 · $3,000'
+            ? 'Starts Sept 1 · $3,000'
             : `Week ${week}/${totalWeeks} · $3,000`
       }
 
