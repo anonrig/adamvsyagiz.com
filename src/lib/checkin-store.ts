@@ -2,6 +2,7 @@ import {
   cloneCheckins,
   emptyLog,
   personLogsEqual,
+  uniqueCheckins,
   type Checkin,
   type PersonLog,
 } from '../data/checkins.ts'
@@ -25,6 +26,7 @@ export type StoredPersonWeek = {
   date: string
   log: PersonLog
   note?: string
+  sampleId?: string
   updatedAt: string
 }
 
@@ -76,16 +78,49 @@ export function parseStoredPersonWeek(raw: string, fallbackWeek: number): Stored
       typeof row.week === 'number' && Number.isInteger(row.week) ? row.week : fallbackWeek
     const date = typeof row.date === 'string' && row.date.length >= 8 ? row.date : weekLogDate(week)
     const note = typeof row.note === 'string' ? row.note : undefined
+    const sampleId = typeof row.sampleId === 'string' ? row.sampleId : undefined
     const updatedAt = typeof row.updatedAt === 'string' ? row.updatedAt : ''
-    return { week, date, log: { ...row.log }, note, updatedAt }
+    return { week, date, log: { ...row.log }, note, sampleId, updatedAt }
   } catch {
     return null
   }
 }
 
+export function findDuplicateWeighIn(
+  rows: Checkin[],
+  patches: PersonWeekPatch[],
+  person: PersonId,
+  week: number,
+  next: { weight: number | null; date: string; sampleId?: string },
+): number | null {
+  if (next.sampleId) {
+    const sampleHit = patches.find(
+      (item) =>
+        item.person === person && item.entry.sampleId === next.sampleId && item.entry.week !== week,
+    )
+    if (sampleHit) {
+      return sampleHit.entry.week
+    }
+  }
+
+  if (typeof next.weight !== 'number') {
+    return null
+  }
+
+  for (const row of rows) {
+    if (row.week === week) {
+      continue
+    }
+    if (row[person].weight === next.weight && row.date === next.date) {
+      return row.week
+    }
+  }
+  return null
+}
+
 export function mergeCheckins(seed: Checkin[], patches: PersonWeekPatch[]): Checkin[] {
   const byWeek = new Map<number, Checkin>()
-  for (const row of cloneCheckins(seed)) {
+  for (const row of uniqueCheckins(seed)) {
     byWeek.set(row.week, row)
   }
 
@@ -105,7 +140,7 @@ export function mergeCheckins(seed: Checkin[], patches: PersonWeekPatch[]): Chec
     })
   }
 
-  return [...byWeek.values()].toSorted((left, right) => left.week - right.week)
+  return uniqueCheckins([...byWeek.values()])
 }
 
 export async function loadPatches(kv: CheckinKV): Promise<PersonWeekPatch[]> {
@@ -136,16 +171,24 @@ export async function loadPatches(kv: CheckinKV): Promise<PersonWeekPatch[]> {
   return patches
 }
 
-export async function loadCheckins(kv: CheckinKV | undefined, seed: Checkin[]): Promise<Checkin[]> {
+export async function loadCheckinState(
+  kv: CheckinKV | undefined,
+  seed: Checkin[],
+): Promise<{ rows: Checkin[]; patches: PersonWeekPatch[] }> {
   if (!kv) {
-    return cloneCheckins(seed)
+    return { rows: uniqueCheckins(cloneCheckins(seed)), patches: [] }
   }
   try {
     const patches = await loadPatches(kv)
-    return mergeCheckins(seed, patches)
+    return { rows: mergeCheckins(seed, patches), patches }
   } catch {
-    return cloneCheckins(seed)
+    return { rows: uniqueCheckins(cloneCheckins(seed)), patches: [] }
   }
+}
+
+export async function loadCheckins(kv: CheckinKV | undefined, seed: Checkin[]): Promise<Checkin[]> {
+  const { rows } = await loadCheckinState(kv, seed)
+  return rows
 }
 
 export async function readPersonWeek(
@@ -183,24 +226,37 @@ export async function savePersonWeek(
   const nextLog = applyLogPatch(current.log, patch)
   const nextDate = patch.date ?? current.date
   const nextNote = patch.note ?? current.note
+  const stored = await readPersonWeek(kv, person, week)
+  const nextSampleId = patch.sampleId ?? stored?.sampleId
   const unchanged =
-    personLogsEqual(current.log, nextLog) && nextDate === current.date && nextNote === current.note
+    personLogsEqual(current.log, nextLog) &&
+    nextDate === current.date &&
+    nextNote === current.note &&
+    nextSampleId === stored?.sampleId
 
   const entry: StoredPersonWeek = {
     week,
     date: nextDate,
     log: nextLog,
     note: nextNote,
+    sampleId: nextSampleId,
     updatedAt: now.toISOString(),
   }
 
   if (unchanged) {
-    const stored = await readPersonWeek(kv, person, week)
-    if (stored) {
-      return { entry: stored, unchanged: true }
+    return {
+      entry: stored ?? {
+        week,
+        date: current.date,
+        log: current.log,
+        note: current.note,
+        sampleId: nextSampleId,
+        updatedAt: '',
+      },
+      unchanged: true,
     }
   }
 
   await kv.put(checkinKey(person, week), JSON.stringify(entry))
-  return { entry, unchanged }
+  return { entry, unchanged: false }
 }

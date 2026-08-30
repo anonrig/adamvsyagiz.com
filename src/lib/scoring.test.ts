@@ -84,4 +84,20 @@ describe('live rows', () => {
     assert.equal(checkins.length, 1)
     assert.equal(buildStandings(new Date('2026-09-07T12:00:00-04:00')).adam.activityPts, 0)
   })
+
+  it('does not double-count a duplicated week row', () => {
+    const week = {
+      week: 1,
+      date: '2026-09-07',
+      adam: { ...emptyLog(), weight: 282, stepDays: 5 },
+      yagiz: emptyLog(),
+    }
+    const standings = buildStandings(new Date('2026-09-07T12:00:00-04:00'), [
+      ...checkins,
+      week,
+      week,
+    ])
+    assert.equal(standings.rounds.length, 2)
+    assert.equal(standings.adam.activityPts, 1)
+  })
 })

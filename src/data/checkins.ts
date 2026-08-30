@@ -98,3 +98,39 @@ export function personLogsEqual(left: PersonLog, right: PersonLog): boolean {
     left.overheadPress === right.overheadPress
   )
 }
+
+export function mergePersonLogs(base: PersonLog, overlay: PersonLog): PersonLog {
+  return {
+    weight: overlay.weight ?? base.weight,
+    stepDays: overlay.stepDays ?? base.stepDays,
+    pushUps: overlay.pushUps ?? base.pushUps,
+    invertedRows: overlay.invertedRows ?? base.invertedRows,
+    overheadPress: overlay.overheadPress ?? base.overheadPress,
+  }
+}
+
+/** One official row per challenge week. Later values fill empty fields on a collision. */
+export function uniqueCheckins(rows: Checkin[]): Checkin[] {
+  const byWeek = new Map<number, Checkin>()
+  for (const row of rows) {
+    const existing = byWeek.get(row.week)
+    if (!existing) {
+      byWeek.set(row.week, {
+        week: row.week,
+        date: row.date,
+        adam: { ...row.adam },
+        yagiz: { ...row.yagiz },
+        note: row.note,
+      })
+      continue
+    }
+    byWeek.set(row.week, {
+      week: row.week,
+      date: row.date || existing.date,
+      adam: mergePersonLogs(existing.adam, row.adam),
+      yagiz: mergePersonLogs(existing.yagiz, row.yagiz),
+      note: row.note ?? existing.note,
+    })
+  }
+  return [...byWeek.values()].toSorted((left, right) => left.week - right.week)
+}

@@ -20,6 +20,7 @@ export type CheckinPatch = {
   invertedRows?: number
   overheadPress?: number
   note?: string
+  sampleId?: string
 }
 
 export type AuthResult =
@@ -27,6 +28,7 @@ export type AuthResult =
   | { ok: false; error: 'unconfigured' | 'tokens-not-unique' | 'unauthorized' }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const SAMPLE_ID_RE = /^[\w.:+-]{1,128}$/
 const NOTE_MAX = 200
 
 const FIELD_LIMITS = {
@@ -156,6 +158,14 @@ export function parseCheckinPatch(
       return { ok: false, error: 'date must be YYYY-MM-DD.' }
     }
     patch.date = date
+  }
+
+  const sampleId = asTrimmedString(input.sampleId) ?? asTrimmedString(input.recordedAt)
+  if (sampleId !== undefined) {
+    if (!SAMPLE_ID_RE.test(sampleId)) {
+      return { ok: false, error: 'sampleId must be a short Health sample id or timestamp.' }
+    }
+    patch.sampleId = sampleId
   }
 
   const note = asTrimmedString(input.note)

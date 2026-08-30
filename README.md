@@ -79,9 +79,13 @@ Content-Type: application/json
 {"weight":282.4,"stepDays":5,"pushUps":20,"invertedRows":8,"overheadPress":95}
 ```
 
-The token picks the person. A `person` field in the body is ignored. `week` defaults to the current challenge week. Posting the same week again updates that row in place. Posting the exact same numbers again returns `{ "unchanged": true }` and does not write a second copy.
+The token picks the person. A `person` field in the body is ignored. `week` defaults to the current challenge week. Duplicates are dropped:
 
-Optional fields: `week`, `date`, `weight`, `stepDays`, `pushUps`, `invertedRows`, `overheadPress`, `note`. Send at least one value. Form posts from `/log` work too.
+- Same person + same week overwrites that row. Identical numbers return `{ "unchanged": true, "duplicate": true }` and do not write.
+- The same weigh-in (`date` + `weight`, or `sampleId`) cannot be filed on a second week.
+- Two rows for week N collapse into one before scoring, so activity points cannot double-count.
+
+Optional fields: `week`, `date`, `weight`, `stepDays`, `pushUps`, `invertedRows`, `overheadPress`, `note`, `sampleId`. Send at least one value. Form posts from `/log` work too.
 
 ### iPhone Shortcut
 

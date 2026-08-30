@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { checkins, emptyLog, personLogsEqual } from '../data/checkins.ts'
+import { checkins, emptyLog, personLogsEqual, uniqueCheckins } from '../data/checkins.ts'
 import { weekLogDate } from './challenge.ts'
 import {
   applyLogPatch,
@@ -12,6 +12,7 @@ import {
 } from './checkin-api.ts'
 import {
   checkinKey,
+  findDuplicateWeighIn,
   mergeCheckins,
   parseCheckinKey,
   savePersonWeek,
@@ -156,5 +157,89 @@ describe('merge and upsert', () => {
     const current = { ...emptyLog(), weight: 282, stepDays: 5 }
     const next = applyLogPatch(current, { weight: 282 })
     assert.equal(personLogsEqual(current, next), true)
+  })
+
+  it('does not write when the opening weigh-in is posted again', async () => {
+    const kv = memoryKv()
+    const opening = checkins[0]
+    assert.ok(opening)
+    const result = await savePersonWeek(
+      kv,
+      'adam',
+      0,
+      { log: opening.adam, date: opening.date, note: opening.note },
+      { weight: 285 },
+    )
+    assert.equal(result.unchanged, true)
+    assert.equal(kv.data.size, 0)
+  })
+
+  it('collapses two rows for the same week into one official line', () => {
+    const merged = uniqueCheckins([
+      ...checkins,
+      {
+        week: 0,
+        date: '2026-09-01',
+        adam: { ...emptyLog(), weight: 284 },
+        yagiz: emptyLog(),
+      },
+      {
+        week: 1,
+        date: '2026-09-07',
+        adam: { ...emptyLog(), stepDays: 5 },
+        yagiz: emptyLog(),
+      },
+      {
+        week: 1,
+        date: '2026-09-07',
+        adam: { ...emptyLog(), weight: 282 },
+        yagiz: emptyLog(),
+      },
+    ])
+    assert.equal(merged.length, 2)
+    assert.equal(merged[0]?.adam.weight, 284)
+    assert.equal(merged[1]?.adam.weight, 282)
+    assert.equal(merged[1]?.adam.stepDays, 5)
+  })
+
+  it('rejects the same weigh-in date and weight on a later week', () => {
+    const rows = mergeCheckins(checkins, [
+      {
+        person: 'adam',
+        entry: {
+          week: 1,
+          date: '2026-09-07',
+          log: { ...emptyLog(), weight: 282 },
+          sampleId: 'health-2026-09-07',
+          updatedAt: '2026-09-07T20:00:00.000Z',
+        },
+      },
+    ])
+    assert.equal(findDuplicateWeighIn(rows, [], 'adam', 2, { weight: 282, date: '2026-09-07' }), 1)
+    assert.equal(
+      findDuplicateWeighIn(
+        rows,
+        [
+          {
+            person: 'adam',
+            entry: {
+              week: 1,
+              date: '2026-09-07',
+              log: { ...emptyLog(), weight: 282 },
+              sampleId: 'health-2026-09-07',
+              updatedAt: '2026-09-07T20:00:00.000Z',
+            },
+          },
+        ],
+        'adam',
+        2,
+        { weight: 282, date: '2026-09-14', sampleId: 'health-2026-09-07' },
+      ),
+      1,
+    )
+    assert.equal(
+      findDuplicateWeighIn(rows, [], 'adam', 2, { weight: 282, date: '2026-09-14' }),
+      null,
+    )
   })
 })

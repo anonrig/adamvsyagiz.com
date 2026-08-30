@@ -5,12 +5,19 @@ import { checkins as seedCheckins } from '../../data/checkins.ts'
 import { TOTAL_WEEKS, weekLogDate, weekNumber } from '../../lib/challenge.ts'
 import {
   CHECKIN_MAX_BODY_BYTES,
+  applyLogPatch,
   extractToken,
   parseCheckinPatch,
   personFromToken,
   type CheckinSecrets,
 } from '../../lib/checkin-api.ts'
-import { existingLogFor, loadCheckins, savePersonWeek } from '../../lib/checkin-store.ts'
+import {
+  existingLogFor,
+  findDuplicateWeighIn,
+  loadCheckinState,
+  loadCheckins,
+  savePersonWeek,
+} from '../../lib/checkin-store.ts'
 import { buildStandings } from '../../lib/scoring.ts'
 
 export const prerender = false
@@ -168,8 +175,36 @@ export async function POST(context: APIContext): Promise<Response> {
     })
   }
 
-  const rows = await loadCheckins(kv, seedCheckins)
+  const { rows, patches } = await loadCheckinState(kv, seedCheckins)
   const current = existingLogFor(rows, auth.person, week)
+  const nextLog = applyLogPatch(current.log, parsed.patch)
+  const nextDate = parsed.patch.date ?? current.date
+  const duplicateWeek = findDuplicateWeighIn(rows, patches, auth.person, week, {
+    weight: nextLog.weight,
+    date: nextDate,
+    sampleId: parsed.patch.sampleId,
+  })
+  if (duplicateWeek !== null) {
+    const original = existingLogFor(rows, auth.person, duplicateWeek)
+    const standings = buildStandings(now, rows)
+    const payload = {
+      ok: true,
+      unchanged: true,
+      duplicate: true,
+      person: auth.person,
+      week: duplicateWeek,
+      intendedWeek: week,
+      date: original.date,
+      log: original.log,
+      total: standings[auth.person].total,
+      message: `Those values are already on week ${duplicateWeek}.`,
+    }
+    if (wantsHtml(request)) {
+      return redirectToLog(request, { result: 'unchanged', week: String(duplicateWeek) })
+    }
+    return noStore(200, payload)
+  }
+
   const saved = await savePersonWeek(
     kv,
     auth.person,
@@ -193,6 +228,7 @@ export async function POST(context: APIContext): Promise<Response> {
   const payload = {
     ok: true,
     unchanged: saved.unchanged,
+    duplicate: saved.unchanged,
     person: auth.person,
     week,
     date: saved.entry.date,

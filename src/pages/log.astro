@@ -33,8 +33,9 @@ const webhookUrl = `${websiteUrl}/api/checkin`
     <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Fighters only</p>
     <h1 class="mt-2 mb-2 font-display text-[clamp(2.6rem,10vw,4.4rem)] leading-none">Log a week</h1>
     <p class="mt-0 mb-6 text-ink-dim">
-      Token identifies you. Nobody else can post. Same week twice updates that row — it never adds a
-      second copy.
+      Token identifies you. Nobody else can post. The book keeps one row per person per week. The same
+      weigh-in (same date and pounds, or the same Health sample id) is refused if you try to file it
+      again on another week.
     </p>
     {
       !webhookReady && (
@@ -191,12 +192,15 @@ const webhookUrl = `${websiteUrl}/api/checkin`
       </ol>
       <p class="mt-4 text-[0.88rem] text-mute">
         Optional: <strong class="text-ink">Find Health Samples</strong> → Body Mass, latest, then confirm it is pounds
-        (if it looks like kilograms, multiply by 2.20462). Steps are easier to count by hand — four days at 10k is the
-        only number that scores.
+        (if it looks like kilograms, multiply by 2.20462). Put the sample’s start date in the dictionary as
+        <code class="text-gold">date</code> (YYYY-MM-DD) and <code class="text-gold">sampleId</code> so the same
+        weigh-in cannot be filed on two weeks. Steps are easier to count by hand — four days at 10k is the only
+        number that scores.
       </p>
       <p class="text-[0.88rem] text-mute">
-        Run it twice in the same week and the second post updates that week in place. If the numbers match, the API
-        replies <code class="text-gold">unchanged</code> and the book stays the same.
+        Run it twice in the same week and the second post updates that week in place. If the numbers match, or if
+        that weigh-in is already on the book, the API replies <code class="text-gold">duplicate</code> and nothing
+        is added.
       </p>
     </section>
 
@@ -235,6 +239,7 @@ const webhookUrl = `${websiteUrl}/api/checkin`
           const payload = (await response.json()) as {
             ok?: boolean
             unchanged?: boolean
+            duplicate?: boolean
             week?: number
             message?: string
             error?: string
@@ -247,9 +252,10 @@ const webhookUrl = `${websiteUrl}/api/checkin`
                 : (payload.message ?? payload.error ?? 'Could not save.')
             return
           }
-          status.textContent = payload.unchanged
-            ? `Week ${payload.week} already had those numbers. Nothing duplicated.`
-            : `Saved week ${payload.week}. Your total is now ${payload.total}.`
+          status.textContent =
+            payload.duplicate || payload.unchanged
+              ? (payload.message ?? `Week ${payload.week} already had those numbers. Nothing duplicated.`)
+              : `Saved week ${payload.week}. Your total is now ${payload.total}.`
         } catch {
           status.textContent = 'Network error. Try again.'
         }
