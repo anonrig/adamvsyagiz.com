@@ -26,13 +26,14 @@ import {
   adam,
   yagiz,
 } from '@/lib/challenge'
+import { homepageJsonLd } from '@/lib/seo'
 import { buildStandings, formatPts } from '@/lib/scoring'
 import Layout from '@/layouts/Layout.astro'
 
 const standings = buildStandings()
 ---
 
-<Layout>
+<Layout jsonLd={homepageJsonLd()}>
   <Hud standings={standings} />
 
   <main id="main">
@@ -43,7 +44,7 @@ const standings = buildStandings()
       <div class="my-7 grid items-center gap-3 max-[520px]:grid-cols-1 min-[521px]:grid-cols-[1fr_auto_1fr]">
         <div class="min-[521px]:text-right max-[520px]:text-center">
           <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">{adam.corner}</p>
-          <h1 class="m-0 font-display text-[clamp(3.4rem,15vw,8rem)] leading-none text-adam">{adam.name}</h1>
+          <p class="m-0 font-display text-[clamp(3.4rem,15vw,8rem)] leading-none text-adam">{adam.name}</p>
           <p class="mt-1 font-display text-[clamp(2rem,7vw,3.2rem)] leading-none text-adam">
             {formatPts(standings.adam.total)}
           </p>
@@ -57,7 +58,7 @@ const standings = buildStandings()
         </div>
         <div class="min-[521px]:text-left max-[520px]:text-center">
           <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">{yagiz.corner}</p>
-          <h1 class="m-0 font-display text-[clamp(3.4rem,15vw,8rem)] leading-none text-yagiz">{yagiz.name}</h1>
+          <p class="m-0 font-display text-[clamp(3.4rem,15vw,8rem)] leading-none text-yagiz">{yagiz.name}</p>
           <p class="mt-1 font-display text-[clamp(2rem,7vw,3.2rem)] leading-none text-yagiz">
             {formatPts(standings.yagiz.total)}
           </p>
@@ -65,9 +66,9 @@ const standings = buildStandings()
         </div>
       </div>
 
-      <h2 class="m-0 font-display text-[clamp(1.7rem,5.4vw,3.2rem)] leading-none tracking-wide text-gold-2">
+      <h1 class="m-0 font-display text-[clamp(1.7rem,5.4vw,3.2rem)] leading-none tracking-wide text-gold-2">
         ${PRIZE_USD.toLocaleString('en-US')} Spring Break Fitness Challenge
-      </h2>
+      </h1>
       <p class="mx-auto mt-3 mb-6 max-w-lg text-ink-dim">
         Two good friends. One belt. Highest score takes the purse. The site keeps score so neither of you can hide.
       </p>

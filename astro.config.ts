@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, fontProviders } from 'astro/config'
 
 import { websiteUrl } from './src/lib/challenge.ts'
+import { latestCheckinDate } from './src/lib/seo.ts'
 
 const pageCache = { maxAge: 3600, swr: 86_400, tags: ['page'] }
 
@@ -38,7 +39,17 @@ export default defineConfig({
       weights: [400, 500, 600, 700],
     },
   ],
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      filter: (page) => new URL(page).pathname === '/',
+      serialize(item) {
+        return {
+          ...item,
+          lastmod: latestCheckinDate(),
+        }
+      },
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },

@@ -1,6 +1,19 @@
 ---
 import { Font } from 'astro:assets'
 import { websiteDescription, websiteTitle, websiteUrl } from '@/lib/challenge'
+import {
+  absoluteUrl,
+  authorName,
+  authorUrl,
+  htmlLang,
+  indexRobots,
+  latestCheckinDate,
+  ogImage,
+  siteLocale,
+  siteName,
+  themeColor,
+  twitterHandle,
+} from '@/lib/seo'
 import '@/styles/globals.css'
 
 interface Props {
@@ -8,57 +21,84 @@ interface Props {
   description?: string
   robots?: string
   canonical?: string | false
+  jsonLd?: object
 }
 
 const {
   title,
   description = websiteDescription,
-  robots = 'index, follow',
+  robots = indexRobots,
   canonical,
+  jsonLd,
 } = Astro.props
 
-const pageTitle = title ? `${title} · Adam vs Yagiz` : websiteTitle
-const shareTitle = title ?? websiteTitle
-const selfUrl = new URL(Astro.url.pathname === '/' ? '/' : Astro.url.pathname, websiteUrl).href
+const pageTitle = title ? `${title} · ${siteName}` : websiteTitle
+const selfUrl = absoluteUrl(Astro.url.pathname)
 const canonicalUrl = canonical === false ? undefined : canonical ?? selfUrl
-const ogImage = new URL('/og.png', websiteUrl).href
-const ogImageAlt = websiteTitle
+const imageUrl = absoluteUrl(ogImage.path)
+const imageAlt = websiteTitle
+const modified = `${latestCheckinDate()}T12:00:00-04:00`
 ---
 
-<html lang="en" class="bg-bg text-ink">
+<html lang={htmlLang} class="bg-bg text-ink">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#0c0b09" />
+    <meta name="author" content={authorName} />
+    <meta name="application-name" content={siteName} />
+    <meta name="theme-color" content={themeColor} />
+    <meta name="msapplication-TileColor" content={themeColor} />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
     <meta name="color-scheme" content="dark" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="robots" content={robots} />
+    <meta name="apple-mobile-web-app-title" content={siteName} />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+    {canonicalUrl && <link rel="alternate" hreflang="en-US" href={websiteUrl} />}
+    {canonicalUrl && <link rel="alternate" hreflang="x-default" href={websiteUrl} />}
+    {canonicalUrl && (
+      <link rel="alternate" type="application/json" href={absoluteUrl('/standings.json')} title="Live standings" />
+    )}
+    <link rel="author" href={authorUrl} />
+    <link rel="me" href="https://x.com/yagiznizipli" />
+    <link rel="me" href="https://github.com/anonrig" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#e3b23c" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="en_US" />
-    <meta property="og:title" content={shareTitle} />
+    <meta property="og:locale" content={siteLocale} />
+    <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={selfUrl} />
-    <meta property="og:site_name" content="Adam vs Yagiz" />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:image:secure_url" content={ogImage} />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:updated_time" content={modified} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:secure_url" content={imageUrl} />
+    <meta property="og:image:type" content={ogImage.type} />
+    <meta property="og:image:width" content={String(ogImage.width)} />
+    <meta property="og:image:height" content={String(ogImage.height)} />
+    <meta property="og:image:alt" content={imageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@yagiznizipli" />
-    <meta name="twitter:creator" content="@yagiznizipli" />
-    <meta name="twitter:title" content={shareTitle} />
+    <meta name="twitter:site" content={twitterHandle} />
+    <meta name="twitter:creator" content={twitterHandle} />
+    <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
-    <meta name="twitter:image:alt" content={ogImageAlt} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+
+    {jsonLd && <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />}
 
     <Font cssVariable="--font-bebas" preload />
     <Font cssVariable="--font-outfit" preload />

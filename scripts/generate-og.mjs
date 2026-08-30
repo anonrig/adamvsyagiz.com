@@ -43,6 +43,45 @@ function fontFace(family, filePath) {
   return `@font-face{font-family:'${family}';src:url('data:font/ttf;base64,${bytes}') format('truetype');font-weight:400;font-style:normal;}`
 }
 
+function encodeIco(images) {
+  const header = Buffer.alloc(6 + 16 * images.length)
+  header.writeUInt16LE(0, 0)
+  header.writeUInt16LE(1, 2)
+  header.writeUInt16LE(images.length, 4)
+  const chunks = [header]
+  let offset = header.length
+  images.forEach((image, index) => {
+    const entry = 6 + index * 16
+    header.writeUInt8(image.width >= 256 ? 0 : image.width, entry)
+    header.writeUInt8(image.height >= 256 ? 0 : image.height, entry + 1)
+    header.writeUInt8(0, entry + 2)
+    header.writeUInt8(0, entry + 3)
+    header.writeUInt16LE(1, entry + 4)
+    header.writeUInt16LE(32, entry + 6)
+    header.writeUInt32LE(image.data.length, entry + 8)
+    header.writeUInt32LE(offset, entry + 12)
+    chunks.push(image.data)
+    offset += image.data.length
+  })
+  return Buffer.concat(chunks)
+}
+
+const ay = `
+  <path fill="#e3b23c" fill-rule="evenodd" d="M10 6.4 15.15 25h-2.55l-1.05-3.95h-3.1L7.4 25H4.85L10 6.4Zm-1.05 11.7h2.1L10 13.55l-1.05 4.55Z"/>
+  <path fill="#e3b23c" d="M16.35 6.4h2.7L21 13.2 23 6.4h2.65L22.2 16.15V25h-2.45v-8.85L16.35 6.4Z"/>
+`
+
+function squareIconSvg(size, { pad = 0, border = true } = {}) {
+  const inset = 1.25 + pad
+  const scale = (32 - pad * 2) / 32
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#0c0b09"/>
+  ${border ? `<rect x="${inset}" y="${inset}" width="${32 - inset * 2}" height="${32 - inset * 2}" fill="none" stroke="#e3b23c" stroke-opacity="0.45" stroke-width="${1.25 / scale}"/>` : ''}
+  <g transform="translate(${pad} ${pad}) scale(${scale})">${ay}</g>
+</svg>`
+}
+
 const [sharp, bebasPath, interPath] = await Promise.all([
   loadSharp(),
   ensureFont(
@@ -114,31 +153,33 @@ const ogSvg = `<?xml version="1.0" encoding="UTF-8"?>
   <text x="600" y="554" text-anchor="middle" fill="#7d7566" font-family="InterOG" font-size="16" letter-spacing="3.5">WINNER TAKES THE PURSE</text>
 </svg>`
 
-const iconSvg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-  <defs>
-    <style>
-      ${display}
-    </style>
-    <radialGradient id="wash" cx="50%" cy="20%" r="80%">
-      <stop offset="0%" stop-color="#e3b23c" stop-opacity="0.28"/>
-      <stop offset="70%" stop-color="#0c0b09" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect width="180" height="180" fill="#0c0b09"/>
-  <rect width="180" height="180" fill="url(#wash)"/>
-  <rect x="10" y="10" width="160" height="160" fill="none" stroke="#e3b23c" stroke-opacity="0.35" stroke-width="2"/>
-  <text x="90" y="118" text-anchor="middle" fill="#e3b23c" font-family="BebasOG" font-size="92">AY</text>
-</svg>`
+async function writePng(svg, file, size) {
+  await sharp(Buffer.from(svg))
+    .resize(size, size)
+    .png({ compressionLevel: 9 })
+    .toFile(join(publicDir, file))
+}
 
-const sharpFn = sharp
-await sharpFn(Buffer.from(ogSvg)).png({ compressionLevel: 9 }).toFile(join(publicDir, 'og.png'))
-await sharpFn(Buffer.from(iconSvg))
-  .png({ compressionLevel: 9 })
-  .toFile(join(publicDir, 'apple-touch-icon.png'))
-await sharpFn(Buffer.from(iconSvg))
-  .resize(32, 32)
-  .png({ compressionLevel: 9 })
-  .toFile(join(publicDir, 'favicon-32.png'))
+const faviconSvg = readFileSync(join(publicDir, 'favicon.svg'))
+const icoSizes = [16, 32, 48]
+const icoImages = []
+for (const size of icoSizes) {
+  const data = await sharp(faviconSvg).resize(size, size).png({ compressionLevel: 9 }).toBuffer()
+  icoImages.push({ width: size, height: size, data })
+}
 
-console.log('wrote public/og.png, apple-touch-icon.png, favicon-32.png')
+await Promise.all([
+  sharp(Buffer.from(ogSvg)).png({ compressionLevel: 9 }).toFile(join(publicDir, 'og.png')),
+  writePng(faviconSvg, 'favicon-16x16.png', 16),
+  writePng(faviconSvg, 'favicon-32x32.png', 32),
+  writePng(squareIconSvg(180), 'apple-touch-icon.png', 180),
+  writePng(squareIconSvg(192), 'android-chrome-192x192.png', 192),
+  writePng(squareIconSvg(512, { pad: 3.2 }), 'android-chrome-512x512.png', 512),
+  writePng(squareIconSvg(150), 'mstile-150x150.png', 150),
+])
+
+writeFileSync(join(publicDir, 'favicon.ico'), encodeIco(icoImages))
+
+console.log(
+  'wrote public/og.png, favicon.ico, PNG icons, apple-touch-icon.png, android-chrome-*.png, mstile-150x150.png',
+)

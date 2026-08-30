@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#0c0b09"/>
-  <text x="32" y="44" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="28" fill="#e3b23c">AY</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Adam vs Yagiz">
+  <rect width="32" height="32" rx="7" fill="#0c0b09"/>
+  <rect x="1.25" y="1.25" width="29.5" height="29.5" rx="6" fill="none" stroke="#e3b23c" stroke-opacity="0.45" stroke-width="1.25"/>
+  <path fill="#e3b23c" fill-rule="evenodd" d="M10 6.4 15.15 25h-2.55l-1.05-3.95h-3.1L7.4 25H4.85L10 6.4Zm-1.05 11.7h2.1L10 13.55l-1.05 4.55Z"/>
+  <path fill="#e3b23c" d="M16.35 6.4h2.7L21 13.2 23 6.4h2.65L22.2 16.15V25h-2.45v-8.85L16.35 6.4Z"/>
 </svg>

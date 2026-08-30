@@ -1,0 +1,40 @@
+{
+  "name": "Adam vs Yagiz",
+  "short_name": "A vs Y",
+  "description": "Live standings for two friends, 32 weeks, winner takes $3,000. Weight, strength, and steps — August 31, 2026 to April 11, 2027.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c0b09",
+  "theme_color": "#0c0b09",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["sports", "health", "fitness"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ]
+}
