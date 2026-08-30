@@ -1,0 +1,45 @@
+---
+import { achievementsFor, earnedCount } from '@/lib/achievements'
+import type { Standings } from '@/lib/scoring'
+
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
+---
+
+<div class="grid gap-3 md:grid-cols-2">
+  {
+    (['adam', 'yagiz'] as const).map((id) => {
+      const person = standings[id]
+      const badges = achievementsFor(id, standings)
+      const count = earnedCount(id, standings)
+      return (
+        <article class="border border-line bg-card p-4">
+          <div class="mb-3 flex items-baseline justify-between gap-2">
+            <h3 class:list={['m-0 font-display text-3xl leading-none', id === 'adam' ? 'text-adam' : 'text-yagiz']}>
+              {person.name}
+            </h3>
+            <p class="m-0 text-ink-dim">
+              {count.earned}/{count.total} belts
+            </p>
+          </div>
+          <ol class="m-0 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3">
+            {badges.map((badge) => (
+              <li
+                class:list={[
+                  'min-h-[5.5rem] border px-2 py-2',
+                  badge.earned ? 'border-gold/50 bg-[#221c10]' : 'border-line opacity-45',
+                ]}
+              >
+                <p class="m-0 font-display text-[1.15rem] leading-none tracking-wide">{badge.name}</p>
+                <p class="mt-1 text-[0.75rem] text-ink-dim">{badge.blurb}</p>
+              </li>
+            ))}
+          </ol>
+        </article>
+      )
+    })
+  }
+</div>

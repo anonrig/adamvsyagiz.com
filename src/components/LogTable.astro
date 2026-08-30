@@ -1,0 +1,48 @@
+---
+import { liftLabels } from '@/data/checkins'
+import { formatLbs, type Standings } from '@/lib/scoring'
+
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
+---
+
+<div class="overflow-x-auto border border-line bg-card">
+  <table class="w-full min-w-[720px] border-collapse text-sm">
+    <caption class="sr-only">Weekly official log</caption>
+    <thead>
+      <tr class="text-left text-[0.72rem] tracking-widest text-mute uppercase">
+        <th class="px-3 py-3">Week</th>
+        <th class="px-3 py-3">Date</th>
+        <th class="px-3 py-3">Adam lbs</th>
+        <th class="px-3 py-3">Yagiz lbs</th>
+        <th class="px-3 py-3">Adam 10k</th>
+        <th class="px-3 py-3">Yagiz 10k</th>
+        <th class="px-3 py-3">Round</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        standings.rounds.map((round) => (
+          <tr class="border-t border-line">
+            <td class="px-3 py-3 font-display text-lg leading-none">{round.week === 0 ? 'Open' : round.week}</td>
+            <td class="px-3 py-3 text-ink-dim">{round.date}</td>
+            <td class="px-3 py-3 text-adam">{round.adam.weight === null ? '—' : `${formatLbs(round.adam.weight)}`}</td>
+            <td class="px-3 py-3 text-yagiz">{round.yagiz.weight === null ? '—' : `${formatLbs(round.yagiz.weight)}`}</td>
+            <td class="px-3 py-3">{round.adam.stepDays === null ? '—' : `${round.adam.stepDays}/7`}</td>
+            <td class="px-3 py-3">{round.yagiz.stepDays === null ? '—' : `${round.yagiz.stepDays}/7`}</td>
+            <td class="px-3 py-3">
+              {round.week === 0 ? 'Card' : round.winner ? standings[round.winner].name : 'Draw'}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+<p class="mt-3 text-[0.88rem] text-mute">
+  Strength tests ({Object.values(liftLabels).join(', ')}) land in the same weekly row when they happen. Add a week in
+  <code class="text-gold">src/data/checkins.ts</code> and redeploy.
+</p>

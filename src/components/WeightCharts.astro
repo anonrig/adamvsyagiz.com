@@ -1,0 +1,66 @@
+---
+import { contestants, TOTAL_WEEKS } from '@/lib/challenge'
+import { polyline, ticks } from '@/lib/chart'
+import { cutSeries, formatLbs } from '@/lib/scoring'
+
+const width = 720
+const height = 220
+const pad = { l: 46, r: 12, t: 14, b: 32 }
+const x0 = pad.l
+const x1 = width - pad.r
+const yTop = pad.t
+const yBot = height - pad.b
+
+const panels = (['adam', 'yagiz'] as const).map((id) => {
+  const person = contestants[id]
+  const series = cutSeries(id)
+  const weights = series.map((row) => row.weight)
+  const known = weights.filter((value): value is number => value !== null)
+  const min = Math.min(person.goalWeight - 8, ...known)
+  const max = Math.max(person.startWeight + 4, ...known)
+  const domainY: [number, number] = [min, max]
+  const domainX: [number, number] = [0, TOTAL_WEEKS]
+  const line = polyline(weights, domainX, domainY, [x0, x1], [yBot, yTop])
+  const goalY = yBot - ((person.goalWeight - min) / (max - min)) * (yBot - yTop)
+  const startY = yBot - ((person.startWeight - min) / (max - min)) * (yBot - yTop)
+  return { id, person, line, goalY, startY, min, max }
+})
+---
+
+<div class="grid gap-3 md:grid-cols-2">
+  {
+    panels.map((panel) => (
+      <figure class="border border-line bg-card p-3 sm:p-4">
+        <figcaption class="mb-2 font-display text-2xl font-normal tracking-wide">
+          {panel.person.name} · lbs
+        </figcaption>
+        <svg viewBox={`0 0 ${width} ${height}`} class="h-auto w-full" role="img" aria-label={`${panel.person.name} weight`}>
+          {ticks(panel.min, panel.max, 4).map((tick) => {
+            const y = yBot - ((tick - panel.min) / (panel.max - panel.min)) * (yBot - yTop)
+            return (
+              <g>
+                <line x1={x0} x2={x1} y1={y} y2={y} stroke="rgba(227,201,150,0.12)" />
+                <text x={x0 - 8} y={y + 4} fill="#7d7566" font-size="11" text-anchor="end">
+                  {Math.round(tick)}
+                </text>
+              </g>
+            )
+          })}
+          <line x1={x0} x2={x1} y1={panel.goalY} y2={panel.goalY} stroke="#e3b23c" stroke-dasharray="5 5" />
+          <line x1={x0} x2={x1} y1={panel.startY} y2={panel.startY} stroke="rgba(244,234,214,0.2)" />
+          {panel.line && (
+            <path
+              d={panel.line}
+              fill="none"
+              stroke={panel.id === 'adam' ? '#7eb6ff' : '#ff7a55'}
+              stroke-width="3"
+            />
+          )}
+          <text x={x1} y={panel.goalY - 6} fill="#e3b23c" font-size="11" text-anchor="end">
+            goal {formatLbs(panel.person.goalWeight)}
+          </text>
+        </svg>
+      </figure>
+    ))
+  }
+</div>

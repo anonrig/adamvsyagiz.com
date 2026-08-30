@@ -1,0 +1,41 @@
+---
+import { ACTIVITY_MAX, STRENGTH_POINTS, WEIGHT_POINTS } from '@/lib/challenge'
+import { formatPts, type Standings } from '@/lib/scoring'
+
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
+
+const rows = [
+  { label: 'Weight', max: WEIGHT_POINTS, adam: standings.adam.weightPts, yagiz: standings.yagiz.weightPts },
+  { label: 'Strength', max: STRENGTH_POINTS, adam: standings.adam.strengthPts, yagiz: standings.yagiz.strengthPts },
+  { label: 'Steps', max: ACTIVITY_MAX, adam: standings.adam.activityPts, yagiz: standings.yagiz.activityPts },
+]
+---
+
+<div class="grid gap-3">
+  {
+    rows.map((row) => (
+      <article class="border border-line bg-card p-4">
+        <div class="mb-2 flex items-center justify-between gap-2">
+          <h3 class="m-0 text-sm font-semibold tracking-widest uppercase">{row.label}</h3>
+          <p class="m-0 font-display text-xl leading-none">
+            <span class="text-adam">{formatPts(row.adam)}</span>
+            <span class="text-mute"> – </span>
+            <span class="text-yagiz">{formatPts(row.yagiz)}</span>
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="h-3 bg-[#2a261d]">
+            <span class="block h-full bg-adam" style={`width: ${(row.adam / row.max) * 100}%`} />
+          </div>
+          <div class="h-3 bg-[#2a261d]">
+            <span class="ml-auto block h-full bg-yagiz" style={`width: ${(row.yagiz / row.max) * 100}%`} />
+          </div>
+        </div>
+      </article>
+    ))
+  }
+</div>

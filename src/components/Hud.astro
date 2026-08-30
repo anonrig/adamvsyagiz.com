@@ -1,0 +1,42 @@
+---
+import { formatPts } from '@/lib/scoring'
+import type { Standings } from '@/lib/scoring'
+
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
+---
+
+<header
+  class="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-line bg-bg/90 px-[clamp(1.1rem,4vw,2rem)] py-3 backdrop-blur-md"
+  style="padding-top: max(0.75rem, env(safe-area-inset-top))"
+>
+  <a href="#top" class="shrink-0 font-display text-[1.2rem] tracking-widest text-ink no-underline">
+    Adam <span class="px-1 text-gold">vs</span> Yagiz
+  </a>
+  <div class="flex items-center gap-2 font-display text-lg leading-none tracking-wide sm:gap-3 sm:text-2xl">
+    <span class="text-adam">{formatPts(standings.adam.total)}</span>
+    <span class="text-mute">–</span>
+    <span class="text-yagiz">{formatPts(standings.yagiz.total)}</span>
+  </div>
+  <p class="m-0 hidden text-right text-[0.72rem] tracking-wider text-ink-dim uppercase sm:block" data-topbar-status>
+    $3,000 · live
+  </p>
+</header>
+
+<nav
+  class="sticky top-[3.4rem] z-10 overflow-x-auto border-b border-line bg-bg/92 px-[clamp(1.1rem,4vw,2rem)] py-2 backdrop-blur-md"
+  aria-label="Sections"
+>
+  <ul class="m-0 flex list-none gap-4 p-0 text-[0.78rem] font-semibold tracking-wider uppercase">
+    <li><a class="text-ink-dim no-underline hover:text-gold" href="#score">Score</a></li>
+    <li><a class="text-ink-dim no-underline hover:text-gold" href="#quests">Quests</a></li>
+    <li><a class="text-ink-dim no-underline hover:text-gold" href="#cut">Cut</a></li>
+    <li><a class="text-ink-dim no-underline hover:text-gold" href="#strength">Strength</a></li>
+    <li><a class="text-ink-dim no-underline hover:text-gold" href="#steps">Steps</a></li>
+    <li><a class="text-ink-dim no-underline hover:text-gold" href="#log">Log</a></li>
+    <li><a class="text-ink-dim no-underline hover:text-gold" href="#belts">Belts</a></li>
+  </ul>
+</nav>

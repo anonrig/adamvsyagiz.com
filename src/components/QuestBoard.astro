@@ -1,0 +1,49 @@
+---
+import { weeklyQuests } from '@/lib/achievements'
+import type { Standings } from '@/lib/scoring'
+
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
+const week = Math.max(standings.calendarWeek, 1)
+const quests = weeklyQuests(standings)
+---
+
+<div class="grid gap-3 md:grid-cols-2">
+  {
+    (['adam', 'yagiz'] as const).map((id) => {
+      const person = standings[id]
+      const doneCount = quests.filter((quest) => quest.done(person)).length
+      return (
+        <article class:list={['border border-line bg-card p-4', id === 'adam' ? 'border-t-[3px] border-t-adam' : 'border-t-[3px] border-t-yagiz']}>
+          <div class="mb-3 flex items-baseline justify-between gap-2">
+            <h3 class:list={['m-0 font-display text-3xl leading-none', id === 'adam' ? 'text-adam' : 'text-yagiz']}>
+              {person.name}
+            </h3>
+            <p class="m-0 text-[0.78rem] text-mute">
+              Week {week} · {doneCount}/{quests.length}
+            </p>
+          </div>
+          <ul class="m-0 list-none space-y-2 p-0">
+            {quests.map((quest) => {
+              const done = quest.done(person)
+              return (
+                <li class="flex gap-3 border border-line px-3 py-2">
+                  <span class:list={['mt-0.5 font-display text-xl leading-none', done ? 'text-gold' : 'text-mute']}>
+                    {done ? '✔' : '○'}
+                  </span>
+                  <div>
+                    <strong class="block text-sm">{quest.title}</strong>
+                    <p class="m-0 text-[0.86rem] text-ink-dim">{quest.detail}</p>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </article>
+      )
+    })
+  }
+</div>

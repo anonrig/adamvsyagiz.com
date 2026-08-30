@@ -1,0 +1,64 @@
+---
+import { checkins } from '@/data/checkins'
+import { STEP_DAYS_TO_SCORE, TOTAL_WEEKS } from '@/lib/challenge'
+import type { PersonId } from '@/lib/challenge'
+import type { Standings } from '@/lib/scoring'
+
+interface Props {
+  standings: Standings
+}
+
+const { standings } = Astro.props
+const weeks = Array.from({ length: TOTAL_WEEKS }, (_, index) => index + 1)
+
+function cell(id: PersonId, week: number) {
+  const row = checkins.find((item) => item.week === week)
+  const future = week > standings.calendarWeek
+  const days = row?.[id].stepDays
+  const earned = (days ?? 0) >= STEP_DAYS_TO_SCORE
+  const missed = !future && row !== undefined && !earned
+  const current = week === standings.calendarWeek
+  return { days, earned, missed, future, current }
+}
+---
+
+<div class="grid gap-3">
+  {
+    (['adam', 'yagiz'] as const).map((id) => {
+      const person = standings[id]
+      return (
+        <article class="border border-line bg-card p-4">
+          <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h3 class:list={['m-0 font-display text-3xl leading-none', id === 'adam' ? 'text-adam' : 'text-yagiz']}>
+              {person.name}
+            </h3>
+            <p class="m-0 text-[0.86rem] text-ink-dim">
+              {person.activityWeeks} pts · best streak {person.bestStreak}
+            </p>
+          </div>
+          <ol class="m-0 grid list-none grid-cols-8 gap-1.5 p-0 sm:grid-cols-[repeat(16,minmax(0,1fr))]">
+            {weeks.map((week) => {
+              const state = cell(id, week)
+              return (
+                <li
+                  title={`Week ${week}: ${state.future ? 'ahead' : state.earned ? `${state.days} days` : state.missed ? 'missed' : 'open'}`}
+                  class:list={[
+                    'aspect-square rounded-[2px]',
+                    state.earned && (id === 'adam' ? 'bg-adam' : 'bg-yagiz'),
+                    state.missed && 'bg-[#3a2018] shadow-[inset_0_0_0_1px_rgb(255_122_85_/_0.35)]',
+                    state.future && 'bg-[#2a261d] shadow-[inset_0_0_0_1px_rgb(227_178_60_/_0.18)]',
+                    !state.earned && !state.missed && !state.future && 'bg-[#3d3420]',
+                    state.current && 'ring-2 ring-gold',
+                  ]}
+                />
+              )
+            })}
+          </ol>
+        </article>
+      )
+    })
+  }
+  <p class="m-0 text-[0.86rem] text-mute">
+    Lit cell = 4+ days at 10,000 steps. Dark red = logged miss. Ring = this week. Bonus weeks are 26–32.
+  </p>
+</div>
