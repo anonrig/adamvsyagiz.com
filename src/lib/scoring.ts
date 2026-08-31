@@ -227,8 +227,8 @@ export function strengthPointsFromLifts(lifts: LiftProgress[]): number {
 
 function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]): PersonStats {
   const currentWeight = latestNumber(rows, person.id, 'weight') ?? person.startWeight
-  const poundsLost = Math.max(0, person.startWeight - currentWeight)
-  const poundsLeft = Math.max(0, currentWeight - person.goalWeight)
+  const poundsLost = Math.max(0, Math.round((person.startWeight - currentWeight) * 10) / 10)
+  const poundsLeft = Math.max(0, Math.round((currentWeight - person.goalWeight) * 10) / 10)
   const cutPct = Math.min(100, (poundsLost / person.toLose) * 100)
   const weightPts = weightPoints(poundsLost, person.toLose)
   const lifts = liftProgress(person.id, rows)
