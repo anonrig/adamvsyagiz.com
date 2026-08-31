@@ -215,7 +215,8 @@ export function parseCheckinPatch(
     patch[field] = checked.value
   }
 
-  const hasValue = PATCH_LOG_FIELDS.some((field) => patch[field] !== undefined) || patch.note !== undefined
+  const hasValue =
+    PATCH_LOG_FIELDS.some((field) => patch[field] !== undefined) || patch.note !== undefined
 
   if (!hasValue) {
     return { ok: false, error: 'Send at least one of weight, waist, stepDays, a lift, or note.' }

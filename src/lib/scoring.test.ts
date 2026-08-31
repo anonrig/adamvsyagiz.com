@@ -46,8 +46,14 @@ describe('opening standings', () => {
     assert.equal(yagizLifts.invertedRows?.baseline, 6)
     assert.equal(yagizLifts.overheadPress?.baseline, 320)
     assert.equal(yagizLifts.overheadPress?.baselineDisplay, '16 × 20 lb')
-    assert.equal(standings.adam.lifts.every((lift) => lift.improvementPct === 0), true)
-    assert.equal(standings.yagiz.lifts.every((lift) => lift.improvementPct === 0), true)
+    assert.equal(
+      standings.adam.lifts.every((lift) => lift.improvementPct === 0),
+      true,
+    )
+    assert.equal(
+      standings.yagiz.lifts.every((lift) => lift.improvementPct === 0),
+      true,
+    )
   })
 })
 
@@ -135,7 +141,10 @@ describe('overhead press volume', () => {
     assert.equal(press?.baseline, 325)
     assert.equal(press?.current, 400)
     assert.equal(press?.currentDisplay, '16 × 25 lb')
-    assert.ok(press?.improvementPct !== null && Math.abs((press.improvementPct ?? 0) - (75 / 325) * 100) < 1e-9)
+    assert.ok(
+      press?.improvementPct !== null &&
+        Math.abs((press.improvementPct ?? 0) - (75 / 325) * 100) < 1e-9,
+    )
   })
 })
 
