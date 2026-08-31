@@ -36,13 +36,13 @@ describe('weekLogDate', () => {
 describe('official cards', () => {
   it('keeps start, goal, and cut consistent', () => {
     assert.equal(adam.goalWeight, 220)
-    assert.equal(adam.toLose, adam.startWeight - adam.goalWeight)
     assert.equal(adam.startWeight, 284.8)
     assert.equal(adam.toLose, 64.8)
+    assert.equal(adam.toLose, Math.round((adam.startWeight - adam.goalWeight) * 10) / 10)
     assert.equal(yagiz.goalWeight, 145)
     assert.equal(yagiz.startWeight, 178)
-    assert.equal(yagiz.toLose, yagiz.startWeight - yagiz.goalWeight)
     assert.equal(yagiz.toLose, 33)
+    assert.equal(yagiz.toLose, Math.round((yagiz.startWeight - yagiz.goalWeight) * 10) / 10)
   })
 })
 
