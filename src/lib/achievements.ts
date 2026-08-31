@@ -1,4 +1,4 @@
-import { ACTIVITY_POINTS, TOTAL_WEEKS, type PersonId } from './challenge.ts'
+import { ACTIVITY_POINTS, TOTAL_WEEKS, prizeLabel, type PersonId } from './challenge.ts'
 import { buildStandings, type PersonStats, type Standings } from './scoring.ts'
 
 export type Achievement = {
@@ -15,7 +15,7 @@ export function achievementsFor(id: PersonId, standings = buildStandings()): Ach
   const latestWin = [...standings.rounds].reverse().find((round) => round.week >= 1 && round.winner)
 
   return [
-    { id: 'card', name: 'The Card', blurb: 'Signed up. $3,000 is real.', earned: true },
+    { id: 'card', name: 'The Card', blurb: `Signed up. ${prizeLabel} is real.`, earned: true },
     {
       id: 'weigh-in',
       name: 'On the Scale',

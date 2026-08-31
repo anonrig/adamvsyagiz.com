@@ -1,4 +1,5 @@
 ---
+import { prizeLabel } from '@/lib/challenge'
 import { formatPts } from '@/lib/scoring'
 import type { Standings } from '@/lib/scoring'
 
@@ -22,7 +23,7 @@ const { standings } = Astro.props
     <span class="text-yagiz">{formatPts(standings.yagiz.total)}</span>
   </div>
   <p class="m-0 hidden text-right text-[0.72rem] tracking-wider text-ink-dim uppercase sm:block" data-topbar-status>
-    $3,000 · live
+    {prizeLabel} · live
   </p>
 </header>
 

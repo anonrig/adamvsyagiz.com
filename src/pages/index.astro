@@ -19,11 +19,11 @@ import {
   ACTIVITY_POINTS,
   MAXIMUM_SCORE,
   NORMAL_SCORE,
-  PRIZE_USD,
   STRENGTH_POINTS,
   TOTAL_WEEKS,
   WEIGHT_POINTS,
   adam,
+  prizeLabel,
   yagiz,
 } from '@/lib/challenge'
 import { homepageJsonLd, latestCheckinDate, supportTweetUrl } from '@/lib/seo'
@@ -71,7 +71,7 @@ const standings = buildStandings(new Date(), rows)
       </div>
 
       <h1 class="m-0 font-display text-[clamp(1.7rem,5.4vw,3.2rem)] leading-none tracking-wide text-gold-2">
-        ${PRIZE_USD.toLocaleString('en-US')} Spring Break Fitness Challenge
+        {prizeLabel} Spring Break Fitness Challenge
       </h1>
       <p class="mx-auto mt-3 mb-6 max-w-lg text-ink-dim">
         Two good friends. One belt. Highest score takes the purse. The site keeps score so neither of you can hide.
@@ -99,7 +99,7 @@ const standings = buildStandings(new Date(), rows)
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="quests">
       <SectionHead num="01" kicker="This week" title="Quests" />
       <p class="mb-4 max-w-2xl text-ink-dim">
-        Four boxes. Every week. Miss the walks and you donate a point to the void. The void does not split the $3,000.
+        Four boxes. Every week. Miss the walks and you donate a point to the void. The void does not split the {prizeLabel}.
       </p>
       <QuestBoard standings={standings} />
     </section>
@@ -198,7 +198,7 @@ const standings = buildStandings(new Date(), rows)
         <article class="border border-line bg-card p-4">
           <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Spring break</p>
           <h2 class="mt-1 mb-2 font-display text-[clamp(2rem,7vw,3rem)] leading-none">April 12, 2027</h2>
-          <p class="m-0 text-ink-dim">The day after. One of you is $3,000 lighter. The other paid for it.</p>
+          <p class="m-0 text-ink-dim">The day after. One of you is {prizeLabel} lighter. The other paid for it.</p>
         </article>
       </div>
     </section>
@@ -208,7 +208,7 @@ const standings = buildStandings(new Date(), rows)
     class="border-t border-line px-[clamp(1.1rem,4vw,2rem)] py-6 text-center text-[0.88rem] text-mute"
     style="padding-bottom: calc(1.6rem + env(safe-area-inset-bottom))"
   >
-    <p class="m-0">Adam vs Yagiz · Live standings · Winner takes ${PRIZE_USD.toLocaleString('en-US')}</p>
+    <p class="m-0">Adam vs Yagiz · Live standings · Winner takes {prizeLabel}</p>
     <p class="mt-1">
       Show support:
       <a class="text-gold no-underline hover:underline" href={supportTweetUrl} target="_blank" rel="noopener noreferrer">

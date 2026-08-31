@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { TOTAL_WEEKS, adam, weekLogDate, weekNumber, weightPoints, yagiz } from './challenge.ts'
+import {
+  PRIZE_USD,
+  TOTAL_WEEKS,
+  adam,
+  prizeLabel,
+  weekLogDate,
+  weekNumber,
+  weightPoints,
+  yagiz,
+} from './challenge.ts'
 
 describe('weekNumber', () => {
   it('is 0 before the start', () => {
@@ -30,6 +39,13 @@ describe('weekLogDate', () => {
     assert.equal(weekLogDate(0), '2026-09-01')
     assert.equal(weekLogDate(1), '2026-09-07')
     assert.equal(weekLogDate(32), '2027-04-11')
+  })
+})
+
+describe('purse', () => {
+  it('is a $5,000 winner-take-all', () => {
+    assert.equal(PRIZE_USD, 5000)
+    assert.equal(prizeLabel, '$5,000')
   })
 })
 

@@ -1,14 +1,14 @@
 export const websiteUrl = 'https://adamvsyagiz.com'
-export const websiteTitle = 'Adam vs Yagiz — $3,000 Spring Break Fitness Challenge'
-export const websiteDescription =
-  'Live standings for two friends, 32 weeks, winner takes $3,000. Weight, strength, and steps — September 1, 2026 to April 11, 2027.'
+export const PRIZE_USD = 5000
+export const prizeLabel = `$${PRIZE_USD.toLocaleString('en-US')}`
+
+export const websiteTitle = `Adam vs Yagiz — ${prizeLabel} Spring Break Fitness Challenge`
+export const websiteDescription = `Live standings for two friends, 32 weeks, winner takes ${prizeLabel}. Weight, strength, and steps — September 1, 2026 to April 11, 2027.`
 
 export const CHALLENGE_START = '2026-09-01T00:00:00-04:00'
 export const CHALLENGE_END = '2027-04-11T23:59:59-04:00'
 export const SPRING_BREAK = '2027-04-12'
 export const TOTAL_WEEKS = 32
-export const PRIZE_USD = 3000
-
 export const WEIGHT_POINTS = 50
 export const STRENGTH_POINTS = 25
 export const ACTIVITY_POINTS = 25
