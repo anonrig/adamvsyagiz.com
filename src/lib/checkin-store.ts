@@ -1,6 +1,8 @@
 import {
   cloneCheckins,
+  coercePersonLog,
   emptyLog,
+  isStalePlaceholderOpening,
   personLogsEqual,
   uniqueCheckins,
   type Checkin,
@@ -55,15 +57,6 @@ export function parseCheckinKey(key: string): { person: PersonId; week: number }
   return { person, week: Number(week) }
 }
 
-function isPersonLog(value: unknown): value is PersonLog {
-  if (value === null || typeof value !== 'object') {
-    return false
-  }
-  const log = value as Record<string, unknown>
-  const fields = ['weight', 'stepDays', 'pushUps', 'invertedRows', 'overheadPress'] as const
-  return fields.every((field) => log[field] === null || typeof log[field] === 'number')
-}
-
 export function parseStoredPersonWeek(raw: string, fallbackWeek: number): StoredPersonWeek | null {
   try {
     const value = JSON.parse(raw) as unknown
@@ -71,7 +64,8 @@ export function parseStoredPersonWeek(raw: string, fallbackWeek: number): Stored
       return null
     }
     const row = value as Record<string, unknown>
-    if (!isPersonLog(row.log)) {
+    const log = coercePersonLog(row.log)
+    if (!log) {
       return null
     }
     const week =
@@ -80,7 +74,7 @@ export function parseStoredPersonWeek(raw: string, fallbackWeek: number): Stored
     const note = typeof row.note === 'string' ? row.note : undefined
     const sampleId = typeof row.sampleId === 'string' ? row.sampleId : undefined
     const updatedAt = typeof row.updatedAt === 'string' ? row.updatedAt : ''
-    return { week, date, log: { ...row.log }, note, sampleId, updatedAt }
+    return { week, date, log, note, sampleId, updatedAt }
   } catch {
     return null
   }
@@ -130,6 +124,13 @@ export function mergeCheckins(seed: Checkin[], patches: PersonWeekPatch[]): Chec
       date: entry.date || weekLogDate(entry.week),
       adam: emptyLog(),
       yagiz: emptyLog(),
+    }
+    if (
+      entry.week === 0 &&
+      isStalePlaceholderOpening(entry.log) &&
+      !isStalePlaceholderOpening(existing[person])
+    ) {
+      continue
     }
     byWeek.set(entry.week, {
       week: entry.week,

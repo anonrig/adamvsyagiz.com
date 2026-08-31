@@ -1,6 +1,6 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
 
-import { strengthLifts, type PersonLog } from '../data/checkins.ts'
+import { type PersonLog } from '../data/checkins.ts'
 import { TOTAL_WEEKS, type PersonId } from './challenge.ts'
 
 export const CHECKIN_TOKEN_MIN_LENGTH = 20
@@ -15,10 +15,12 @@ export type CheckinPatch = {
   week?: number
   date?: string
   weight?: number
+  waist?: number
   stepDays?: number
   pushUps?: number
   invertedRows?: number
-  overheadPress?: number
+  overheadPressReps?: number
+  overheadPressWeight?: number
   note?: string
   sampleId?: string
 }
@@ -33,11 +35,23 @@ const NOTE_MAX = 200
 
 const FIELD_LIMITS = {
   weight: { min: 80, max: 450 },
+  waist: { min: 20, max: 80 },
   stepDays: { min: 0, max: 7, integer: true },
   pushUps: { min: 1, max: 400, integer: true },
   invertedRows: { min: 1, max: 400, integer: true },
-  overheadPress: { min: 1, max: 500 },
+  overheadPressReps: { min: 1, max: 400, integer: true },
+  overheadPressWeight: { min: 1, max: 500 },
 } as const
+
+const PATCH_LOG_FIELDS = [
+  'weight',
+  'waist',
+  'stepDays',
+  'pushUps',
+  'invertedRows',
+  'overheadPressReps',
+  'overheadPressWeight',
+] as const
 
 function sha256(value: string): Buffer {
   return createHash('sha256').update(value).digest()
@@ -133,7 +147,10 @@ function validateNumber(
   if (value < limit.min || value > limit.max) {
     return { ok: false, error: `${name} must be between ${limit.min} and ${limit.max}.` }
   }
-  if (name === 'weight' || name === 'overheadPress') {
+  if (name === 'waist') {
+    return { ok: true, value: Math.round(value * 100) / 100 }
+  }
+  if (name === 'weight' || name === 'overheadPressWeight') {
     return { ok: true, value: Math.round(value * 10) / 10 }
   }
   return { ok: true, value }
@@ -183,8 +200,7 @@ export function parseCheckinPatch(
     patch.note = cleaned
   }
 
-  const numericFields = ['weight', 'stepDays', 'pushUps', 'invertedRows', 'overheadPress'] as const
-  for (const field of numericFields) {
+  for (const field of PATCH_LOG_FIELDS) {
     if (input[field] === undefined || input[field] === null || input[field] === '') {
       continue
     }
@@ -199,16 +215,10 @@ export function parseCheckinPatch(
     patch[field] = checked.value
   }
 
-  const hasValue =
-    patch.weight !== undefined ||
-    patch.stepDays !== undefined ||
-    patch.pushUps !== undefined ||
-    patch.invertedRows !== undefined ||
-    patch.overheadPress !== undefined ||
-    patch.note !== undefined
+  const hasValue = PATCH_LOG_FIELDS.some((field) => patch[field] !== undefined) || patch.note !== undefined
 
   if (!hasValue) {
-    return { ok: false, error: 'Send at least one of weight, stepDays, a lift, or note.' }
+    return { ok: false, error: 'Send at least one of weight, waist, stepDays, a lift, or note.' }
   }
 
   return { ok: true, patch }
@@ -216,23 +226,15 @@ export function parseCheckinPatch(
 
 export function applyLogPatch(current: PersonLog, patch: CheckinPatch): PersonLog {
   const next = { ...current }
-  if (patch.weight !== undefined) next.weight = patch.weight
-  if (patch.stepDays !== undefined) next.stepDays = patch.stepDays
-  for (const lift of strengthLifts) {
-    const value = patch[lift]
+  for (const field of PATCH_LOG_FIELDS) {
+    const value = patch[field]
     if (value !== undefined) {
-      next[lift] = value
+      next[field] = value
     }
   }
   return next
 }
 
 export function patchTouchesLog(patch: CheckinPatch): boolean {
-  return (
-    patch.weight !== undefined ||
-    patch.stepDays !== undefined ||
-    patch.pushUps !== undefined ||
-    patch.invertedRows !== undefined ||
-    patch.overheadPress !== undefined
-  )
+  return PATCH_LOG_FIELDS.some((field) => patch[field] !== undefined)
 }

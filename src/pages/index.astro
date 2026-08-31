@@ -27,7 +27,7 @@ import {
   yagiz,
 } from '@/lib/challenge'
 import { homepageJsonLd, latestCheckinDate, supportTweetUrl } from '@/lib/seo'
-import { buildStandings, formatPts } from '@/lib/scoring'
+import { buildStandings, formatInches, formatLbs, formatPts } from '@/lib/scoring'
 import { loadCheckins } from '@/lib/checkin-store'
 import { checkins as seedCheckins } from '@/data/checkins'
 import Layout from '@/layouts/Layout.astro'
@@ -107,8 +107,11 @@ const standings = buildStandings(new Date(), rows)
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="cut">
       <SectionHead num="02" kicker={`${WEIGHT_POINTS} points`} title="The cut" />
       <p class="mb-4 max-w-2xl text-ink-dim">
-        Adam: {adam.startWeight} → {adam.goalWeight} ({adam.toLose} lbs). Yagiz: {yagiz.startWeight} → {yagiz.goalWeight}
-        ({yagiz.toLose} lbs). Same scoreboard, personal mountains.
+        Adam: {formatLbs(adam.startWeight)} → {formatLbs(adam.goalWeight)} ({formatLbs(adam.toLose)} lbs)
+        {standings.adam.startWaist !== null ? `, ${formatInches(standings.adam.startWaist)} in waist` : ''}. Yagiz:{' '}
+        {formatLbs(yagiz.startWeight)} → {formatLbs(yagiz.goalWeight)} ({formatLbs(yagiz.toLose)} lbs)
+        {standings.yagiz.startWaist !== null ? `, ${formatInches(standings.yagiz.startWaist)} in waist` : ''}. Same
+        scoreboard, personal mountains.
       </p>
       <div class="grid gap-3">
         <RaceChart standings={standings} />
@@ -119,7 +122,8 @@ const standings = buildStandings(new Date(), rows)
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="strength">
       <SectionHead num="03" kicker={`${STRENGTH_POINTS} points`} title="Strength" />
       <p class="mb-4 max-w-2xl text-ink-dim">
-        Push-ups, inverted rows, overhead press. You are scored against yourself. Get stronger or get leftover points.
+        Push-ups, inverted rows, overhead press (reps × load). You are scored against yourself. Opening tests are the
+        baselines. Get stronger or get leftover points.
       </p>
       <StrengthBoard standings={standings} />
     </section>

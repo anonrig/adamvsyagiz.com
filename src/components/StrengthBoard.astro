@@ -1,5 +1,5 @@
 ---
-import { liftLabels, liftUnits } from '@/data/checkins'
+import { liftLabels } from '@/data/checkins'
 import { formatPts, type Standings } from '@/lib/scoring'
 
 interface Props {
@@ -31,7 +31,7 @@ const { standings } = Astro.props
                     <span class="text-ink-dim">
                       {lift.baseline === null
                         ? 'Baseline open'
-                        : `${lift.baseline} → ${lift.current ?? '—'} ${liftUnits[lift.lift]}`}
+                        : `${lift.baselineDisplay} → ${lift.currentDisplay ?? '—'}`}
                     </span>
                   </div>
                   <div class="mt-1.5 h-2 bg-[#2a261d]">
@@ -53,5 +53,5 @@ const { standings } = Astro.props
   }
 </div>
 <p class="mt-3 text-[0.88rem] text-mute">
-  First logged number on a lift is the baseline. Score is the average percent improvement across the three lifts, capped at 25.
+  First logged number on a lift is the baseline. Overhead press is scored as reps × load. Average percent improvement across the three lifts, capped at 25.
 </p>

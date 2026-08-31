@@ -1,8 +1,12 @@
 import {
   checkins as seedCheckins,
+  formatOhpSet,
+  liftUnits,
+  overheadPressSet,
   strengthLifts,
   uniqueCheckins,
   type Checkin,
+  type OverheadPressSet,
   type PersonLog,
   type StrengthLift,
 } from '../data/checkins.ts'
@@ -26,6 +30,8 @@ export type LiftProgress = {
   baseline: number | null
   current: number | null
   improvementPct: number | null
+  baselineDisplay: string | null
+  currentDisplay: string | null
 }
 
 export type PersonStats = {
@@ -52,6 +58,8 @@ export type PersonStats = {
   bestStreak: number
   title: string
   xp: number
+  startWaist: number | null
+  currentWaist: number | null
   lifts: LiftProgress[]
 }
 
@@ -139,15 +147,70 @@ export function activityStreaks(
   return { current, best }
 }
 
+function firstOhpSet(rows: Checkin[], id: PersonId): OverheadPressSet | null {
+  for (const row of uniqueCheckins(rows)) {
+    const set = overheadPressSet(row[id])
+    if (set) {
+      return set
+    }
+  }
+  return null
+}
+
+function latestOhpSet(rows: Checkin[], id: PersonId): OverheadPressSet | null {
+  const unique = uniqueCheckins(rows)
+  for (let index = unique.length - 1; index >= 0; index -= 1) {
+    const row = unique[index]
+    if (!row) {
+      continue
+    }
+    const set = overheadPressSet(row[id])
+    if (set) {
+      return set
+    }
+  }
+  return null
+}
+
+function formatLiftValue(lift: StrengthLift, value: number): string {
+  return `${Number.isInteger(value) ? String(value) : value.toFixed(1)} ${liftUnits[lift]}`
+}
+
 export function liftProgress(id: PersonId, rows: Checkin[] = seedCheckins): LiftProgress[] {
   return strengthLifts.map((lift) => {
+    if (lift === 'overheadPress') {
+      const baselineSet = firstOhpSet(rows, id)
+      const currentSet = latestOhpSet(rows, id)
+      const baseline = baselineSet?.volume ?? null
+      const current = currentSet?.volume ?? null
+      let improvementPct: number | null = null
+      if (baseline && baseline > 0 && current !== null) {
+        improvementPct = ((current - baseline) / baseline) * 100
+      }
+      return {
+        lift,
+        baseline,
+        current,
+        improvementPct,
+        baselineDisplay: baselineSet ? formatOhpSet(baselineSet) : null,
+        currentDisplay: currentSet ? formatOhpSet(currentSet) : null,
+      }
+    }
+
     const baseline = firstNumber(rows, id, lift)
     const current = latestNumber(rows, id, lift)
     let improvementPct: number | null = null
     if (baseline && baseline > 0 && current !== null) {
       improvementPct = ((current - baseline) / baseline) * 100
     }
-    return { lift, baseline, current, improvementPct }
+    return {
+      lift,
+      baseline,
+      current,
+      improvementPct,
+      baselineDisplay: baseline === null ? null : formatLiftValue(lift, baseline),
+      currentDisplay: current === null ? null : formatLiftValue(lift, current),
+    }
   })
 }
 
@@ -172,6 +235,8 @@ function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]):
   const strengthPts = strengthPointsFromLifts(lifts)
   const activityPts = Math.min(ACTIVITY_MAX, activityWeeksEarned(person.id, rows))
   const total = weightPts + strengthPts + activityPts
+  const startWaist = firstNumber(rows, person.id, 'waist')
+  const currentWaist = latestNumber(rows, person.id, 'waist')
   const weekForPace = Math.max(calendarWeek, 0)
   const expectedLost = person.toLose * (weekForPace / TOTAL_WEEKS)
   const paceDelta = poundsLost - expectedLost
@@ -202,6 +267,8 @@ function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]):
     bestStreak: streaks.best,
     title: titleForScore(total),
     xp: Math.round(total * 10),
+    startWaist,
+    currentWaist,
     lifts,
   }
 }
@@ -287,4 +354,15 @@ export function formatPts(value: number): string {
 
 export function formatLbs(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1)
+}
+
+export function formatInches(value: number): string {
+  if (Number.isInteger(value)) {
+    return String(value)
+  }
+  const hundredths = Math.round(value * 100) / 100
+  if (Number.isInteger(hundredths * 10)) {
+    return hundredths.toFixed(1)
+  }
+  return hundredths.toFixed(2)
 }

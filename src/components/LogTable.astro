@@ -1,6 +1,6 @@
 ---
 import { liftLabels } from '@/data/checkins'
-import { formatLbs, type Standings } from '@/lib/scoring'
+import { formatInches, formatLbs, type Standings } from '@/lib/scoring'
 
 interface Props {
   standings: Standings
@@ -10,14 +10,14 @@ const { standings } = Astro.props
 ---
 
 <div class="overflow-x-auto border border-line bg-card">
-  <table class="w-full min-w-[720px] border-collapse text-sm">
+  <table class="w-full min-w-[820px] border-collapse text-sm">
     <caption class="sr-only">Weekly official log</caption>
     <thead>
       <tr class="text-left text-[0.72rem] tracking-widest text-mute uppercase">
         <th class="px-3 py-3">Week</th>
         <th class="px-3 py-3">Date</th>
-        <th class="px-3 py-3">Adam lbs</th>
-        <th class="px-3 py-3">Yagiz lbs</th>
+        <th class="px-3 py-3">Adam</th>
+        <th class="px-3 py-3">Yagiz</th>
         <th class="px-3 py-3">Adam 10k</th>
         <th class="px-3 py-3">Yagiz 10k</th>
         <th class="px-3 py-3">Round</th>
@@ -29,8 +29,18 @@ const { standings } = Astro.props
           <tr class="border-t border-line">
             <td class="px-3 py-3 font-display text-lg leading-none">{round.week === 0 ? 'Open' : round.week}</td>
             <td class="px-3 py-3 text-ink-dim">{round.date}</td>
-            <td class="px-3 py-3 text-adam">{round.adam.weight === null ? '—' : `${formatLbs(round.adam.weight)}`}</td>
-            <td class="px-3 py-3 text-yagiz">{round.yagiz.weight === null ? '—' : `${formatLbs(round.yagiz.weight)}`}</td>
+            <td class="px-3 py-3 text-adam">
+              {round.adam.weight === null ? '—' : `${formatLbs(round.adam.weight)} lb`}
+              {round.adam.waist !== null && (
+                <span class="block text-[0.78rem] text-ink-dim">{formatInches(round.adam.waist)} in</span>
+              )}
+            </td>
+            <td class="px-3 py-3 text-yagiz">
+              {round.yagiz.weight === null ? '—' : `${formatLbs(round.yagiz.weight)} lb`}
+              {round.yagiz.waist !== null && (
+                <span class="block text-[0.78rem] text-ink-dim">{formatInches(round.yagiz.waist)} in</span>
+              )}
+            </td>
             <td class="px-3 py-3">{round.adam.stepDays === null ? '—' : `${round.adam.stepDays}/7`}</td>
             <td class="px-3 py-3">{round.yagiz.stepDays === null ? '—' : `${round.yagiz.stepDays}/7`}</td>
             <td class="px-3 py-3">

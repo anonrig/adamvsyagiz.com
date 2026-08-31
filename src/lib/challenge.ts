@@ -34,18 +34,18 @@ export const adam: Contestant = {
   id: 'adam',
   name: 'Adam',
   corner: 'Blue corner',
-  startWeight: 285,
+  startWeight: 284.8,
   goalWeight: 220,
-  toLose: 65,
+  toLose: 64.8,
 }
 
 export const yagiz: Contestant = {
   id: 'yagiz',
   name: 'Yagiz',
   corner: 'Red corner',
-  startWeight: 185,
+  startWeight: 178,
   goalWeight: 145,
-  toLose: 40,
+  toLose: 33,
 }
 
 export const contestants = { adam, yagiz } as const

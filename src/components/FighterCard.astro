@@ -1,6 +1,6 @@
 ---
 import { MAXIMUM_SCORE } from '@/lib/challenge'
-import { formatLbs, formatPts, type PersonStats, type Standings } from '@/lib/scoring'
+import { formatInches, formatLbs, formatPts, type PersonStats, type Standings } from '@/lib/scoring'
 
 interface Props {
   person: PersonStats
@@ -37,6 +37,16 @@ const bar = Math.min(100, (person.total / MAXIMUM_SCORE) * 100)
   </div>
 
   <p class="mt-4 font-display text-[3.4rem] leading-none">{formatLbs(person.currentWeight)}<span class="text-2xl text-mute"> lbs</span></p>
+  {
+    person.currentWaist !== null && (
+      <p class="mt-1 text-ink-dim">
+        {formatInches(person.currentWaist)} in waist
+        {person.startWaist !== null && person.currentWaist !== person.startWaist
+          ? ` · ${person.currentWaist - person.startWaist > 0 ? '+' : ''}${formatInches(person.currentWaist - person.startWaist)} from open`
+          : ''}
+      </p>
+    )
+  }
   <p class="mt-1 text-ink-dim">
     {formatLbs(person.poundsLost)} down · {formatLbs(person.poundsLeft)} to goal · {person.cutPct.toFixed(0)}% of the cut
   </p>

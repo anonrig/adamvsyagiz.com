@@ -250,7 +250,7 @@ export function weeklyQuests(standings: Standings): {
       title: week === 1 || week === 32 ? 'Strength test' : 'Stay strong',
       detail:
         week === 1
-          ? 'Lock push-ups, inverted rows, and overhead press baselines.'
+          ? 'Opening baselines are locked. Train. Official retest is week 32.'
           : week === 32
             ? 'Final test. These numbers close the strength card.'
             : 'Train the three lifts. Official retest is week 32.',

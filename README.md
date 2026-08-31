@@ -85,7 +85,7 @@ The `CHECKINS` KV namespace is declared without an id so Wrangler provisions it 
 Authorization: Bearer <your token>
 Content-Type: application/json
 
-{"weight":282.4,"stepDays":5,"pushUps":20,"invertedRows":8,"overheadPress":95}
+{"weight":282.4,"waist":49,"stepDays":5,"pushUps":20,"invertedRows":8,"overheadPressReps":14,"overheadPressWeight":25}
 ```
 
 The token picks the person. A `person` field in the body is ignored. `week` defaults to the current challenge week. Duplicates are dropped:
@@ -94,7 +94,7 @@ The token picks the person. A `person` field in the body is ignored. `week` defa
 - The same weigh-in (`date` + `weight`, or `sampleId`) cannot be filed on a second week.
 - Two rows for week N collapse into one before scoring, so activity points cannot double-count.
 
-Optional fields: `week`, `date`, `weight`, `stepDays`, `pushUps`, `invertedRows`, `overheadPress`, `note`, `sampleId`. Send at least one value. Form posts from `/log` work too.
+Optional fields: `week`, `date`, `weight`, `waist`, `stepDays`, `pushUps`, `invertedRows`, `overheadPressReps`, `overheadPressWeight`, `note`, `sampleId`. Overhead press is reps at a load. Send at least one value. Form posts from `/log` work too.
 
 ### iPhone Shortcut
 

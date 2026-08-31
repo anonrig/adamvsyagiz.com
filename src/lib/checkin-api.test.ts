@@ -97,9 +97,42 @@ describe('parseCheckinPatch', () => {
     assert.equal(parseCheckinPatch({ stepDays: 8 }).ok, false)
     assert.equal(parseCheckinPatch({ pushUps: 0 }).ok, false)
   })
+
+  it('accepts waist and overhead press as reps at a load', () => {
+    const parsed = parseCheckinPatch({
+      waist: '49.75',
+      overheadPressReps: 13,
+      overheadPressWeight: 25,
+    })
+    assert.equal(parsed.ok, true)
+    if (parsed.ok) {
+      assert.deepEqual(parsed.patch, {
+        waist: 49.75,
+        overheadPressReps: 13,
+        overheadPressWeight: 25,
+      })
+    }
+  })
 })
 
 describe('merge and upsert', () => {
+  it('keeps the official opening when an old 285 placeholder is in KV', () => {
+    const merged = mergeCheckins(checkins, [
+      {
+        person: 'adam',
+        entry: {
+          week: 0,
+          date: '2026-09-01',
+          log: { ...emptyLog(), weight: 285 },
+          updatedAt: '2026-08-30T20:00:00.000Z',
+        },
+      },
+    ])
+    assert.equal(merged[0]?.adam.weight, 284.8)
+    assert.equal(merged[0]?.adam.pushUps, 9)
+    assert.equal(merged[0]?.adam.waist, 49.75)
+  })
+
   it('overlays one person without wiping the other', () => {
     const merged = mergeCheckins(checkins, [
       {
@@ -115,7 +148,7 @@ describe('merge and upsert', () => {
     assert.equal(merged.length, 2)
     assert.equal(merged[1]?.adam.weight, 282)
     assert.equal(merged[1]?.yagiz.weight, null)
-    assert.equal(merged[0]?.adam.weight, 285)
+    assert.equal(merged[0]?.adam.weight, 284.8)
   })
 
   it('updates a week in place instead of appending a duplicate row', async () => {
@@ -168,7 +201,7 @@ describe('merge and upsert', () => {
       'adam',
       0,
       { log: opening.adam, date: opening.date, note: opening.note },
-      { weight: 285 },
+      { weight: 284.8 },
     )
     assert.equal(result.unchanged, true)
     assert.equal(kv.data.size, 0)
