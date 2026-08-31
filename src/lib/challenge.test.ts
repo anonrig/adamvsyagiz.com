@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { TOTAL_WEEKS, weekLogDate, weekNumber, weightPoints } from './challenge.ts'
+import { TOTAL_WEEKS, adam, weekLogDate, weekNumber, weightPoints, yagiz } from './challenge.ts'
 
 describe('weekNumber', () => {
   it('is 0 before the start', () => {
@@ -30,6 +30,15 @@ describe('weekLogDate', () => {
     assert.equal(weekLogDate(0), '2026-09-01')
     assert.equal(weekLogDate(1), '2026-09-07')
     assert.equal(weekLogDate(32), '2027-04-11')
+  })
+})
+
+describe('official cards', () => {
+  it('keeps start, goal, and cut consistent', () => {
+    assert.equal(adam.toLose, adam.startWeight - adam.goalWeight)
+    assert.equal(yagiz.goalWeight, 145)
+    assert.equal(yagiz.toLose, yagiz.startWeight - yagiz.goalWeight)
+    assert.equal(yagiz.toLose, 40)
   })
 })
 
