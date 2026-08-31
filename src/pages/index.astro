@@ -43,7 +43,7 @@ const standings = buildStandings(new Date(), rows)
   <main id="main">
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pt-8 pb-8 text-center" id="top">
       <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Live challenge HQ</p>
-      <p class="mt-2 text-ink-dim tracking-wide">September 1, 2026 — April 11, 2027</p>
+      <p class="mt-2 text-ink-dim tracking-wide">September 1, 2026 — April 1, 2027</p>
 
       <div class="my-7 grid items-center gap-3 max-[520px]:grid-cols-1 min-[521px]:grid-cols-[1fr_auto_1fr]">
         <div class="min-[521px]:text-right max-[520px]:text-center">
@@ -131,7 +131,7 @@ const standings = buildStandings(new Date(), rows)
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="steps">
       <SectionHead num="04" kicker={`${ACTIVITY_POINTS}+${ACTIVITY_BONUS} points`} title="Step seasons" />
       <p class="mb-4 max-w-2xl text-ink-dim">
-        10,000 steps on four days, every challenge week. 25 is the floor. 32 is bragging rights.
+        10,000 steps on four days, every challenge week. 25 is the floor. {TOTAL_WEEKS} is bragging rights.
       </p>
       <ActivityHeatmap standings={standings} />
     </section>
@@ -192,13 +192,13 @@ const standings = buildStandings(new Date(), rows)
       <div class="grid gap-3 md:grid-cols-2">
         <article class="border border-line bg-card p-4">
           <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Final day</p>
-          <h2 class="mt-1 mb-2 font-display text-[clamp(2rem,7vw,3rem)] leading-none">April 11, 2027</h2>
+          <h2 class="mt-1 mb-2 font-display text-[clamp(2rem,7vw,3rem)] leading-none">April 1, 2027</h2>
           <p class="m-0 text-ink-dim">Last weigh-in. Final strength test. Scores lock.</p>
         </article>
         <article class="border border-line bg-card p-4">
           <p class="m-0 text-[0.76rem] font-semibold tracking-[0.16em] text-gold uppercase">Spring break</p>
           <h2 class="mt-1 mb-2 font-display text-[clamp(2rem,7vw,3rem)] leading-none">April 12, 2027</h2>
-          <p class="m-0 text-ink-dim">The day after. One of you is {prizeLabel} lighter. The other paid for it.</p>
+          <p class="m-0 text-ink-dim">Scores already locked. One of you is {prizeLabel} lighter. The other paid for it.</p>
         </article>
       </div>
     </section>

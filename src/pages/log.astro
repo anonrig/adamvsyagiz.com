@@ -5,7 +5,7 @@ import { env } from 'cloudflare:workers'
 
 import { checkins as seedCheckins, liftLabels, liftUnits } from '@/data/checkins'
 import Layout from '@/layouts/Layout.astro'
-import { websiteUrl, weekNumber } from '@/lib/challenge'
+import { TOTAL_WEEKS, websiteUrl, weekNumber } from '@/lib/challenge'
 import { secretsReady } from '@/lib/checkin-api'
 import { loadCheckins } from '@/lib/checkin-store'
 import { buildStandings, formatPts } from '@/lib/scoring'
@@ -95,7 +95,7 @@ const webhookUrl = `${websiteUrl}/api/checkin`
           type="number"
           name="week"
           min="0"
-          max="32"
+          max={TOTAL_WEEKS}
           value={calendarWeek}
         />
       </label>

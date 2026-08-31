@@ -67,7 +67,7 @@ export function achievementsFor(id: PersonId, standings = buildStandings()): Ach
     {
       id: 'pace',
       name: 'On Pace',
-      blurb: 'At or ahead of the 32-week line.',
+      blurb: `At or ahead of the ${TOTAL_WEEKS}-week line.`,
       earned: standings.calendarWeek >= 1 && person.onPace,
     },
     {
@@ -115,7 +115,7 @@ export function achievementsFor(id: PersonId, standings = buildStandings()): Ach
     {
       id: 'perfect',
       name: 'Perfect Season',
-      blurb: '32/32 step weeks.',
+      blurb: `${TOTAL_WEEKS}/${TOTAL_WEEKS} step weeks.`,
       earned: person.activityWeeks >= TOTAL_WEEKS,
     },
     {
@@ -247,15 +247,17 @@ export function weeklyQuests(standings: Standings): {
       done: (person) => (row?.[person.id].stepDays ?? 0) >= 4 || person.streak === 0,
     },
     {
-      title: week === 1 || week === 32 ? 'Strength test' : 'Stay strong',
+      title: week === 1 || week === TOTAL_WEEKS ? 'Strength test' : 'Stay strong',
       detail:
         week === 1
-          ? 'Opening baselines are locked. Train. Official retest is week 32.'
-          : week === 32
+          ? `Opening baselines are locked. Train. Official retest is week ${TOTAL_WEEKS}.`
+          : week === TOTAL_WEEKS
             ? 'Final test. These numbers close the strength card.'
-            : 'Train the three lifts. Official retest is week 32.',
+            : `Train the three lifts. Official retest is week ${TOTAL_WEEKS}.`,
       done: (person) =>
-        week === 1 || week === 32 ? person.lifts.every((lift) => lift.current !== null) : true,
+        week === 1 || week === TOTAL_WEEKS
+          ? person.lifts.every((lift) => lift.current !== null)
+          : true,
     },
   ]
 }

@@ -48,7 +48,7 @@ describe('weekLogDate', () => {
     assert.equal(weekLogDate(0), '2026-09-01')
     assert.equal(weekLogDate(1), '2026-09-07')
     assert.equal(weekLogDate(2), '2026-09-14')
-    assert.equal(weekLogDate(32), '2027-04-11')
+    assert.equal(weekLogDate(31), '2027-04-01')
   })
 })
 

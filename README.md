@@ -5,8 +5,8 @@ One-page site for the **$5,000 Spring Break Fitness Challenge**.
 Astro on [Cloudflare Workers](https://developers.cloudflare.com/workers/), same stack as [yagiz.co](https://github.com/anonrig/yagiz.co).
 
 - **Adam vs Yagiz**
-- September 1, 2026 – April 11, 2027
-- 32 weeks · winner takes $5,000
+- September 1, 2026 – April 1, 2027
+- 31 weeks · winner takes $5,000
 
 ## Getting started
 

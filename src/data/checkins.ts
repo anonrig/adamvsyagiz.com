@@ -1,7 +1,7 @@
 import type { PersonId } from '../lib/challenge.ts'
 
 /**
- * Weekly official log. Week 0 is the opening weigh-in (Sept 1). Weeks 1–32
+ * Weekly official log. Week 0 is the opening weigh-in (Sept 1). Weeks 1–31
  * are seven-day weeks from Sept 1. Live rows from the authenticated webhook
  * overlay this seed at request time — do not append here for a normal Sunday log.
  *

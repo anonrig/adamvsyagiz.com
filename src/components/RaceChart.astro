@@ -51,7 +51,7 @@ const adamArea = areaPath(
   [y0, y1],
 )
 const yTicks = ticks(0, 100, 5)
-const xTicks = [0, 8, 16, 24, 32]
+const xTicks = [0, 8, 16, 24, TOTAL_WEEKS]
 ---
 
 <figure class="border border-line bg-card p-3 sm:p-4">
@@ -63,7 +63,7 @@ const xTicks = [0, 8, 16, 24, 32]
       <li><span class="text-gold">– –</span> Required pace</li>
     </ul>
   </figcaption>
-  <svg viewBox={`0 0 ${width} ${height}`} class="h-auto w-full" role="img" aria-label="Cut progress from week 0 to 32">
+  <svg viewBox={`0 0 ${width} ${height}`} class="h-auto w-full" role="img" aria-label={`Cut progress from week 0 to ${TOTAL_WEEKS}`}>
     {
       yTicks.map((tick) => {
         const y = y0 - (tick / 100) * (y0 - y1)

@@ -34,7 +34,7 @@ import { CHALLENGE_END, CHALLENGE_START, TOTAL_WEEKS, prizeLabel } from '@/lib/c
     }
   </div>
   <p class="mt-3.5 text-[0.92rem] text-ink-dim" data-week-line>
-    32 weeks · Winner takes {prizeLabel}
+    {TOTAL_WEEKS} weeks · Winner takes {prizeLabel}
   </p>
 </div>
 
@@ -44,7 +44,7 @@ import { CHALLENGE_END, CHALLENGE_START, TOTAL_WEEKS, prizeLabel } from '@/lib/c
   if (root instanceof HTMLElement) {
     const start = new Date(root.dataset.start ?? '')
     const end = new Date(root.dataset.end ?? '')
-    const totalWeeks = Number(root.dataset.weeks ?? 32)
+    const totalWeeks = Number(root.dataset.weeks ?? 31)
     const prize = root.dataset.prize ?? '$5,000'
     const label = root.querySelector('[data-countdown-label]')
     const weekLine = root.querySelector('[data-week-line]')
@@ -81,8 +81,8 @@ import { CHALLENGE_END, CHALLENGE_START, TOTAL_WEEKS, prizeLabel } from '@/lib/c
       if (units.s) units.s.textContent = pad(Math.floor((diff % 60000) / 1000))
 
       let status: string
-      if (done) status = 'Final day was April 11, 2027'
-      else if (upcoming) status = `32 weeks · starts September 1 · winner takes ${prize}`
+      if (done) status = 'Final day was April 1, 2027'
+      else if (upcoming) status = `${totalWeeks} weeks · starts September 1 · winner takes ${prize}`
       else status = `Week ${week} of ${totalWeeks} · winner takes ${prize}`
 
       if (weekLine) weekLine.textContent = status
