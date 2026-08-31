@@ -35,8 +35,8 @@ export const adam: Contestant = {
   name: 'Adam',
   corner: 'Blue corner',
   startWeight: 284.8,
-  goalWeight: 220,
-  toLose: 64.8,
+  goalWeight: 225,
+  toLose: 59.8,
 }
 
 export const yagiz: Contestant = {
