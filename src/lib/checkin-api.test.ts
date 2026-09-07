@@ -138,17 +138,18 @@ describe('merge and upsert', () => {
       {
         person: 'adam',
         entry: {
-          week: 1,
-          date: '2026-09-07',
-          log: { ...emptyLog(), weight: 282, stepDays: 5 },
-          updatedAt: '2026-09-07T20:00:00.000Z',
+          week: 2,
+          date: '2026-09-14',
+          log: { ...emptyLog(), weight: 275, stepDays: 5 },
+          updatedAt: '2026-09-14T20:00:00.000Z',
         },
       },
     ])
-    assert.equal(merged.length, 2)
-    assert.equal(merged[1]?.adam.weight, 282)
-    assert.equal(merged[1]?.yagiz.weight, null)
+    assert.equal(merged.length, 3)
+    assert.equal(merged[2]?.adam.weight, 275)
+    assert.equal(merged[2]?.yagiz.weight, null)
     assert.equal(merged[0]?.adam.weight, 284.8)
+    assert.equal(merged[1]?.yagiz.weight, 174.6)
   })
 
   it('updates a week in place instead of appending a duplicate row', async () => {

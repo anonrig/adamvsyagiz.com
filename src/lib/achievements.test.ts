@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
+import { checkins } from '../data/checkins.ts'
 import { achievementsFor, earnedCount } from './achievements.ts'
 import { buildStandings } from './scoring.ts'
 
 describe('achievements', () => {
   it('unlocks the contract, the opening weigh-in, and the strength baselines', () => {
-    const standings = buildStandings(new Date('2026-08-30T12:00:00-04:00'))
+    const standings = buildStandings(new Date('2026-08-30T12:00:00-04:00'), [checkins[0]!])
     const adam = achievementsFor('adam', standings)
     const earned = new Set(adam.filter((item) => item.earned).map((item) => item.id))
     assert.equal(earned.has('card'), true)
