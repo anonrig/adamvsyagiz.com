@@ -142,6 +142,29 @@ export const checkins: Checkin[] = [
     },
     note: 'Opening card. Weight, waist, and strength baselines are locked.',
   },
+  {
+    week: 1,
+    date: '2026-09-07',
+    adam: {
+      weight: 277.6,
+      waist: null,
+      stepDays: null,
+      pushUps: null,
+      invertedRows: null,
+      overheadPressReps: null,
+      overheadPressWeight: null,
+    },
+    yagiz: {
+      weight: 174.6,
+      waist: null,
+      stepDays: null,
+      pushUps: null,
+      invertedRows: null,
+      overheadPressReps: null,
+      overheadPressWeight: null,
+    },
+    note: 'Week 1 weigh-in.',
+  },
 ]
 
 export function logsFor(
