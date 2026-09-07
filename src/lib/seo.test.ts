@@ -62,7 +62,7 @@ describe('homepageJsonLd', () => {
 })
 
 describe('latestCheckinDate', () => {
-  it('returns the opening weigh-in until more weeks are logged', () => {
-    assert.equal(latestCheckinDate(), '2026-09-01')
+  it('returns the latest official log date', () => {
+    assert.equal(latestCheckinDate(), '2026-09-07')
   })
 })
