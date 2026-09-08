@@ -38,8 +38,10 @@ describe('opening standings', () => {
     assert.equal(standings.adam.poundsLeft, 52.6)
     assert.equal(standings.yagiz.poundsLeft, 29.6)
     assert.equal(standings.leader, 'adam')
-    assert.equal(standings.adam.activityPts, 0)
+    assert.equal(standings.adam.activityPts, 1)
     assert.equal(standings.yagiz.activityPts, 0)
+    assert.equal(checkins[1]?.adam.stepDays, 4)
+    assert.equal(checkins[1]?.yagiz.stepDays, 0)
   })
 
   it('keeps the opening weigh-in in the log', () => {
@@ -137,8 +139,10 @@ describe('strength scoring', () => {
 })
 
 describe('activity', () => {
-  it('ignores the opening weigh-in', () => {
-    assert.equal(activityWeeksEarned('adam'), 0)
+  it('ignores the opening weigh-in and scores week 1 walks', () => {
+    assert.equal(activityWeeksEarned('adam', [checkins[0]!]), 0)
+    assert.equal(activityWeeksEarned('adam'), 1)
+    assert.equal(activityWeeksEarned('yagiz'), 0)
   })
 })
 
@@ -200,7 +204,7 @@ describe('live rows', () => {
     assert.equal(standings.adam.currentWeight, 282)
     assert.equal(standings.yagiz.currentWeight, 174.6)
     assert.equal(checkins.length, 2)
-    assert.equal(buildStandings(new Date('2026-09-07T12:00:00-04:00')).adam.activityPts, 0)
+    assert.equal(buildStandings(new Date('2026-09-07T12:00:00-04:00')).adam.activityPts, 1)
   })
 
   it('does not double-count a duplicated week row', () => {
@@ -216,6 +220,6 @@ describe('live rows', () => {
       week,
     ])
     assert.equal(standings.rounds.length, 3)
-    assert.equal(standings.adam.activityPts, 1)
+    assert.equal(standings.adam.activityPts, 2)
   })
 })

@@ -148,7 +148,7 @@ export const checkins: Checkin[] = [
     adam: {
       weight: 277.6,
       waist: null,
-      stepDays: null,
+      stepDays: 4,
       pushUps: null,
       invertedRows: null,
       overheadPressReps: null,
@@ -157,13 +157,13 @@ export const checkins: Checkin[] = [
     yagiz: {
       weight: 174.6,
       waist: null,
-      stepDays: null,
+      stepDays: 0,
       pushUps: null,
       invertedRows: null,
       overheadPressReps: null,
       overheadPressWeight: null,
     },
-    note: 'Week 1 weigh-in.',
+    note: 'Week 1 weigh-in. Adam 4 days at 10k. Yagiz 0.',
   },
 ]
 
