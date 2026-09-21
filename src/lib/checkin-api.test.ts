@@ -138,19 +138,20 @@ describe('merge and upsert', () => {
       {
         person: 'adam',
         entry: {
-          week: 3,
-          date: '2026-09-21',
-          log: { ...emptyLog(), weight: 271, stepDays: 5 },
-          updatedAt: '2026-09-21T20:00:00.000Z',
+          week: 4,
+          date: '2026-09-28',
+          log: { ...emptyLog(), weight: 268, stepDays: 5 },
+          updatedAt: '2026-09-28T20:00:00.000Z',
         },
       },
     ])
-    assert.equal(merged.length, 4)
-    assert.equal(merged[3]?.adam.weight, 271)
-    assert.equal(merged[3]?.yagiz.weight, null)
+    assert.equal(merged.length, 5)
+    assert.equal(merged[4]?.adam.weight, 268)
+    assert.equal(merged[4]?.yagiz.weight, null)
     assert.equal(merged[0]?.adam.weight, 284.8)
     assert.equal(merged[1]?.yagiz.weight, 174.6)
     assert.equal(merged[2]?.yagiz.weight, 173.8)
+    assert.equal(merged[3]?.yagiz.weight, 174)
   })
 
   it('updates a week in place instead of appending a duplicate row', async () => {
@@ -231,7 +232,7 @@ describe('merge and upsert', () => {
         yagiz: emptyLog(),
       },
     ])
-    assert.equal(merged.length, 3)
+    assert.equal(merged.length, 4)
     assert.equal(merged[0]?.adam.weight, 284)
     assert.equal(merged[1]?.adam.weight, 282)
     assert.equal(merged[1]?.adam.stepDays, 5)
