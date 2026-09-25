@@ -9,7 +9,8 @@ import type { PersonId } from '../lib/challenge.ts'
  * waist is taped in inches and is not scored.
  * Strength is scored against personal goals: push-ups and walking lunges are
  * percent of goal, pull-ups are linear per strict rep. Walking lunges are
- * reps per leg at the prescribed dumbbell load.
+ * reps per leg at the prescribed dumbbell load. Week 0 lifts are starting
+ * points only — they do not score until a later official entry.
  */
 export type Checkin = {
   week: number

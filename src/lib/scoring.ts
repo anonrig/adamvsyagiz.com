@@ -111,6 +111,22 @@ function latestNumber(rows: Checkin[], id: PersonId, field: keyof PersonLog): nu
   return null
 }
 
+/** Opening lifts are baselines. Strength scores only after a later official test. */
+function latestScoredLift(rows: Checkin[], id: PersonId, field: keyof PersonLog): number | null {
+  const unique = uniqueCheckins(rows)
+  for (let index = unique.length - 1; index >= 0; index -= 1) {
+    const row = unique[index]
+    if (!row || row.week < 1) {
+      continue
+    }
+    const value = row[id][field]
+    if (typeof value === 'number') {
+      return value
+    }
+  }
+  return null
+}
+
 export function activityWeeksEarned(id: PersonId, rows: Checkin[] = seedCheckins): number {
   return uniqueCheckins(rows).filter(
     (row) => row.week >= 1 && (row[id].stepDays ?? 0) >= STEP_DAYS_TO_SCORE,
@@ -175,7 +191,7 @@ export function liftProgress(id: PersonId, rows: Checkin[] = seedCheckins): Lift
   return strengthLifts.map((lift) => {
     const field = liftLogField[lift]
     const start = firstNumber(rows, id, field)
-    const current = latestNumber(rows, id, field)
+    const current = latestScoredLift(rows, id, field)
     const goal = goals[lift]
     const maxPoints = liftMaxPoints[lift]
     const points = liftPoints(current, goal, maxPoints)
