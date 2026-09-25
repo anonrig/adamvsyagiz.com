@@ -73,7 +73,7 @@ describe('opening standings', () => {
     assert.equal(standings.leader, 'adam')
     assert.equal(standings.adam.activityPts, 3)
     assert.equal(standings.yagiz.activityPts, 1)
-    assert.equal(checkins[3]?.adam.stepDays, 4)
+    assert.equal(checkins[3]?.adam.stepDays, 5)
     assert.equal(checkins[3]?.yagiz.stepDays, 4)
     assert.equal(standings.rounds[3]?.winner, 'adam')
   })
