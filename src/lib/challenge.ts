@@ -10,15 +10,14 @@ export const FINAL_DAY = '2027-04-01'
 export const CHALLENGE_END = `${FINAL_DAY}T23:59:59-04:00`
 export const SPRING_BREAK = '2027-04-12'
 export const TOTAL_WEEKS = 31
-export const WEIGHT_POINTS = 50
+export const WEIGHT_POINTS = 45
 export const STRENGTH_POINTS = 25
-export const ACTIVITY_POINTS = 25
-export const ACTIVITY_BONUS = 6
-export const ACTIVITY_MAX = 31
+export const ACTIVITY_POINTS = 30
+export const ACTIVITY_MAX = 30
 export const STEP_DAY_TARGET = 10_000
 export const STEP_DAYS_TO_SCORE = 4
 export const NORMAL_SCORE = 100
-export const MAXIMUM_SCORE = 106
+export const MAXIMUM_SCORE = 100
 
 export type PersonId = 'adam' | 'yagiz'
 

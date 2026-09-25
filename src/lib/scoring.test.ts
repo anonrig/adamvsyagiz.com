@@ -2,7 +2,14 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import { checkins, emptyLog, type StrengthLift } from '../data/checkins.ts'
-import { adam, liftPoints, pullUpPointsPerRep, weekNumber, weightPoints } from './challenge.ts'
+import {
+  adam,
+  liftPoints,
+  pullUpPointsPerRep,
+  weekLogDate,
+  weekNumber,
+  weightPoints,
+} from './challenge.ts'
 import {
   activityWeeksEarned,
   buildStandings,
@@ -89,6 +96,8 @@ describe('opening standings', () => {
     assert.equal(standings.adam.poundsLeft, 45.4)
     assert.equal(standings.yagiz.poundsLeft, 29)
     assert.equal(standings.leader, 'adam')
+    assert.equal(standings.adam.weightPts, (14.4 / 59.8) * 45)
+    assert.equal(standings.yagiz.weightPts, (4 / 33) * 45)
     assert.equal(standings.adam.activityPts, 3)
     assert.equal(standings.yagiz.activityPts, 1)
     assert.equal(checkins[3]?.adam.stepDays, 5)
@@ -161,6 +170,21 @@ describe('activity', () => {
     assert.equal(activityWeeksEarned('adam'), 3)
     assert.equal(activityWeeksEarned('yagiz'), 1)
   })
+
+  it('caps walking at 30 even if every week qualifies', () => {
+    const rows = [
+      checkins[0]!,
+      ...Array.from({ length: 31 }, (_, index) => ({
+        week: index + 1,
+        date: weekLogDate(index + 1),
+        adam: { ...emptyLog(), stepDays: 4 },
+        yagiz: emptyLog(),
+      })),
+    ]
+    const standings = buildStandings(new Date('2027-04-01T12:00:00-04:00'), rows)
+    assert.equal(standings.adam.activityWeeks, 31)
+    assert.equal(standings.adam.activityPts, 30)
+  })
 })
 
 describe('goal retests', () => {
@@ -195,8 +219,10 @@ describe('formatInches', () => {
 })
 
 describe('weight math still holds', () => {
-  it('is proportional', () => {
-    assert.equal(weightPoints(27.5, 55), 25)
+  it('is proportional on the 45-point card', () => {
+    assert.equal(weightPoints(27.5, 55), 22.5)
+    assert.equal(weightPoints(14.4, 59.8), (14.4 / 59.8) * 45)
+    assert.equal(weightPoints(4, 33), (4 / 33) * 45)
   })
 })
 

@@ -3,14 +3,17 @@ import { describe, it } from 'node:test'
 
 import {
   ACTIVITY_MAX,
+  ACTIVITY_POINTS,
   FINAL_DAY,
   MAXIMUM_SCORE,
+  NORMAL_SCORE,
   PRIZE_USD,
   TOTAL_WEEKS,
   LUNGE_POINTS,
   PULL_UP_POINTS,
   PUSH_UP_POINTS,
   STRENGTH_POINTS,
+  WEIGHT_POINTS,
   adam,
   liftPoints,
   prizeLabel,
@@ -56,8 +59,11 @@ describe('calendar window', () => {
   it('ends April 1 after 31 weeks', () => {
     assert.equal(FINAL_DAY, '2027-04-01')
     assert.equal(TOTAL_WEEKS, 31)
-    assert.equal(ACTIVITY_MAX, TOTAL_WEEKS)
-    assert.equal(MAXIMUM_SCORE, 106)
+    assert.equal(ACTIVITY_MAX, ACTIVITY_POINTS)
+    assert.equal(ACTIVITY_MAX, 30)
+    assert.equal(WEIGHT_POINTS + STRENGTH_POINTS + ACTIVITY_POINTS, NORMAL_SCORE)
+    assert.equal(NORMAL_SCORE, MAXIMUM_SCORE)
+    assert.equal(MAXIMUM_SCORE, 100)
   })
 })
 
@@ -97,16 +103,16 @@ describe('official cards', () => {
 })
 
 describe('weightPoints', () => {
-  it('awards 50 for a completed goal', () => {
-    assert.equal(weightPoints(55, 55), 50)
-    assert.equal(weightPoints(20, 20), 50)
+  it('awards 45 for a completed goal', () => {
+    assert.equal(weightPoints(55, 55), 45)
+    assert.equal(weightPoints(20, 20), 45)
   })
 
   it('is proportional for partial progress', () => {
-    assert.equal(weightPoints(27.5, 55), 25)
+    assert.equal(weightPoints(27.5, 55), 22.5)
   })
 
-  it('caps at 50', () => {
-    assert.equal(weightPoints(70, 55), 50)
+  it('caps at 45', () => {
+    assert.equal(weightPoints(70, 55), 45)
   })
 })

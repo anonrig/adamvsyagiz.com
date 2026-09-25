@@ -15,12 +15,10 @@ import SectionHead from '@/components/SectionHead.astro'
 import StrengthBoard from '@/components/StrengthBoard.astro'
 import WeightCharts from '@/components/WeightCharts.astro'
 import {
-  ACTIVITY_BONUS,
   ACTIVITY_POINTS,
   MAXIMUM_SCORE,
   NORMAL_SCORE,
   STRENGTH_POINTS,
-  TOTAL_WEEKS,
   WEIGHT_POINTS,
   adam,
   prizeLabel,
@@ -129,9 +127,10 @@ const standings = buildStandings(new Date(), rows)
     </section>
 
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="steps">
-      <SectionHead num="04" kicker={`${ACTIVITY_POINTS}+${ACTIVITY_BONUS} points`} title="Step seasons" />
+      <SectionHead num="04" kicker={`${ACTIVITY_POINTS} points`} title="Step seasons" />
       <p class="mb-4 max-w-2xl text-ink-dim">
-        10,000 steps on four days, every challenge week. 25 is the floor. {TOTAL_WEEKS} is bragging rights.
+        10,000 steps on four days, every challenge week. One point per week, cap {ACTIVITY_POINTS} — 31
+        weeks, so one miss still maxes the walking card.
       </p>
       <ActivityHeatmap standings={standings} />
     </section>
@@ -174,7 +173,7 @@ const standings = buildStandings(new Date(), rows)
           <tr>
             <td class="border-t border-line px-4 py-3">Activity · 4 days at 10k / week</td>
             <td class="border-t border-line px-4 py-3 text-right">{ACTIVITY_POINTS}</td>
-            <td class="border-t border-line px-4 py-3 text-right">{TOTAL_WEEKS}</td>
+            <td class="border-t border-line px-4 py-3 text-right">{ACTIVITY_POINTS}</td>
           </tr>
         </tbody>
         <tfoot>

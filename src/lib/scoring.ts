@@ -208,7 +208,8 @@ function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]):
   const weightPts = weightPoints(poundsLost, person.toLose)
   const lifts = liftProgress(person.id, rows)
   const strengthPts = strengthPointsFromLifts(lifts)
-  const activityPts = Math.min(ACTIVITY_MAX, activityWeeksEarned(person.id, rows))
+  const activityWeeks = activityWeeksEarned(person.id, rows)
+  const activityPts = Math.min(ACTIVITY_MAX, activityWeeks)
   const total = weightPts + strengthPts + activityPts
   const startWaist = firstNumber(rows, person.id, 'waist')
   const currentWaist = latestNumber(rows, person.id, 'waist')
@@ -237,7 +238,7 @@ function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]):
     expectedLost,
     paceDelta,
     weeklyPace: person.toLose / TOTAL_WEEKS,
-    activityWeeks: activityPts,
+    activityWeeks,
     streak: streaks.current,
     bestStreak: streaks.best,
     title: titleForScore(total),

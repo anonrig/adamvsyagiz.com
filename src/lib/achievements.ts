@@ -1,4 +1,4 @@
-import { ACTIVITY_POINTS, TOTAL_WEEKS, prizeLabel, type PersonId } from './challenge.ts'
+import { ACTIVITY_MAX, TOTAL_WEEKS, prizeLabel, type PersonId } from './challenge.ts'
 import { buildStandings, type PersonStats, type Standings } from './scoring.ts'
 
 export type Achievement = {
@@ -103,14 +103,14 @@ export function achievementsFor(id: PersonId, standings = buildStandings()): Ach
     {
       id: 'floor',
       name: 'Floor Cleared',
-      blurb: '25 activity points.',
-      earned: person.activityWeeks >= ACTIVITY_POINTS,
+      blurb: '25 qualifying step weeks.',
+      earned: person.activityWeeks >= 25,
     },
     {
       id: 'bonus',
-      name: 'Bonus Round',
-      blurb: 'Earned past week 25.',
-      earned: person.activityWeeks >= 26,
+      name: 'Walking Cap',
+      blurb: `${ACTIVITY_MAX} activity points.`,
+      earned: person.activityPts >= ACTIVITY_MAX,
     },
     {
       id: 'perfect',

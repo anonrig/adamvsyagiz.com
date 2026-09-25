@@ -1,5 +1,5 @@
 ---
-import { TOTAL_WEEKS } from '@/lib/challenge'
+import { TOTAL_WEEKS, WEIGHT_POINTS } from '@/lib/challenge'
 import { areaPath, polyline, ticks } from '@/lib/chart'
 import { cutSeries, paceSeries, type Standings } from '@/lib/scoring'
 
@@ -95,6 +95,6 @@ const xTicks = [0, 8, 16, 24, TOTAL_WEEKS]
     {yagizLine && <path d={yagizLine} fill="none" stroke="#ff7a55" stroke-width="3" />}
   </svg>
   <p class="m-0 text-[0.86rem] text-mute">
-    Same mountain, different starting camps. Hitting 100% is 50 weight points — no extra credit past the goal.
+    Same mountain, different starting camps. Hitting 100% is {WEIGHT_POINTS} weight points — no extra credit past the goal.
   </p>
 </figure>

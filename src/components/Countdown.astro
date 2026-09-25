@@ -97,7 +97,7 @@ import { CHALLENGE_END, CHALLENGE_START, TOTAL_WEEKS, prizeLabel } from '@/lib/c
       document.querySelectorAll<HTMLElement>('[data-pip]').forEach((pip, index) => {
         const n = index + 1
         pip.classList.toggle('bg-gold', !done && !upcoming && n === week)
-        pip.title = `Week ${n}${n > 25 ? ' · bonus' : ''}`
+        pip.title = `Week ${n}`
       })
     }
 

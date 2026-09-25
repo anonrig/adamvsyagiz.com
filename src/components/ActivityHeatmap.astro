@@ -1,7 +1,7 @@
 ---
-import { STEP_DAYS_TO_SCORE, TOTAL_WEEKS } from '@/lib/challenge'
+import { ACTIVITY_MAX, STEP_DAYS_TO_SCORE, TOTAL_WEEKS } from '@/lib/challenge'
 import type { PersonId } from '@/lib/challenge'
-import type { Standings } from '@/lib/scoring'
+import { formatPts, type Standings } from '@/lib/scoring'
 
 interface Props {
   standings: Standings
@@ -32,7 +32,7 @@ function cell(id: PersonId, week: number) {
               {person.name}
             </h3>
             <p class="m-0 text-[0.86rem] text-ink-dim">
-              {person.activityWeeks} pts · best streak {person.bestStreak}
+              {formatPts(person.activityPts)} / {ACTIVITY_MAX} · best streak {person.bestStreak}
             </p>
           </div>
           <ol class="m-0 grid list-none grid-cols-8 gap-1.5 p-0 sm:grid-cols-[repeat(16,minmax(0,1fr))]">
@@ -58,6 +58,6 @@ function cell(id: PersonId, week: number) {
     })
   }
   <p class="m-0 text-[0.86rem] text-mute">
-    Lit cell = 4+ days at 10,000 steps. Dark red = logged miss. Ring = this week. Bonus weeks are 26–{TOTAL_WEEKS}.
+    Lit cell = 4+ days at 10,000 steps. Dark red = logged miss. Ring = this week. Cap is {ACTIVITY_MAX} points.
   </p>
 </div>
