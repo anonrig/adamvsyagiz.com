@@ -179,18 +179,25 @@ describe('activity', () => {
     assert.equal(activityWeeksEarned('yagiz'), 1)
   })
 
-  it('caps walking at 30 even if every week qualifies', () => {
+  it('scores 30 walking points across the 30-week card', () => {
     const rows = [
       checkins[0]!,
-      ...Array.from({ length: 31 }, (_, index) => ({
+      ...Array.from({ length: 30 }, (_, index) => ({
         week: index + 1,
         date: weekLogDate(index + 1),
         adam: { ...emptyLog(), stepDays: 4 },
         yagiz: emptyLog(),
       })),
+      {
+        week: 31,
+        date: '2027-04-08',
+        adam: { ...emptyLog(), stepDays: 4 },
+        yagiz: emptyLog(),
+      },
     ]
     const standings = buildStandings(new Date('2027-04-01T12:00:00-04:00'), rows)
-    assert.equal(standings.adam.activityWeeks, 31)
+    assert.equal(activityWeeksEarned('adam', rows), 30)
+    assert.equal(standings.adam.activityWeeks, 30)
     assert.equal(standings.adam.activityPts, 30)
   })
 })

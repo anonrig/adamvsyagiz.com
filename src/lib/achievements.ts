@@ -253,10 +253,10 @@ export function weeklyQuests(standings: Standings): {
       title: week === 1 || week === TOTAL_WEEKS ? 'Strength test' : 'Stay strong',
       detail:
         week === 1
-          ? `Opening starts are locked. Train. Official retest is week ${TOTAL_WEEKS}.`
+          ? 'Opening starts are locked. Train. Official retest is April 1.'
           : week === TOTAL_WEEKS
             ? 'Final test. These numbers close the strength card.'
-            : `Train push-ups, pull-ups, and walking lunges. Official retest is week ${TOTAL_WEEKS}.`,
+            : 'Train push-ups, pull-ups, and walking lunges. Official retest is April 1.',
       done: (person) => {
         const tested = Object.fromEntries(
           person.lifts.map((lift) => [lift.lift, lift.current !== null]),

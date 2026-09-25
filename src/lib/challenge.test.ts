@@ -4,11 +4,14 @@ import { describe, it } from 'node:test'
 import {
   ACTIVITY_MAX,
   ACTIVITY_POINTS,
+  CHALLENGE_START,
   FINAL_DAY,
   MAXIMUM_SCORE,
   NORMAL_SCORE,
   PRIZE_USD,
   TOTAL_WEEKS,
+  FINAL_EXTRA_DAYS,
+  challengeSpanLabel,
   LUNGE_POINTS,
   PULL_UP_POINTS,
   PUSH_UP_POINTS,
@@ -38,11 +41,11 @@ describe('weekNumber', () => {
     assert.equal(weekNumber(new Date('2026-09-08T00:00:00-04:00')), 2)
   })
 
-  it('is 31 on the final day', () => {
-    assert.equal(weekNumber(new Date('2027-04-01T12:00:00-04:00')), 31)
+  it('is 30 on the final day', () => {
+    assert.equal(weekNumber(new Date('2027-04-01T12:00:00-04:00')), 30)
   })
 
-  it('stays at 31 after the challenge', () => {
+  it('stays at 30 after the challenge', () => {
     assert.equal(weekNumber(new Date('2027-04-02T00:00:00-04:00')), TOTAL_WEEKS)
   })
 })
@@ -51,14 +54,21 @@ describe('weekLogDate', () => {
   it('anchors week 0, week 1, and the final day', () => {
     assert.equal(weekLogDate(0), '2026-09-01')
     assert.equal(weekLogDate(1), '2026-09-07')
-    assert.equal(weekLogDate(31), '2027-04-01')
+    assert.equal(weekLogDate(29), '2027-03-22')
+    assert.equal(weekLogDate(30), '2027-04-01')
   })
 })
 
 describe('calendar window', () => {
-  it('ends April 1 after 31 weeks', () => {
+  it('is 30 weeks plus 2 days from Sept 1 to April 1', () => {
+    const start = new Date(CHALLENGE_START)
+    const finalMorning = new Date(`${FINAL_DAY}T00:00:00-04:00`)
+    const days = Math.round((finalMorning.getTime() - start.getTime()) / 86_400_000)
     assert.equal(FINAL_DAY, '2027-04-01')
-    assert.equal(TOTAL_WEEKS, 31)
+    assert.equal(TOTAL_WEEKS, 30)
+    assert.equal(FINAL_EXTRA_DAYS, 2)
+    assert.equal(days, TOTAL_WEEKS * 7 + FINAL_EXTRA_DAYS)
+    assert.equal(challengeSpanLabel, '30 weeks + 2 days')
     assert.equal(ACTIVITY_MAX, ACTIVITY_POINTS)
     assert.equal(ACTIVITY_MAX, 30)
     assert.equal(WEIGHT_POINTS + STRENGTH_POINTS + ACTIVITY_POINTS, NORMAL_SCORE)

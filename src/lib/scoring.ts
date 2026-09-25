@@ -129,7 +129,8 @@ function latestScoredLift(rows: Checkin[], id: PersonId, field: keyof PersonLog)
 
 export function activityWeeksEarned(id: PersonId, rows: Checkin[] = seedCheckins): number {
   return uniqueCheckins(rows).filter(
-    (row) => row.week >= 1 && (row[id].stepDays ?? 0) >= STEP_DAYS_TO_SCORE,
+    (row) =>
+      row.week >= 1 && row.week <= TOTAL_WEEKS && (row[id].stepDays ?? 0) >= STEP_DAYS_TO_SCORE,
   ).length
 }
 
@@ -139,7 +140,7 @@ export function activityStreaks(
 ): { current: number; best: number } {
   const weeks = new Map<number, boolean>()
   for (const row of uniqueCheckins(rows)) {
-    if (row.week >= 1) {
+    if (row.week >= 1 && row.week <= TOTAL_WEEKS) {
       weeks.set(row.week, (row[id].stepDays ?? 0) >= STEP_DAYS_TO_SCORE)
     }
   }

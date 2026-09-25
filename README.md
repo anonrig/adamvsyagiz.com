@@ -6,7 +6,7 @@ Astro on [Cloudflare Workers](https://developers.cloudflare.com/workers/), same 
 
 - **Adam vs Yagiz**
 - September 1, 2026 – April 1, 2027
-- 31 weeks · winner takes $5,000
+- 30 weeks + 2 days · winner takes $5,000
 
 ## Getting started
 

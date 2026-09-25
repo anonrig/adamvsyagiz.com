@@ -3,13 +3,15 @@ export const PRIZE_USD = 5000
 export const prizeLabel = `$${PRIZE_USD.toLocaleString('en-US')}`
 
 export const websiteTitle = `Adam vs Yagiz — ${prizeLabel} Spring Break Fitness Challenge`
-export const websiteDescription = `Live standings for two friends, 31 weeks, winner takes ${prizeLabel}. Weight, strength, and steps — September 1, 2026 to April 1, 2027.`
+export const websiteDescription = `Live standings for two friends, 30 weeks + 2 days, winner takes ${prizeLabel}. Weight, strength, and steps — September 1, 2026 to April 1, 2027.`
 
 export const CHALLENGE_START = '2026-09-01T00:00:00-04:00'
 export const FINAL_DAY = '2027-04-01'
 export const CHALLENGE_END = `${FINAL_DAY}T23:59:59-04:00`
 export const SPRING_BREAK = '2027-04-12'
-export const TOTAL_WEEKS = 31
+export const TOTAL_WEEKS = 30
+export const FINAL_EXTRA_DAYS = 2
+export const challengeSpanLabel = `${TOTAL_WEEKS} weeks + ${FINAL_EXTRA_DAYS} days`
 export const WEIGHT_POINTS = 45
 export const STRENGTH_POINTS = 25
 export const ACTIVITY_POINTS = 30

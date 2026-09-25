@@ -1,9 +1,10 @@
 import type { PersonId } from '../lib/challenge.ts'
 
 /**
- * Weekly official log. Week 0 is the opening weigh-in (Sept 1). Weeks 1–31
- * are seven-day weeks from Sept 1. Live rows from the authenticated webhook
- * overlay this seed at request time — do not append here for a normal Sunday log.
+ * Weekly official log. Week 0 is the opening weigh-in (Sept 1). Weeks 1–30
+ * are seven-day weeks from Sept 1, then two days to the April 1 lock. Live
+ * rows from the authenticated webhook overlay this seed at request time —
+ * do not append here for a normal Sunday log.
  *
  * stepDays = how many days that week hit 10,000+ steps. 4+ earns the activity point.
  * waist is taped in inches and is not scored.
