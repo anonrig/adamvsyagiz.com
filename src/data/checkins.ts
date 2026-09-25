@@ -7,8 +7,9 @@ import type { PersonId } from '../lib/challenge.ts'
  *
  * stepDays = how many days that week hit 10,000+ steps. 4+ earns the activity point.
  * waist is taped in inches and is not scored.
- * Strength: first logged value for a lift is the baseline. Overhead press is
- * stored as reps at a load and scored as volume (reps × lb).
+ * Strength is scored against personal goals: push-ups and walking lunges are
+ * percent of goal, pull-ups are linear per strict rep. Walking lunges are
+ * reps per leg at the prescribed dumbbell load.
  */
 export type Checkin = {
   week: number
@@ -23,9 +24,8 @@ export type PersonLog = {
   waist: number | null
   stepDays: number | null
   pushUps: number | null
-  invertedRows: number | null
-  overheadPressReps: number | null
-  overheadPressWeight: number | null
+  pullUps: number | null
+  walkingLunges: number | null
 }
 
 export const personLogFields = [
@@ -33,32 +33,31 @@ export const personLogFields = [
   'waist',
   'stepDays',
   'pushUps',
-  'invertedRows',
-  'overheadPressReps',
-  'overheadPressWeight',
+  'pullUps',
+  'walkingLunges',
 ] as const
 
 export type PersonLogField = (typeof personLogFields)[number]
 
-export const strengthLifts = ['pushUps', 'invertedRows', 'overheadPress'] as const
+export const strengthLifts = ['pushUps', 'pullUps', 'walkingLunges'] as const
 export type StrengthLift = (typeof strengthLifts)[number]
 
 export const liftLabels: Record<StrengthLift, string> = {
   pushUps: 'Push-ups',
-  invertedRows: 'Inverted rows',
-  overheadPress: 'Overhead press',
+  pullUps: 'Pull-ups',
+  walkingLunges: 'Walking lunges',
 }
 
 export const liftUnits: Record<StrengthLift, string> = {
   pushUps: 'reps',
-  invertedRows: 'reps',
-  overheadPress: 'reps × lb',
+  pullUps: 'reps',
+  walkingLunges: 'reps / leg',
 }
 
-export type OverheadPressSet = {
-  reps: number
-  weight: number
-  volume: number
+export const liftLogField: Record<StrengthLift, keyof PersonLog> = {
+  pushUps: 'pushUps',
+  pullUps: 'pullUps',
+  walkingLunges: 'walkingLunges',
 }
 
 export function emptyLog(): PersonLog {
@@ -67,9 +66,8 @@ export function emptyLog(): PersonLog {
     waist: null,
     stepDays: null,
     pushUps: null,
-    invertedRows: null,
-    overheadPressReps: null,
-    overheadPressWeight: null,
+    pullUps: null,
+    walkingLunges: null,
   }
 }
 
@@ -92,18 +90,12 @@ export function coercePersonLog(value: unknown): PersonLog | null {
   return log
 }
 
-export function overheadPressSet(log: PersonLog): OverheadPressSet | null {
-  const reps = log.overheadPressReps
-  const weight = log.overheadPressWeight
-  if (typeof reps !== 'number' || typeof weight !== 'number') {
-    return null
+export function formatLiftCount(lift: StrengthLift, value: number): string {
+  const count = Number.isInteger(value) ? String(value) : value.toFixed(1)
+  if (lift === 'walkingLunges') {
+    return `${count} / leg`
   }
-  return { reps, weight, volume: reps * weight }
-}
-
-export function formatOhpSet(set: OverheadPressSet): string {
-  const load = Number.isInteger(set.weight) ? String(set.weight) : set.weight.toFixed(1)
-  return `${set.reps} × ${load} lb`
+  return `${count} ${liftUnits[lift]}`
 }
 
 /** Old seed / test writes that predate the official opening card. */
@@ -112,9 +104,8 @@ export function isStalePlaceholderOpening(log: PersonLog): boolean {
     (log.weight === 285 || log.weight === 185) &&
     log.waist === null &&
     log.pushUps === null &&
-    log.invertedRows === null &&
-    log.overheadPressReps === null &&
-    log.overheadPressWeight === null
+    log.pullUps === null &&
+    log.walkingLunges === null
   )
 }
 
@@ -127,20 +118,18 @@ export const checkins: Checkin[] = [
       waist: 49.75,
       stepDays: null,
       pushUps: 9,
-      invertedRows: 6,
-      overheadPressReps: 13,
-      overheadPressWeight: 25,
+      pullUps: 0,
+      walkingLunges: null,
     },
     yagiz: {
       weight: 178,
       waist: 39,
       stepDays: null,
       pushUps: 13,
-      invertedRows: 6,
-      overheadPressReps: 16,
-      overheadPressWeight: 20,
+      pullUps: 1,
+      walkingLunges: null,
     },
-    note: 'Opening card. Weight, waist, and strength baselines are locked.',
+    note: 'Opening card. Weight, waist, and strength starting points are locked.',
   },
   {
     week: 1,
@@ -150,18 +139,16 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      invertedRows: null,
-      overheadPressReps: null,
-      overheadPressWeight: null,
+      pullUps: null,
+      walkingLunges: null,
     },
     yagiz: {
       weight: 174.6,
       waist: null,
       stepDays: 0,
       pushUps: null,
-      invertedRows: null,
-      overheadPressReps: null,
-      overheadPressWeight: null,
+      pullUps: null,
+      walkingLunges: null,
     },
     note: 'Week 1 weigh-in. Adam 4 days at 10k. Yagiz 0.',
   },
@@ -173,18 +160,16 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      invertedRows: null,
-      overheadPressReps: null,
-      overheadPressWeight: null,
+      pullUps: null,
+      walkingLunges: null,
     },
     yagiz: {
       weight: 173.8,
       waist: null,
       stepDays: 0,
       pushUps: null,
-      invertedRows: null,
-      overheadPressReps: null,
-      overheadPressWeight: null,
+      pullUps: null,
+      walkingLunges: null,
     },
     note: 'Week 2 weigh-in. Adam 4 days at 10k. Yagiz 0.',
   },
@@ -196,18 +181,16 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 5,
       pushUps: null,
-      invertedRows: null,
-      overheadPressReps: null,
-      overheadPressWeight: null,
+      pullUps: null,
+      walkingLunges: null,
     },
     yagiz: {
       weight: 174,
       waist: null,
       stepDays: 4,
       pushUps: null,
-      invertedRows: null,
-      overheadPressReps: null,
-      overheadPressWeight: null,
+      pullUps: null,
+      walkingLunges: null,
     },
     note: 'Week 3 weigh-in. Adam 5 days at 10k. Yagiz 4.',
   },

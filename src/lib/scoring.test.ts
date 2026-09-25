@@ -1,18 +1,34 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { checkins, emptyLog } from '../data/checkins.ts'
-import { adam, weekNumber, weightPoints } from './challenge.ts'
+import { checkins, emptyLog, type StrengthLift } from '../data/checkins.ts'
+import { adam, liftPoints, pullUpPointsPerRep, weekNumber, weightPoints } from './challenge.ts'
 import {
   activityWeeksEarned,
   buildStandings,
   formatInches,
   liftProgress,
   strengthPointsFromLifts,
+  type LiftProgress,
 } from './scoring.ts'
 
+function liftStub(lift: StrengthLift, points: number): LiftProgress {
+  return {
+    lift,
+    start: null,
+    goal: 1,
+    current: null,
+    points,
+    maxPoints: 10,
+    goalPct: null,
+    startDisplay: null,
+    currentDisplay: null,
+    goalDisplay: '1 reps',
+  }
+}
+
 describe('opening standings', () => {
-  it('keeps opening-day totals at zero before any cut', () => {
+  it('keeps opening-day weight at zero and scores starting lifts against goals', () => {
     const standings = buildStandings(new Date('2026-08-31T12:00:00-04:00'), [checkins[0]!])
     assert.equal(standings.calendarWeek, 0)
     assert.equal(standings.adam.currentWeight, 284.8)
@@ -21,11 +37,13 @@ describe('opening standings', () => {
     assert.equal(standings.yagiz.poundsLeft, 33)
     assert.equal(standings.adam.currentWaist, 49.75)
     assert.equal(standings.yagiz.currentWaist, 39)
-    assert.equal(standings.adam.strengthPts, 0)
-    assert.equal(standings.yagiz.strengthPts, 0)
-    assert.equal(standings.adam.total, 0)
-    assert.equal(standings.yagiz.total, 0)
-    assert.equal(standings.leader, null)
+    assert.equal(standings.adam.weightPts, 0)
+    assert.equal(standings.yagiz.weightPts, 0)
+    assert.equal(standings.adam.strengthPts, liftPoints(9, 25, 10))
+    assert.equal(standings.yagiz.strengthPts, liftPoints(13, 35, 10) + liftPoints(1, 6, 5))
+    assert.equal(standings.adam.total, standings.adam.strengthPts)
+    assert.equal(standings.yagiz.total, standings.yagiz.strengthPts)
+    assert.equal(standings.leader, 'yagiz')
   })
 
   it('scores the week 1 cut on the live card', () => {
@@ -86,89 +104,54 @@ describe('opening standings', () => {
     assert.equal(checkins[0]?.yagiz.waist, 39)
   })
 
-  it('locks opening lifts as 0% strength baselines', () => {
+  it('locks opening lifts against personal strength goals', () => {
     const standings = buildStandings(new Date('2026-09-01T12:00:00-04:00'))
     const adamLifts = Object.fromEntries(standings.adam.lifts.map((lift) => [lift.lift, lift]))
     const yagizLifts = Object.fromEntries(standings.yagiz.lifts.map((lift) => [lift.lift, lift]))
-    assert.equal(adamLifts.pushUps?.baseline, 9)
-    assert.equal(adamLifts.invertedRows?.baseline, 6)
-    assert.equal(adamLifts.overheadPress?.baseline, 325)
-    assert.equal(adamLifts.overheadPress?.baselineDisplay, '13 × 25 lb')
-    assert.equal(yagizLifts.pushUps?.baseline, 13)
-    assert.equal(yagizLifts.invertedRows?.baseline, 6)
-    assert.equal(yagizLifts.overheadPress?.baseline, 320)
-    assert.equal(yagizLifts.overheadPress?.baselineDisplay, '16 × 20 lb')
-    assert.equal(
-      standings.adam.lifts.every((lift) => lift.improvementPct === 0),
-      true,
-    )
-    assert.equal(
-      standings.yagiz.lifts.every((lift) => lift.improvementPct === 0),
-      true,
-    )
+    assert.equal(adamLifts.pushUps?.start, 9)
+    assert.equal(adamLifts.pushUps?.goal, 25)
+    assert.equal(adamLifts.pushUps?.points, liftPoints(9, 25, 10))
+    assert.equal(adamLifts.pullUps?.start, 0)
+    assert.equal(adamLifts.pullUps?.goal, 3)
+    assert.equal(adamLifts.pullUps?.points, 0)
+    assert.equal(adamLifts.walkingLunges?.start, null)
+    assert.equal(adamLifts.walkingLunges?.startDisplay, 'Unable')
+    assert.equal(adamLifts.walkingLunges?.goalDisplay, '12 / leg · 40 lb')
+    assert.equal(yagizLifts.pushUps?.start, 13)
+    assert.equal(yagizLifts.pushUps?.goal, 35)
+    assert.equal(yagizLifts.pullUps?.start, 1)
+    assert.equal(yagizLifts.pullUps?.goal, 6)
+    assert.equal(yagizLifts.walkingLunges?.startDisplay, 'TBD')
+    assert.equal(yagizLifts.walkingLunges?.goalDisplay, '12 / leg · 50 lb')
   })
 })
 
 describe('strength scoring', () => {
-  it('is 0 until a baseline exists', () => {
-    assert.equal(
-      strengthPointsFromLifts([
-        {
-          lift: 'pushUps',
-          baseline: null,
-          current: null,
-          improvementPct: null,
-          baselineDisplay: null,
-          currentDisplay: null,
-        },
-      ]),
-      0,
-    )
+  it('is 0 until a lift has points', () => {
+    assert.equal(strengthPointsFromLifts([liftStub('pushUps', 0)]), 0)
   })
 
-  it('averages lift improvement and caps at 25', () => {
+  it('adds the three lifts and caps at 25', () => {
     assert.equal(
       strengthPointsFromLifts([
-        {
-          lift: 'pushUps',
-          baseline: 10,
-          current: 12,
-          improvementPct: 20,
-          baselineDisplay: '10 reps',
-          currentDisplay: '12 reps',
-        },
-        {
-          lift: 'invertedRows',
-          baseline: 10,
-          current: 12,
-          improvementPct: 20,
-          baselineDisplay: '10 reps',
-          currentDisplay: '12 reps',
-        },
-        {
-          lift: 'overheadPress',
-          baseline: 10,
-          current: 12,
-          improvementPct: 20,
-          baselineDisplay: '1 × 10 lb',
-          currentDisplay: '1 × 12 lb',
-        },
+        liftStub('pushUps', 8),
+        liftStub('pullUps', 5),
+        liftStub('walkingLunges', 7.5),
       ]),
-      20,
+      20.5,
     )
-    assert.equal(
-      strengthPointsFromLifts([
-        {
-          lift: 'pushUps',
-          baseline: 10,
-          current: 20,
-          improvementPct: 80,
-          baselineDisplay: '10 reps',
-          currentDisplay: '20 reps',
-        },
-      ]),
-      25,
-    )
+    assert.equal(strengthPointsFromLifts([liftStub('pushUps', 30)]), 25)
+  })
+
+  it('matches the official goal examples', () => {
+    assert.equal(liftPoints(20, 25, 10), 8)
+    assert.equal(liftPoints(28, 35, 10), 8)
+    assert.equal(liftPoints(9, 12, 10), 7.5)
+    assert.ok(Math.abs(liftPoints(10, 12, 10) - (10 / 12) * 10) < 1e-9)
+    assert.ok(Math.abs(pullUpPointsPerRep(3) - 5 / 3) < 1e-9)
+    assert.ok(Math.abs(pullUpPointsPerRep(6) - 5 / 6) < 1e-9)
+    assert.equal(liftPoints(4, 3, 5), 5)
+    assert.equal(liftPoints(40, 25, 10), 10)
   })
 })
 
@@ -180,25 +163,26 @@ describe('activity', () => {
   })
 })
 
-describe('overhead press volume', () => {
-  it('scores reps × load against the opening set', () => {
+describe('goal retests', () => {
+  it('scores a later test against the personal goal, not the start', () => {
     const rows = [
       ...checkins,
       {
         week: 8,
         date: '2026-10-26',
-        adam: { ...emptyLog(), overheadPressReps: 16, overheadPressWeight: 25 },
+        adam: { ...emptyLog(), pushUps: 20, pullUps: 2, walkingLunges: 9 },
         yagiz: emptyLog(),
       },
     ]
-    const press = liftProgress('adam', rows).find((lift) => lift.lift === 'overheadPress')
-    assert.equal(press?.baseline, 325)
-    assert.equal(press?.current, 400)
-    assert.equal(press?.currentDisplay, '16 × 25 lb')
-    assert.ok(
-      press?.improvementPct !== null &&
-        Math.abs((press.improvementPct ?? 0) - (75 / 325) * 100) < 1e-9,
-    )
+    const lifts = Object.fromEntries(liftProgress('adam', rows).map((lift) => [lift.lift, lift]))
+    assert.equal(lifts.pushUps?.start, 9)
+    assert.equal(lifts.pushUps?.current, 20)
+    assert.equal(lifts.pushUps?.points, 8)
+    assert.equal(lifts.pullUps?.current, 2)
+    assert.ok(Math.abs((lifts.pullUps?.points ?? 0) - (2 / 3) * 5) < 1e-9)
+    assert.equal(lifts.walkingLunges?.current, 9)
+    assert.equal(lifts.walkingLunges?.points, 7.5)
+    assert.equal(lifts.walkingLunges?.currentDisplay, '9 / leg')
   })
 })
 

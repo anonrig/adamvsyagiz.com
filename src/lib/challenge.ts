@@ -22,6 +22,35 @@ export const MAXIMUM_SCORE = 106
 
 export type PersonId = 'adam' | 'yagiz'
 
+export const PUSH_UP_POINTS = 10
+export const PULL_UP_POINTS = 5
+export const LUNGE_POINTS = 10
+
+export type StrengthLiftId = 'pushUps' | 'pullUps' | 'walkingLunges'
+
+export type PersonStrengthGoals = {
+  pushUps: number
+  pullUps: number
+  walkingLunges: number
+  lungeDumbbellLb: number
+}
+
+export const liftMaxPoints: Record<StrengthLiftId, number> = {
+  pushUps: PUSH_UP_POINTS,
+  pullUps: PULL_UP_POINTS,
+  walkingLunges: LUNGE_POINTS,
+}
+
+export const strengthGoals: Record<PersonId, PersonStrengthGoals> = {
+  adam: { pushUps: 25, pullUps: 3, walkingLunges: 12, lungeDumbbellLb: 40 },
+  yagiz: { pushUps: 35, pullUps: 6, walkingLunges: 12, lungeDumbbellLb: 50 },
+}
+
+export const lungeStartLabel: Record<PersonId, string> = {
+  adam: 'Unable',
+  yagiz: 'TBD',
+}
+
 export type Contestant = {
   id: PersonId
   name: string
@@ -29,6 +58,17 @@ export type Contestant = {
   startWeight: number
   goalWeight: number
   toLose: number
+}
+
+export function liftPoints(current: number | null, goal: number, maxPoints: number): number {
+  if (current === null || goal <= 0) {
+    return 0
+  }
+  return Math.min(maxPoints, Math.max(0, (current / goal) * maxPoints))
+}
+
+export function pullUpPointsPerRep(goal: number): number {
+  return goal > 0 ? PULL_UP_POINTS / goal : 0
 }
 
 export const adam: Contestant = {

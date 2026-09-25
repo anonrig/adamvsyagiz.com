@@ -1,12 +1,10 @@
 import {
   checkins as seedCheckins,
-  formatOhpSet,
-  liftUnits,
-  overheadPressSet,
+  formatLiftCount,
+  liftLogField,
   strengthLifts,
   uniqueCheckins,
   type Checkin,
-  type OverheadPressSet,
   type PersonLog,
   type StrengthLift,
 } from '../data/checkins.ts'
@@ -17,6 +15,10 @@ import {
   TOTAL_WEEKS,
   adam,
   contestants,
+  liftMaxPoints,
+  liftPoints,
+  lungeStartLabel,
+  strengthGoals,
   titleForScore,
   weekNumber,
   weightPoints,
@@ -27,11 +29,15 @@ import {
 
 export type LiftProgress = {
   lift: StrengthLift
-  baseline: number | null
+  start: number | null
+  goal: number
   current: number | null
-  improvementPct: number | null
-  baselineDisplay: string | null
+  points: number
+  maxPoints: number
+  goalPct: number | null
+  startDisplay: string | null
   currentDisplay: string | null
+  goalDisplay: string
 }
 
 export type PersonStats = {
@@ -147,82 +153,51 @@ export function activityStreaks(
   return { current, best }
 }
 
-function firstOhpSet(rows: Checkin[], id: PersonId): OverheadPressSet | null {
-  for (const row of uniqueCheckins(rows)) {
-    const set = overheadPressSet(row[id])
-    if (set) {
-      return set
-    }
+function goalDisplayFor(id: PersonId, lift: StrengthLift, goal: number): string {
+  if (lift === 'walkingLunges') {
+    return `${formatLiftCount(lift, goal)} · ${strengthGoals[id].lungeDumbbellLb} lb`
   }
-  return null
+  return formatLiftCount(lift, goal)
 }
 
-function latestOhpSet(rows: Checkin[], id: PersonId): OverheadPressSet | null {
-  const unique = uniqueCheckins(rows)
-  for (let index = unique.length - 1; index >= 0; index -= 1) {
-    const row = unique[index]
-    if (!row) {
-      continue
-    }
-    const set = overheadPressSet(row[id])
-    if (set) {
-      return set
-    }
+function startDisplayFor(id: PersonId, lift: StrengthLift, start: number | null): string | null {
+  if (start !== null) {
+    return formatLiftCount(lift, start)
+  }
+  if (lift === 'walkingLunges') {
+    return lungeStartLabel[id]
   }
   return null
-}
-
-function formatLiftValue(lift: StrengthLift, value: number): string {
-  return `${Number.isInteger(value) ? String(value) : value.toFixed(1)} ${liftUnits[lift]}`
 }
 
 export function liftProgress(id: PersonId, rows: Checkin[] = seedCheckins): LiftProgress[] {
+  const goals = strengthGoals[id]
   return strengthLifts.map((lift) => {
-    if (lift === 'overheadPress') {
-      const baselineSet = firstOhpSet(rows, id)
-      const currentSet = latestOhpSet(rows, id)
-      const baseline = baselineSet?.volume ?? null
-      const current = currentSet?.volume ?? null
-      let improvementPct: number | null = null
-      if (baseline && baseline > 0 && current !== null) {
-        improvementPct = ((current - baseline) / baseline) * 100
-      }
-      return {
-        lift,
-        baseline,
-        current,
-        improvementPct,
-        baselineDisplay: baselineSet ? formatOhpSet(baselineSet) : null,
-        currentDisplay: currentSet ? formatOhpSet(currentSet) : null,
-      }
-    }
-
-    const baseline = firstNumber(rows, id, lift)
-    const current = latestNumber(rows, id, lift)
-    let improvementPct: number | null = null
-    if (baseline && baseline > 0 && current !== null) {
-      improvementPct = ((current - baseline) / baseline) * 100
-    }
+    const field = liftLogField[lift]
+    const start = firstNumber(rows, id, field)
+    const current = latestNumber(rows, id, field)
+    const goal = goals[lift]
+    const maxPoints = liftMaxPoints[lift]
+    const points = liftPoints(current, goal, maxPoints)
+    const goalPct = current === null || goal <= 0 ? null : Math.min(100, (current / goal) * 100)
     return {
       lift,
-      baseline,
+      start,
+      goal,
       current,
-      improvementPct,
-      baselineDisplay: baseline === null ? null : formatLiftValue(lift, baseline),
-      currentDisplay: current === null ? null : formatLiftValue(lift, current),
+      points,
+      maxPoints,
+      goalPct,
+      startDisplay: startDisplayFor(id, lift, start),
+      currentDisplay: current === null ? null : formatLiftCount(lift, current),
+      goalDisplay: goalDisplayFor(id, lift, goal),
     }
   })
 }
 
 export function strengthPointsFromLifts(lifts: LiftProgress[]): number {
-  const scored = lifts
-    .map((lift) => lift.improvementPct)
-    .filter((value): value is number => value !== null)
-  if (scored.length === 0) {
-    return 0
-  }
-  const average = scored.reduce((sum, value) => sum + value, 0) / scored.length
-  return Math.min(STRENGTH_POINTS, Math.max(0, average))
+  const total = lifts.reduce((sum, lift) => sum + lift.points, 0)
+  return Math.min(STRENGTH_POINTS, Math.max(0, total))
 }
 
 function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]): PersonStats {

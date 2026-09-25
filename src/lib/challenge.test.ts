@@ -7,8 +7,15 @@ import {
   MAXIMUM_SCORE,
   PRIZE_USD,
   TOTAL_WEEKS,
+  LUNGE_POINTS,
+  PULL_UP_POINTS,
+  PUSH_UP_POINTS,
+  STRENGTH_POINTS,
   adam,
+  liftPoints,
   prizeLabel,
+  pullUpPointsPerRep,
+  strengthGoals,
   weekLogDate,
   weekNumber,
   weightPoints,
@@ -58,6 +65,21 @@ describe('purse', () => {
   it('is a $5,000 winner-take-all', () => {
     assert.equal(PRIZE_USD, 5000)
     assert.equal(prizeLabel, '$5,000')
+  })
+})
+
+describe('strength goals', () => {
+  it('splits 25 points across push-ups, pull-ups, and lunges', () => {
+    assert.equal(PUSH_UP_POINTS + PULL_UP_POINTS + LUNGE_POINTS, STRENGTH_POINTS)
+    assert.equal(strengthGoals.adam.pushUps, 25)
+    assert.equal(strengthGoals.yagiz.pushUps, 35)
+    assert.equal(strengthGoals.adam.pullUps, 3)
+    assert.equal(strengthGoals.yagiz.pullUps, 6)
+    assert.equal(strengthGoals.adam.walkingLunges, 12)
+    assert.equal(strengthGoals.adam.lungeDumbbellLb, 40)
+    assert.equal(strengthGoals.yagiz.lungeDumbbellLb, 50)
+    assert.equal(liftPoints(null, 25, 10), 0)
+    assert.ok(Math.abs(pullUpPointsPerRep(3) - 5 / 3) < 1e-9)
   })
 })
 

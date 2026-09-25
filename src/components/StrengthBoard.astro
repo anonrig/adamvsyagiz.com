@@ -23,25 +23,28 @@ const { standings } = Astro.props
           </div>
           <ul class="m-0 list-none space-y-3 p-0">
             {person.lifts.map((lift) => {
-              const pct = Math.max(0, Math.min(100, lift.improvementPct ?? 0))
+              const pct = Math.max(0, Math.min(100, lift.goalPct ?? 0))
               return (
                 <li>
                   <div class="flex justify-between gap-2 text-sm">
                     <strong>{liftLabels[lift.lift]}</strong>
                     <span class="text-ink-dim">
-                      {lift.baseline === null
-                        ? 'Baseline open'
-                        : `${lift.baselineDisplay} → ${lift.currentDisplay ?? '—'}`}
+                      {formatPts(lift.points)} / {lift.maxPoints}
                     </span>
                   </div>
+                  <p class="m-0 text-[0.78rem] text-mute">
+                    Start {lift.startDisplay ?? 'open'} · now {lift.currentDisplay ?? '—'} · goal {lift.goalDisplay}
+                  </p>
                   <div class="mt-1.5 h-2 bg-[#2a261d]">
                     <span
                       class:list={['block h-full', id === 'adam' ? 'bg-adam' : 'bg-yagiz']}
-                      style={`width: ${lift.baseline === null ? 0 : pct}%`}
+                      style={`width: ${pct}%`}
                     />
                   </div>
                   <p class="mt-1 text-[0.78rem] text-mute">
-                    {lift.improvementPct === null ? 'Not tested yet' : `${lift.improvementPct.toFixed(1)}% vs baseline`}
+                    {lift.goalPct === null
+                      ? 'Not tested yet'
+                      : `${lift.goalPct.toFixed(0)}% of goal`}
                   </p>
                 </li>
               )
@@ -53,5 +56,6 @@ const { standings } = Astro.props
   }
 </div>
 <p class="mt-3 text-[0.88rem] text-mute">
-  First logged number on a lift is the baseline. Overhead press is scored as reps × load. Average percent improvement across the three lifts, capped at 25.
+  Push-ups and walking lunges are percent of your own goal. Pull-ups are linear per strict rep. Beat the
+  goal and that lift caps. Lunges are reps per leg at the prescribed load. Official retest is April 1.
 </p>

@@ -18,9 +18,8 @@ export type CheckinPatch = {
   waist?: number
   stepDays?: number
   pushUps?: number
-  invertedRows?: number
-  overheadPressReps?: number
-  overheadPressWeight?: number
+  pullUps?: number
+  walkingLunges?: number
   note?: string
   sampleId?: string
 }
@@ -38,9 +37,8 @@ const FIELD_LIMITS = {
   waist: { min: 20, max: 80 },
   stepDays: { min: 0, max: 7, integer: true },
   pushUps: { min: 1, max: 400, integer: true },
-  invertedRows: { min: 1, max: 400, integer: true },
-  overheadPressReps: { min: 1, max: 400, integer: true },
-  overheadPressWeight: { min: 1, max: 500 },
+  pullUps: { min: 0, max: 50, integer: true },
+  walkingLunges: { min: 0, max: 50, integer: true },
 } as const
 
 const PATCH_LOG_FIELDS = [
@@ -48,9 +46,8 @@ const PATCH_LOG_FIELDS = [
   'waist',
   'stepDays',
   'pushUps',
-  'invertedRows',
-  'overheadPressReps',
-  'overheadPressWeight',
+  'pullUps',
+  'walkingLunges',
 ] as const
 
 function sha256(value: string): Buffer {
@@ -150,7 +147,7 @@ function validateNumber(
   if (name === 'waist') {
     return { ok: true, value: Math.round(value * 100) / 100 }
   }
-  if (name === 'weight' || name === 'overheadPressWeight') {
+  if (name === 'weight') {
     return { ok: true, value: Math.round(value * 10) / 10 }
   }
   return { ok: true, value }

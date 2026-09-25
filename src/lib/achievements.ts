@@ -121,27 +121,30 @@ export function achievementsFor(id: PersonId, standings = buildStandings()): Ach
     {
       id: 'baseline',
       name: 'Under the Bar',
-      blurb: 'Strength baseline recorded.',
-      earned: person.lifts.some((lift) => lift.baseline !== null),
+      blurb: 'Strength starting points are locked.',
+      earned: person.lifts.some((lift) => lift.start !== null),
     },
     {
       id: 'stronger',
       name: 'Stronger',
-      blurb: 'Any lift up from baseline.',
-      earned: person.lifts.some((lift) => (lift.improvementPct ?? 0) > 0),
+      blurb: 'Any lift up from your start.',
+      earned: person.lifts.some(
+        (lift) => lift.current !== null && lift.start !== null && lift.current > lift.start,
+      ),
     },
     {
       id: 'triple',
       name: 'Triple Threat',
-      blurb: 'All three lifts improved.',
-      earned: person.lifts.every((lift) => (lift.improvementPct ?? 0) > 0),
+      blurb: 'All three lifts up from your start.',
+      earned: person.lifts.every(
+        (lift) => lift.current !== null && lift.start !== null && lift.current > lift.start,
+      ),
     },
     {
-      id: 'press',
-      name: 'Press Lord',
-      blurb: 'Overhead press +20%.',
-      earned:
-        (person.lifts.find((lift) => lift.lift === 'overheadPress')?.improvementPct ?? 0) >= 20,
+      id: 'chin',
+      name: 'Chin Over',
+      blurb: 'A strict pull-up is on the book.',
+      earned: (person.lifts.find((lift) => lift.lift === 'pullUps')?.current ?? 0) >= 1,
     },
     {
       id: 'belt',
@@ -250,14 +253,22 @@ export function weeklyQuests(standings: Standings): {
       title: week === 1 || week === TOTAL_WEEKS ? 'Strength test' : 'Stay strong',
       detail:
         week === 1
-          ? `Opening baselines are locked. Train. Official retest is week ${TOTAL_WEEKS}.`
+          ? `Opening starts are locked. Train. Official retest is week ${TOTAL_WEEKS}.`
           : week === TOTAL_WEEKS
             ? 'Final test. These numbers close the strength card.'
-            : `Train the three lifts. Official retest is week ${TOTAL_WEEKS}.`,
-      done: (person) =>
-        week === 1 || week === TOTAL_WEEKS
-          ? person.lifts.every((lift) => lift.current !== null)
-          : true,
+            : `Train push-ups, pull-ups, and walking lunges. Official retest is week ${TOTAL_WEEKS}.`,
+      done: (person) => {
+        const tested = Object.fromEntries(
+          person.lifts.map((lift) => [lift.lift, lift.current !== null]),
+        )
+        if (week === 1) {
+          return Boolean(tested.pushUps && tested.pullUps)
+        }
+        if (week === TOTAL_WEEKS) {
+          return person.lifts.every((lift) => lift.current !== null)
+        }
+        return true
+      },
     },
   ]
 }

@@ -122,8 +122,8 @@ const standings = buildStandings(new Date(), rows)
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="strength">
       <SectionHead num="03" kicker={`${STRENGTH_POINTS} points`} title="Strength" />
       <p class="mb-4 max-w-2xl text-ink-dim">
-        Push-ups, inverted rows, overhead press (reps × load). You are scored against yourself. Opening tests are the
-        baselines. Get stronger or get leftover points.
+        Push-ups, pull-ups, walking lunges. Same three lifts, different starting camps, personal goals. Points are
+        percent of your goal — except pull-ups, which pay per strict rep. Official retest is April 1.
       </p>
       <StrengthBoard standings={standings} />
     </section>
@@ -167,7 +167,7 @@ const standings = buildStandings(new Date(), rows)
             <td class="border-t border-line px-4 py-3 text-right">{WEIGHT_POINTS}</td>
           </tr>
           <tr>
-            <td class="border-t border-line px-4 py-3">Strength · % vs your baseline</td>
+            <td class="border-t border-line px-4 py-3">Strength · push-ups 10, pull-ups 5, lunges 10</td>
             <td class="border-t border-line px-4 py-3 text-right">{STRENGTH_POINTS}</td>
             <td class="border-t border-line px-4 py-3 text-right">{STRENGTH_POINTS}</td>
           </tr>

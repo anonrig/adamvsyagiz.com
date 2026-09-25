@@ -138,7 +138,7 @@ const webhookUrl = `${websiteUrl}/api/checkin`
       </label>
       <div class="grid gap-3 sm:grid-cols-2">
         {
-          (['pushUps', 'invertedRows'] as const).map((lift) => (
+          (['pushUps', 'pullUps', 'walkingLunges'] as const).map((lift) => (
             <label class="block">
               <span class="text-[0.72rem] font-semibold tracking-widest text-mute uppercase">
                 {liftLabels[lift]}
@@ -150,39 +150,11 @@ const webhookUrl = `${websiteUrl}/api/checkin`
                 name={lift}
                 inputmode="numeric"
                 step="1"
-                min="1"
+                min={lift === 'pushUps' ? 1 : 0}
               />
             </label>
           ))
         }
-        <label class="block">
-          <span class="text-[0.72rem] font-semibold tracking-widest text-mute uppercase">
-            {liftLabels.overheadPress}
-            <span class="normal-case tracking-normal text-mute"> (reps)</span>
-          </span>
-          <input
-            class="mt-1 w-full border border-line bg-bg px-3 py-3 text-ink"
-            type="number"
-            name="overheadPressReps"
-            inputmode="numeric"
-            step="1"
-            min="1"
-          />
-        </label>
-        <label class="block">
-          <span class="text-[0.72rem] font-semibold tracking-widest text-mute uppercase">
-            {liftLabels.overheadPress}
-            <span class="normal-case tracking-normal text-mute"> (lb)</span>
-          </span>
-          <input
-            class="mt-1 w-full border border-line bg-bg px-3 py-3 text-ink"
-            type="number"
-            name="overheadPressWeight"
-            inputmode="decimal"
-            step="0.5"
-            min="1"
-          />
-        </label>
       </div>
       <button
         class="w-full bg-gold px-4 py-3 font-bold text-[#1a1406]"
@@ -208,15 +180,13 @@ const webhookUrl = `${websiteUrl}/api/checkin`
         </li>
         <li>
           Add <strong class="text-ink">Ask for Input</strong> (Number): Weight (lbs), waist (inches), days at 10k (0–7),
-          then optional push-ups, inverted rows, overhead press reps, and the load in pounds. Leave a lift empty to skip
-          it.
+          then optional push-ups, pull-ups, and walking lunges (reps per leg). Leave a lift empty to skip it.
         </li>
         <li>
           Add <strong class="text-ink">Dictionary</strong> with keys <code class="text-gold">weight</code>,
           <code class="text-gold">waist</code>, <code class="text-gold">stepDays</code>,
-          <code class="text-gold">pushUps</code>, <code class="text-gold">invertedRows</code>,
-          <code class="text-gold">overheadPressReps</code>, <code class="text-gold">overheadPressWeight</code> pointing
-          at those answers. Omit empty lifts.
+          <code class="text-gold">pushUps</code>, <code class="text-gold">pullUps</code>,
+          <code class="text-gold">walkingLunges</code> pointing at those answers. Omit empty lifts.
         </li>
         <li>
           Add <strong class="text-ink">Get Contents of URL</strong>:
@@ -268,9 +238,8 @@ const webhookUrl = `${websiteUrl}/api/checkin`
             'waist',
             'stepDays',
             'pushUps',
-            'invertedRows',
-            'overheadPressReps',
-            'overheadPressWeight',
+            'pullUps',
+            'walkingLunges',
           ]) {
           const value = String(data.get(key) ?? '').trim()
           if (value !== '') {
