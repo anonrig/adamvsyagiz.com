@@ -87,7 +87,7 @@ describe('opening standings', () => {
   })
 
   it('scores the week 3 cut on the live card', () => {
-    const standings = buildStandings(new Date('2026-09-21T12:00:00-04:00'))
+    const standings = buildStandings(new Date('2026-09-21T12:00:00-04:00'), checkins.slice(0, 4))
     assert.equal(standings.calendarWeek, 3)
     assert.equal(standings.adam.currentWeight, 270.4)
     assert.equal(standings.yagiz.currentWeight, 174)
@@ -105,6 +105,27 @@ describe('opening standings', () => {
     assert.equal(checkins[3]?.adam.stepDays, 5)
     assert.equal(checkins[3]?.yagiz.stepDays, 4)
     assert.equal(standings.rounds[3]?.winner, 'adam')
+  })
+
+  it('scores the week 4 cut on the live card', () => {
+    const standings = buildStandings(new Date('2026-09-28T12:00:00-04:00'))
+    assert.equal(standings.calendarWeek, 4)
+    assert.equal(standings.adam.currentWeight, 268.6)
+    assert.equal(standings.yagiz.currentWeight, 172)
+    assert.equal(standings.adam.poundsLost, 16.2)
+    assert.equal(standings.yagiz.poundsLost, 6)
+    assert.equal(standings.adam.poundsLeft, 43.6)
+    assert.equal(standings.yagiz.poundsLeft, 27)
+    assert.equal(standings.leader, 'adam')
+    assert.equal(standings.adam.weightPts, (16.2 / 59.8) * 45)
+    assert.equal(standings.yagiz.weightPts, (6 / 33) * 45)
+    assert.equal(standings.adam.activityPts, 4)
+    assert.equal(standings.yagiz.activityPts, 2)
+    assert.equal(standings.adam.strengthPts, 0)
+    assert.equal(standings.yagiz.strengthPts, 0)
+    assert.equal(checkins[4]?.adam.stepDays, 4)
+    assert.equal(checkins[4]?.yagiz.stepDays, 4)
+    assert.equal(standings.rounds[4]?.winner, 'adam')
   })
 
   it('keeps the opening weigh-in in the log', () => {
@@ -175,8 +196,8 @@ describe('strength scoring', () => {
 describe('activity', () => {
   it('ignores the opening weigh-in and scores qualifying weeks', () => {
     assert.equal(activityWeeksEarned('adam', [checkins[0]!]), 0)
-    assert.equal(activityWeeksEarned('adam'), 3)
-    assert.equal(activityWeeksEarned('yagiz'), 1)
+    assert.equal(activityWeeksEarned('adam'), 4)
+    assert.equal(activityWeeksEarned('yagiz'), 2)
   })
 
   it('scores 30 walking points across the 30-week card', () => {
@@ -252,33 +273,33 @@ describe('live rows', () => {
     const rows = [
       ...checkins,
       {
-        week: 3,
-        date: '2026-09-21',
-        adam: { ...emptyLog(), weight: 269, stepDays: 5 },
+        week: 5,
+        date: '2026-10-05',
+        adam: { ...emptyLog(), weight: 267, stepDays: 5 },
         yagiz: emptyLog(),
       },
     ]
-    const standings = buildStandings(new Date('2026-09-21T12:00:00-04:00'), rows)
-    assert.equal(standings.adam.activityPts, 3)
-    assert.equal(standings.adam.currentWeight, 269)
-    assert.equal(standings.yagiz.currentWeight, 174)
-    assert.equal(checkins.length, 4)
-    assert.equal(buildStandings(new Date('2026-09-21T12:00:00-04:00')).adam.activityPts, 3)
+    const standings = buildStandings(new Date('2026-10-05T12:00:00-04:00'), rows)
+    assert.equal(standings.adam.activityPts, 5)
+    assert.equal(standings.adam.currentWeight, 267)
+    assert.equal(standings.yagiz.currentWeight, 172)
+    assert.equal(checkins.length, 5)
+    assert.equal(buildStandings(new Date('2026-09-28T12:00:00-04:00')).adam.activityPts, 4)
   })
 
   it('does not double-count a duplicated week row', () => {
     const week = {
-      week: 4,
-      date: '2026-09-28',
-      adam: { ...emptyLog(), weight: 268, stepDays: 5 },
+      week: 5,
+      date: '2026-10-05',
+      adam: { ...emptyLog(), weight: 267, stepDays: 5 },
       yagiz: emptyLog(),
     }
-    const standings = buildStandings(new Date('2026-09-28T12:00:00-04:00'), [
+    const standings = buildStandings(new Date('2026-10-05T12:00:00-04:00'), [
       ...checkins,
       week,
       week,
     ])
-    assert.equal(standings.rounds.length, 5)
-    assert.equal(standings.adam.activityPts, 4)
+    assert.equal(standings.rounds.length, 6)
+    assert.equal(standings.adam.activityPts, 5)
   })
 })
