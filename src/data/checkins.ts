@@ -217,6 +217,27 @@ export const checkins: Checkin[] = [
     },
     note: 'Week 4 weigh-in. Both 4 days at 10k.',
   },
+  {
+    week: 5,
+    date: '2026-10-05',
+    adam: {
+      weight: 272,
+      waist: null,
+      stepDays: 4,
+      pushUps: null,
+      pullUps: null,
+      walkingLunges: null,
+    },
+    yagiz: {
+      weight: 171.4,
+      waist: null,
+      stepDays: 4,
+      pushUps: null,
+      pullUps: null,
+      walkingLunges: null,
+    },
+    note: 'Week 5 weigh-in. Both 4 days at 10k.',
+  },
 ]
 
 export function logsFor(
