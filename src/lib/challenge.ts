@@ -12,10 +12,6 @@ export const SPRING_BREAK = '2027-04-12'
 export const TOTAL_WEEKS = 30
 export const FINAL_EXTRA_DAYS = 2
 export const challengeSpanLabel = `${TOTAL_WEEKS} weeks + ${FINAL_EXTRA_DAYS} days`
-export const WEIGHT_POINTS = 45
-export const STRENGTH_POINTS = 25
-export const ACTIVITY_POINTS = 30
-export const ACTIVITY_MAX = 30
 export const STEP_DAY_TARGET = 10_000
 export const STEP_DAYS_TO_SCORE = 4
 export const NORMAL_SCORE = 100
@@ -23,28 +19,38 @@ export const MAXIMUM_SCORE = 100
 
 export type PersonId = 'adam' | 'yagiz'
 
-export const PUSH_UP_POINTS = 10
-export const PULL_UP_POINTS = 5
-export const LUNGE_POINTS = 10
+export type ScoreCaps = {
+  weight: number
+  strength: number
+  steps: number
+}
 
-export type StrengthLiftId = 'pushUps' | 'pullUps' | 'walkingLunges'
+/** Personal caps. Each card still totals 100. Steps are the shared 30-week season. */
+export const scoreCard: Record<PersonId, ScoreCaps> = {
+  adam: { weight: 50, strength: 20, steps: 30 },
+  yagiz: { weight: 20, strength: 50, steps: 30 },
+}
+
+export const ACTIVITY_POINTS = scoreCard.adam.steps
+export const ACTIVITY_MAX = scoreCard.adam.steps
+
+export type StrengthLiftId = 'pushUps' | 'walkingLunges'
 
 export type PersonStrengthGoals = {
   pushUps: number
-  pullUps: number
   walkingLunges: number
   lungeDumbbellLb: number
 }
 
-export const liftMaxPoints: Record<StrengthLiftId, number> = {
-  pushUps: PUSH_UP_POINTS,
-  pullUps: PULL_UP_POINTS,
-  walkingLunges: LUNGE_POINTS,
+/** Strength points split evenly across the two lifts that remain. */
+export const liftMaxPoints: Record<PersonId, Record<StrengthLiftId, number>> = {
+  adam: { pushUps: 10, walkingLunges: 10 },
+  yagiz: { pushUps: 25, walkingLunges: 25 },
 }
 
 export const strengthGoals: Record<PersonId, PersonStrengthGoals> = {
-  adam: { pushUps: 25, pullUps: 3, walkingLunges: 12, lungeDumbbellLb: 40 },
-  yagiz: { pushUps: 35, pullUps: 6, walkingLunges: 12, lungeDumbbellLb: 50 },
+  adam: { pushUps: 25, walkingLunges: 12, lungeDumbbellLb: 30 },
+  yagiz: { pushUps: 35, walkingLunges: 12, lungeDumbbellLb: 30 },
 }
 
 export const lungeStartLabel: Record<PersonId, string> = {
@@ -68,10 +74,6 @@ export function liftPoints(current: number | null, goal: number, maxPoints: numb
   return Math.min(maxPoints, Math.max(0, (current / goal) * maxPoints))
 }
 
-export function pullUpPointsPerRep(goal: number): number {
-  return goal > 0 ? PULL_UP_POINTS / goal : 0
-}
-
 export const adam: Contestant = {
   id: 'adam',
   name: 'Adam',
@@ -86,8 +88,8 @@ export const yagiz: Contestant = {
   name: 'Yagiz',
   corner: 'Red corner',
   startWeight: 178,
-  goalWeight: 145,
-  toLose: 33,
+  goalWeight: 160,
+  toLose: 18,
 }
 
 export const contestants = { adam, yagiz } as const
@@ -129,11 +131,11 @@ export function weekLogDate(week: number): string {
   return `${year}-${month}-${day}`
 }
 
-export function weightPoints(poundsLost: number, goalPounds: number): number {
-  if (goalPounds <= 0) {
+export function weightPoints(poundsLost: number, goalPounds: number, maxPoints: number): number {
+  if (goalPounds <= 0 || maxPoints <= 0) {
     return 0
   }
-  return Math.min(WEIGHT_POINTS, (poundsLost / goalPounds) * WEIGHT_POINTS)
+  return Math.min(maxPoints, (poundsLost / goalPounds) * maxPoints)
 }
 
 export function titleForScore(total: number): string {

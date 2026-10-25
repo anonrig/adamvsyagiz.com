@@ -17,6 +17,7 @@ describe('achievements', () => {
     assert.equal(earned.has('belt'), false)
     assert.equal(earned.has('hunter'), false)
     assert.equal(earned.has('chin'), false)
+    assert.equal(earnedCount('adam', standings).total, 27)
     assert.equal(earnedCount('adam', standings).total, adam.length)
     assert.equal(earnedCount('adam', standings).earned, 3)
   })
@@ -26,6 +27,10 @@ describe('achievements', () => {
     assert.equal(standings.adam.strengthPts, 0)
     assert.equal(standings.yagiz.strengthPts, 0)
     const yagiz = achievementsFor('yagiz', standings)
-    assert.equal(yagiz.find((item) => item.id === 'chin')?.earned, false)
+    assert.equal(
+      yagiz.some((item) => item.id === 'chin'),
+      false,
+    )
+    assert.equal(yagiz.find((item) => item.id === 'triple')?.name, 'Double Threat')
   })
 })

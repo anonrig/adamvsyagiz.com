@@ -98,7 +98,7 @@ describe('parseCheckinPatch', () => {
     assert.equal(parseCheckinPatch({ pushUps: 0 }).ok, false)
   })
 
-  it('accepts waist, pull-ups, and walking lunges', () => {
+  it('accepts waist and walking lunges and ignores pull-ups', () => {
     const parsed = parseCheckinPatch({
       waist: '49.75',
       pullUps: 2,
@@ -108,7 +108,6 @@ describe('parseCheckinPatch', () => {
     if (parsed.ok) {
       assert.deepEqual(parsed.patch, {
         waist: 49.75,
-        pullUps: 2,
         walkingLunges: 9,
       })
     }

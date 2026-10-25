@@ -18,7 +18,6 @@ export type CheckinPatch = {
   waist?: number
   stepDays?: number
   pushUps?: number
-  pullUps?: number
   walkingLunges?: number
   note?: string
   sampleId?: string
@@ -37,18 +36,10 @@ const FIELD_LIMITS = {
   waist: { min: 20, max: 80 },
   stepDays: { min: 0, max: 7, integer: true },
   pushUps: { min: 1, max: 400, integer: true },
-  pullUps: { min: 0, max: 50, integer: true },
   walkingLunges: { min: 0, max: 50, integer: true },
 } as const
 
-const PATCH_LOG_FIELDS = [
-  'weight',
-  'waist',
-  'stepDays',
-  'pushUps',
-  'pullUps',
-  'walkingLunges',
-] as const
+const PATCH_LOG_FIELDS = ['weight', 'waist', 'stepDays', 'pushUps', 'walkingLunges'] as const
 
 function sha256(value: string): Buffer {
   return createHash('sha256').update(value).digest()

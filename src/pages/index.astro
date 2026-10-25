@@ -15,14 +15,13 @@ import SectionHead from '@/components/SectionHead.astro'
 import StrengthBoard from '@/components/StrengthBoard.astro'
 import WeightCharts from '@/components/WeightCharts.astro'
 import {
-  ACTIVITY_POINTS,
   MAXIMUM_SCORE,
   NORMAL_SCORE,
-  STRENGTH_POINTS,
-  WEIGHT_POINTS,
   adam,
   challengeSpanLabel,
+  liftMaxPoints,
   prizeLabel,
+  scoreCard,
   yagiz,
 } from '@/lib/challenge'
 import { homepageJsonLd, latestCheckinDate, supportTweetUrl } from '@/lib/seo'
@@ -104,13 +103,17 @@ const standings = buildStandings(new Date(), rows)
     </section>
 
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="cut">
-      <SectionHead num="02" kicker={`${WEIGHT_POINTS} points`} title="The cut" />
+      <SectionHead
+        num="02"
+        kicker={`Adam ${scoreCard.adam.weight} · Yagiz ${scoreCard.yagiz.weight}`}
+        title="The cut"
+      />
       <p class="mb-4 max-w-2xl text-ink-dim">
         Adam: {formatLbs(adam.startWeight)} → {formatLbs(adam.goalWeight)} ({formatLbs(adam.toLose)} lbs)
         {standings.adam.startWaist !== null ? `, ${formatInches(standings.adam.startWaist)} in waist` : ''}. Yagiz:{' '}
         {formatLbs(yagiz.startWeight)} → {formatLbs(yagiz.goalWeight)} ({formatLbs(yagiz.toLose)} lbs)
-        {standings.yagiz.startWaist !== null ? `, ${formatInches(standings.yagiz.startWaist)} in waist` : ''}. Same
-        scoreboard, personal mountains.
+        {standings.yagiz.startWaist !== null ? `, ${formatInches(standings.yagiz.startWaist)} in waist` : ''}. Adam's
+        cut is worth {scoreCard.adam.weight}. Yagiz's is worth {scoreCard.yagiz.weight}.
       </p>
       <div class="grid gap-3">
         <RaceChart standings={standings} />
@@ -119,19 +122,22 @@ const standings = buildStandings(new Date(), rows)
     </section>
 
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="strength">
-      <SectionHead num="03" kicker={`${STRENGTH_POINTS} points`} title="Strength" />
+      <SectionHead
+        num="03"
+        kicker={`Adam ${scoreCard.adam.strength} · Yagiz ${scoreCard.yagiz.strength}`}
+        title="Strength"
+      />
       <p class="mb-4 max-w-2xl text-ink-dim">
-        Push-ups, pull-ups, walking lunges. Same three lifts, different starting camps, personal goals. Opening
-        numbers lock the start. They do not score until an official entry. Official retest is April 1.
+        Push-ups and walking lunges with 30 lb dumbbells. Adam's card is {scoreCard.adam.strength} ({liftMaxPoints.adam.pushUps} + {liftMaxPoints.adam.walkingLunges}). Yagiz's is {scoreCard.yagiz.strength} ({liftMaxPoints.yagiz.pushUps} + {liftMaxPoints.yagiz.walkingLunges}). Opening numbers lock the start. They do not score until an official entry. Official retest is April 1.
       </p>
       <StrengthBoard standings={standings} />
     </section>
 
     <section class="mx-auto w-full max-w-6xl px-[clamp(1.1rem,4vw,2rem)] pb-12" id="steps">
-      <SectionHead num="04" kicker={`${ACTIVITY_POINTS} points`} title="Step seasons" />
+      <SectionHead num="04" kicker={`${scoreCard.adam.steps} points`} title="Step seasons" />
       <p class="mb-4 max-w-2xl text-ink-dim">
-        10,000 steps on four days, every challenge week. One point per week. {ACTIVITY_POINTS} weeks,
-        {ACTIVITY_POINTS} points.
+        10,000 steps on four days, every challenge week. One point per week. {scoreCard.adam.steps} weeks,
+        {scoreCard.adam.steps} points. A week with no log stays hollow until someone files it.
       </p>
       <ActivityHeatmap standings={standings} />
     </section>
@@ -156,25 +162,31 @@ const standings = buildStandings(new Date(), rows)
         <thead>
           <tr>
             <th class="px-4 py-3 text-left text-[0.75rem] font-semibold tracking-widest text-mute uppercase">Category</th>
-            <th class="px-4 py-3 text-right text-[0.75rem] font-semibold tracking-widest text-mute uppercase">Normal</th>
-            <th class="px-4 py-3 text-right text-[0.75rem] font-semibold tracking-widest text-mute uppercase">Max</th>
+            <th class="px-4 py-3 text-right text-[0.75rem] font-semibold tracking-widest text-adam uppercase">Adam</th>
+            <th class="px-4 py-3 text-right text-[0.75rem] font-semibold tracking-widest text-yagiz uppercase">Yagiz</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td class="border-t border-line px-4 py-3">Weight loss · % of your goal</td>
-            <td class="border-t border-line px-4 py-3 text-right">{WEIGHT_POINTS}</td>
-            <td class="border-t border-line px-4 py-3 text-right">{WEIGHT_POINTS}</td>
+            <td class="border-t border-line px-4 py-3 text-right text-adam">{scoreCard.adam.weight}</td>
+            <td class="border-t border-line px-4 py-3 text-right text-yagiz">{scoreCard.yagiz.weight}</td>
           </tr>
           <tr>
-            <td class="border-t border-line px-4 py-3">Strength · push-ups 10, pull-ups 5, lunges 10</td>
-            <td class="border-t border-line px-4 py-3 text-right">{STRENGTH_POINTS}</td>
-            <td class="border-t border-line px-4 py-3 text-right">{STRENGTH_POINTS}</td>
+            <td class="border-t border-line px-4 py-3">
+              Strength · push-ups + lunges
+              <span class="block text-[0.78rem] text-mute">
+                Adam {liftMaxPoints.adam.pushUps} + {liftMaxPoints.adam.walkingLunges}. Yagiz{' '}
+                {liftMaxPoints.yagiz.pushUps} + {liftMaxPoints.yagiz.walkingLunges}.
+              </span>
+            </td>
+            <td class="border-t border-line px-4 py-3 text-right text-adam">{scoreCard.adam.strength}</td>
+            <td class="border-t border-line px-4 py-3 text-right text-yagiz">{scoreCard.yagiz.strength}</td>
           </tr>
           <tr>
-            <td class="border-t border-line px-4 py-3">Activity · 4 days at 10k / week</td>
-            <td class="border-t border-line px-4 py-3 text-right">{ACTIVITY_POINTS}</td>
-            <td class="border-t border-line px-4 py-3 text-right">{ACTIVITY_POINTS}</td>
+            <td class="border-t border-line px-4 py-3">Steps · 4 days at 10k / week</td>
+            <td class="border-t border-line px-4 py-3 text-right text-adam">{scoreCard.adam.steps}</td>
+            <td class="border-t border-line px-4 py-3 text-right text-yagiz">{scoreCard.yagiz.steps}</td>
           </tr>
         </tbody>
         <tfoot>

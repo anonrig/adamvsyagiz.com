@@ -8,10 +8,10 @@ import type { PersonId } from '../lib/challenge.ts'
  *
  * stepDays = how many days that week hit 10,000+ steps. 4+ earns the activity point.
  * waist is taped in inches and is not scored.
- * Strength is scored against personal goals: push-ups and walking lunges are
- * percent of goal, pull-ups are linear per strict rep. Walking lunges are
- * reps per leg at the prescribed dumbbell load. Week 0 lifts are starting
- * points only — they do not score until a later official entry.
+ * Strength is scored against personal goals. Push-ups and walking lunges are
+ * each a percent of that person's goal. Walking lunges are reps per leg with
+ * 30 lb dumbbells. Week 0 lifts are starting points only — they do not score
+ * until a later official entry. Pull-ups are not on the card.
  */
 export type Checkin = {
   week: number
@@ -26,39 +26,28 @@ export type PersonLog = {
   waist: number | null
   stepDays: number | null
   pushUps: number | null
-  pullUps: number | null
   walkingLunges: number | null
 }
 
-export const personLogFields = [
-  'weight',
-  'waist',
-  'stepDays',
-  'pushUps',
-  'pullUps',
-  'walkingLunges',
-] as const
+export const personLogFields = ['weight', 'waist', 'stepDays', 'pushUps', 'walkingLunges'] as const
 
 export type PersonLogField = (typeof personLogFields)[number]
 
-export const strengthLifts = ['pushUps', 'pullUps', 'walkingLunges'] as const
+export const strengthLifts = ['pushUps', 'walkingLunges'] as const
 export type StrengthLift = (typeof strengthLifts)[number]
 
 export const liftLabels: Record<StrengthLift, string> = {
   pushUps: 'Push-ups',
-  pullUps: 'Pull-ups',
   walkingLunges: 'Walking lunges',
 }
 
 export const liftUnits: Record<StrengthLift, string> = {
   pushUps: 'reps',
-  pullUps: 'reps',
   walkingLunges: 'reps / leg',
 }
 
 export const liftLogField: Record<StrengthLift, keyof PersonLog> = {
   pushUps: 'pushUps',
-  pullUps: 'pullUps',
   walkingLunges: 'walkingLunges',
 }
 
@@ -68,7 +57,6 @@ export function emptyLog(): PersonLog {
     waist: null,
     stepDays: null,
     pushUps: null,
-    pullUps: null,
     walkingLunges: null,
   }
 }
@@ -106,7 +94,6 @@ export function isStalePlaceholderOpening(log: PersonLog): boolean {
     (log.weight === 285 || log.weight === 185) &&
     log.waist === null &&
     log.pushUps === null &&
-    log.pullUps === null &&
     log.walkingLunges === null
   )
 }
@@ -120,7 +107,6 @@ export const checkins: Checkin[] = [
       waist: 49.75,
       stepDays: null,
       pushUps: 9,
-      pullUps: 0,
       walkingLunges: null,
     },
     yagiz: {
@@ -128,7 +114,6 @@ export const checkins: Checkin[] = [
       waist: 39,
       stepDays: null,
       pushUps: 13,
-      pullUps: 1,
       walkingLunges: null,
     },
     note: 'Opening card. Weight, waist, and strength starting points are locked.',
@@ -141,7 +126,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     yagiz: {
@@ -149,7 +133,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 0,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     note: 'Week 1 weigh-in. Adam 4 days at 10k. Yagiz 0.',
@@ -162,7 +145,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     yagiz: {
@@ -170,7 +152,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 0,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     note: 'Week 2 weigh-in. Adam 4 days at 10k. Yagiz 0.',
@@ -183,7 +164,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 5,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     yagiz: {
@@ -191,7 +171,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     note: 'Week 3 weigh-in. Adam 5 days at 10k. Yagiz 4.',
@@ -204,7 +183,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     yagiz: {
@@ -212,7 +190,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     note: 'Week 4 weigh-in. Both 4 days at 10k.',
@@ -225,7 +202,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     yagiz: {
@@ -233,7 +209,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     note: 'Week 5 weigh-in. Both 4 days at 10k.',
@@ -246,7 +221,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     yagiz: {
@@ -254,7 +228,6 @@ export const checkins: Checkin[] = [
       waist: null,
       stepDays: 4,
       pushUps: null,
-      pullUps: null,
       walkingLunges: null,
     },
     note: 'Week 7 weigh-in. Both 4 days at 10k.',
