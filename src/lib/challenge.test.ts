@@ -12,11 +12,15 @@ import {
   TOTAL_WEEKS,
   FINAL_EXTRA_DAYS,
   challengeSpanLabel,
+  LUNGE_POINTS,
+  PULL_UP_POINTS,
+  PUSH_UP_POINTS,
+  STRENGTH_POINTS,
+  WEIGHT_POINTS,
   adam,
-  liftMaxPoints,
   liftPoints,
   prizeLabel,
-  scoreCard,
+  pullUpPointsPerRep,
   strengthGoals,
   weekLogDate,
   weekNumber,
@@ -67,14 +71,9 @@ describe('calendar window', () => {
     assert.equal(challengeSpanLabel, '30 weeks + 2 days')
     assert.equal(ACTIVITY_MAX, ACTIVITY_POINTS)
     assert.equal(ACTIVITY_MAX, 30)
+    assert.equal(WEIGHT_POINTS + STRENGTH_POINTS + ACTIVITY_POINTS, NORMAL_SCORE)
     assert.equal(NORMAL_SCORE, MAXIMUM_SCORE)
     assert.equal(MAXIMUM_SCORE, 100)
-    for (const id of ['adam', 'yagiz'] as const) {
-      const card = scoreCard[id]
-      assert.equal(card.weight + card.strength + card.steps, NORMAL_SCORE)
-      assert.equal(card.steps, ACTIVITY_MAX)
-      assert.equal(liftMaxPoints[id].pushUps + liftMaxPoints[id].walkingLunges, card.strength)
-    }
   })
 })
 
@@ -85,25 +84,18 @@ describe('purse', () => {
   })
 })
 
-describe('score card', () => {
-  it('gives Adam the cut and Yagiz the strength card', () => {
-    assert.deepEqual(scoreCard.adam, { weight: 50, strength: 20, steps: 30 })
-    assert.deepEqual(scoreCard.yagiz, { weight: 20, strength: 50, steps: 30 })
-    assert.deepEqual(liftMaxPoints.adam, { pushUps: 10, walkingLunges: 10 })
-    assert.deepEqual(liftMaxPoints.yagiz, { pushUps: 25, walkingLunges: 25 })
-  })
-})
-
 describe('strength goals', () => {
-  it('keeps the rep targets and drops pull-ups to 30 lb lunges', () => {
+  it('splits 25 points across push-ups, pull-ups, and lunges', () => {
+    assert.equal(PUSH_UP_POINTS + PULL_UP_POINTS + LUNGE_POINTS, STRENGTH_POINTS)
     assert.equal(strengthGoals.adam.pushUps, 25)
     assert.equal(strengthGoals.yagiz.pushUps, 35)
+    assert.equal(strengthGoals.adam.pullUps, 3)
+    assert.equal(strengthGoals.yagiz.pullUps, 6)
     assert.equal(strengthGoals.adam.walkingLunges, 12)
-    assert.equal(strengthGoals.yagiz.walkingLunges, 12)
-    assert.equal(strengthGoals.adam.lungeDumbbellLb, 30)
-    assert.equal(strengthGoals.yagiz.lungeDumbbellLb, 30)
-    assert.equal('pullUps' in strengthGoals.adam, false)
+    assert.equal(strengthGoals.adam.lungeDumbbellLb, 40)
+    assert.equal(strengthGoals.yagiz.lungeDumbbellLb, 50)
     assert.equal(liftPoints(null, 25, 10), 0)
+    assert.ok(Math.abs(pullUpPointsPerRep(3) - 5 / 3) < 1e-9)
   })
 })
 
@@ -113,26 +105,24 @@ describe('official cards', () => {
     assert.equal(adam.startWeight, 284.8)
     assert.equal(adam.toLose, 59.8)
     assert.equal(adam.toLose, Math.round((adam.startWeight - adam.goalWeight) * 10) / 10)
-    assert.equal(yagiz.goalWeight, 160)
+    assert.equal(yagiz.goalWeight, 145)
     assert.equal(yagiz.startWeight, 178)
-    assert.equal(yagiz.toLose, 18)
+    assert.equal(yagiz.toLose, 33)
     assert.equal(yagiz.toLose, Math.round((yagiz.startWeight - yagiz.goalWeight) * 10) / 10)
   })
 })
 
 describe('weightPoints', () => {
-  it('awards the personal cap for a completed goal', () => {
-    assert.equal(weightPoints(59.8, 59.8, scoreCard.adam.weight), 50)
-    assert.equal(weightPoints(18, 18, scoreCard.yagiz.weight), 20)
+  it('awards 45 for a completed goal', () => {
+    assert.equal(weightPoints(55, 55), 45)
+    assert.equal(weightPoints(20, 20), 45)
   })
 
   it('is proportional for partial progress', () => {
-    assert.equal(weightPoints(29.9, 59.8, 50), 25)
-    assert.equal(weightPoints(9, 18, 20), 10)
+    assert.equal(weightPoints(27.5, 55), 22.5)
   })
 
-  it('caps at the personal weight card', () => {
-    assert.equal(weightPoints(80, 59.8, 50), 50)
-    assert.equal(weightPoints(30, 18, 20), 20)
+  it('caps at 45', () => {
+    assert.equal(weightPoints(70, 55), 45)
   })
 })

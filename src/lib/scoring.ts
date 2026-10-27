@@ -9,14 +9,15 @@ import {
   type StrengthLift,
 } from '../data/checkins.ts'
 import {
+  ACTIVITY_MAX,
   STEP_DAYS_TO_SCORE,
+  STRENGTH_POINTS,
   TOTAL_WEEKS,
   adam,
   contestants,
   liftMaxPoints,
   liftPoints,
   lungeStartLabel,
-  scoreCard,
   strengthGoals,
   titleForScore,
   weekNumber,
@@ -51,11 +52,8 @@ export type PersonStats = {
   poundsLeft: number
   cutPct: number
   weightPts: number
-  weightMax: number
   strengthPts: number
-  strengthMax: number
   activityPts: number
-  stepsMax: number
   total: number
   onPace: boolean
   expectedLost: number
@@ -196,7 +194,7 @@ export function liftProgress(id: PersonId, rows: Checkin[] = seedCheckins): Lift
     const start = firstNumber(rows, id, field)
     const current = latestScoredLift(rows, id, field)
     const goal = goals[lift]
-    const maxPoints = liftMaxPoints[id][lift]
+    const maxPoints = liftMaxPoints[lift]
     const points = liftPoints(current, goal, maxPoints)
     const goalPct = current === null || goal <= 0 ? null : Math.min(100, (current / goal) * 100)
     return {
@@ -214,22 +212,21 @@ export function liftProgress(id: PersonId, rows: Checkin[] = seedCheckins): Lift
   })
 }
 
-export function strengthPointsFromLifts(lifts: LiftProgress[], cap: number): number {
+export function strengthPointsFromLifts(lifts: LiftProgress[]): number {
   const total = lifts.reduce((sum, lift) => sum + lift.points, 0)
-  return Math.min(cap, Math.max(0, total))
+  return Math.min(STRENGTH_POINTS, Math.max(0, total))
 }
 
 function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]): PersonStats {
   const currentWeight = latestNumber(rows, person.id, 'weight') ?? person.startWeight
   const poundsLost = Math.max(0, Math.round((person.startWeight - currentWeight) * 10) / 10)
   const poundsLeft = Math.max(0, Math.round((currentWeight - person.goalWeight) * 10) / 10)
-  const caps = scoreCard[person.id]
   const cutPct = Math.min(100, (poundsLost / person.toLose) * 100)
-  const weightPts = weightPoints(poundsLost, person.toLose, caps.weight)
+  const weightPts = weightPoints(poundsLost, person.toLose)
   const lifts = liftProgress(person.id, rows)
-  const strengthPts = strengthPointsFromLifts(lifts, caps.strength)
+  const strengthPts = strengthPointsFromLifts(lifts)
   const activityWeeks = activityWeeksEarned(person.id, rows)
-  const activityPts = Math.min(caps.steps, activityWeeks)
+  const activityPts = Math.min(ACTIVITY_MAX, activityWeeks)
   const total = weightPts + strengthPts + activityPts
   const startWaist = firstNumber(rows, person.id, 'waist')
   const currentWaist = latestNumber(rows, person.id, 'waist')
@@ -251,11 +248,8 @@ function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]):
     poundsLeft,
     cutPct,
     weightPts,
-    weightMax: caps.weight,
     strengthPts,
-    strengthMax: caps.strength,
     activityPts,
-    stepsMax: caps.steps,
     total,
     onPace,
     expectedLost,
@@ -275,11 +269,11 @@ function buildPerson(person: Contestant, calendarWeek: number, rows: Checkin[]):
 function weekWinner(row: Checkin): PersonId | null {
   const score = (id: PersonId): number => {
     const person = contestants[id]
-    const caps = scoreCard[id]
     const weight = row[id].weight
     const lost = weight === null ? 0 : Math.max(0, person.startWeight - weight)
+    const cut = lost / person.toLose
     const steps = (row[id].stepDays ?? 0) >= STEP_DAYS_TO_SCORE ? 1 : 0
-    return weightPoints(lost, person.toLose, caps.weight) + steps
+    return cut * 2 + steps
   }
   const adamScore = score('adam')
   const yagizScore = score('yagiz')

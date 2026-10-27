@@ -1,4 +1,5 @@
 ---
+import { ACTIVITY_MAX, STRENGTH_POINTS, WEIGHT_POINTS } from '@/lib/challenge'
 import { formatPts, type Standings } from '@/lib/scoring'
 
 interface Props {
@@ -8,27 +9,9 @@ interface Props {
 const { standings } = Astro.props
 
 const rows = [
-  {
-    label: 'Weight',
-    adam: standings.adam.weightPts,
-    yagiz: standings.yagiz.weightPts,
-    adamMax: standings.adam.weightMax,
-    yagizMax: standings.yagiz.weightMax,
-  },
-  {
-    label: 'Strength',
-    adam: standings.adam.strengthPts,
-    yagiz: standings.yagiz.strengthPts,
-    adamMax: standings.adam.strengthMax,
-    yagizMax: standings.yagiz.strengthMax,
-  },
-  {
-    label: 'Steps',
-    adam: standings.adam.activityPts,
-    yagiz: standings.yagiz.activityPts,
-    adamMax: standings.adam.stepsMax,
-    yagizMax: standings.yagiz.stepsMax,
-  },
+  { label: 'Weight', max: WEIGHT_POINTS, adam: standings.adam.weightPts, yagiz: standings.yagiz.weightPts },
+  { label: 'Strength', max: STRENGTH_POINTS, adam: standings.adam.strengthPts, yagiz: standings.yagiz.strengthPts },
+  { label: 'Steps', max: ACTIVITY_MAX, adam: standings.adam.activityPts, yagiz: standings.yagiz.activityPts },
 ]
 ---
 
@@ -39,23 +22,17 @@ const rows = [
         <div class="mb-2 flex items-center justify-between gap-2">
           <h3 class="m-0 text-sm font-semibold tracking-widest uppercase">{row.label}</h3>
           <p class="m-0 font-display text-xl leading-none">
-            <span class="text-adam">
-              {formatPts(row.adam)}
-              <span class="text-base text-mute">/{row.adamMax}</span>
-            </span>
+            <span class="text-adam">{formatPts(row.adam)}</span>
             <span class="text-mute"> – </span>
-            <span class="text-yagiz">
-              {formatPts(row.yagiz)}
-              <span class="text-base text-mute">/{row.yagizMax}</span>
-            </span>
+            <span class="text-yagiz">{formatPts(row.yagiz)}</span>
           </p>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div class="h-3 bg-[#2a261d]">
-            <span class="block h-full bg-adam" style={`width: ${(row.adam / row.adamMax) * 100}%`} />
+            <span class="block h-full bg-adam" style={`width: ${(row.adam / row.max) * 100}%`} />
           </div>
           <div class="h-3 bg-[#2a261d]">
-            <span class="ml-auto block h-full bg-yagiz" style={`width: ${(row.yagiz / row.yagizMax) * 100}%`} />
+            <span class="ml-auto block h-full bg-yagiz" style={`width: ${(row.yagiz / row.max) * 100}%`} />
           </div>
         </div>
       </article>

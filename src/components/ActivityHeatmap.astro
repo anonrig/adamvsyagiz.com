@@ -1,5 +1,5 @@
 ---
-import { STEP_DAYS_TO_SCORE, TOTAL_WEEKS } from '@/lib/challenge'
+import { ACTIVITY_MAX, STEP_DAYS_TO_SCORE, TOTAL_WEEKS } from '@/lib/challenge'
 import type { PersonId } from '@/lib/challenge'
 import { formatPts, type Standings } from '@/lib/scoring'
 
@@ -14,12 +14,10 @@ function cell(id: PersonId, week: number) {
   const row = standings.rounds.find((item) => item.week === week)
   const future = week > standings.calendarWeek
   const days = row?.[id].stepDays
-  const filed = days !== null && days !== undefined
-  const earned = filed && days >= STEP_DAYS_TO_SCORE
-  const missed = filed && !earned && !future
-  const open = !filed && !future
+  const earned = (days ?? 0) >= STEP_DAYS_TO_SCORE
+  const missed = !future && row !== undefined && !earned
   const current = week === standings.calendarWeek
-  return { days, earned, missed, future, open, current }
+  return { days, earned, missed, future, current }
 }
 ---
 
@@ -34,7 +32,7 @@ function cell(id: PersonId, week: number) {
               {person.name}
             </h3>
             <p class="m-0 text-[0.86rem] text-ink-dim">
-              {formatPts(person.activityPts)} / {person.stepsMax} · best streak {person.bestStreak}
+              {formatPts(person.activityPts)} / {ACTIVITY_MAX} · best streak {person.bestStreak}
             </p>
           </div>
           <ol class="m-0 grid list-none grid-cols-8 gap-1.5 p-0 sm:grid-cols-[repeat(16,minmax(0,1fr))]">
@@ -42,13 +40,13 @@ function cell(id: PersonId, week: number) {
               const state = cell(id, week)
               return (
                 <li
-                  title={`Week ${week}: ${state.future ? 'ahead' : state.earned ? `${state.days} days` : state.missed ? 'missed' : 'not filed'}`}
+                  title={`Week ${week}: ${state.future ? 'ahead' : state.earned ? `${state.days} days` : state.missed ? 'missed' : 'open'}`}
                   class:list={[
                     'aspect-square rounded-[2px]',
                     state.earned && (id === 'adam' ? 'bg-adam' : 'bg-yagiz'),
-                    state.missed && 'bg-[#3a2018] shadow-[inset_0_0_0_1px_rgb(255_122_85_/_0.55)]',
+                    state.missed && 'bg-[#3a2018] shadow-[inset_0_0_0_1px_rgb(255_122_85_/_0.35)]',
                     state.future && 'bg-[#2a261d] shadow-[inset_0_0_0_1px_rgb(227_178_60_/_0.18)]',
-                    state.open && 'border border-dashed border-[#e8dcc4]/70 bg-transparent',
+                    !state.earned && !state.missed && !state.future && 'bg-[#3d3420]',
                     state.current && 'ring-2 ring-gold',
                   ]}
                 />
@@ -60,7 +58,6 @@ function cell(id: PersonId, week: number) {
     })
   }
   <p class="m-0 text-[0.86rem] text-mute">
-    Lit = 4+ days at 10,000 steps. Hollow = not filed. Dark red = logged miss. Ring = this week. Cap is
-    {standings.adam.stepsMax} points.
+    Lit cell = 4+ days at 10,000 steps. Dark red = logged miss. Ring = this week. Cap is {ACTIVITY_MAX} points.
   </p>
 </div>

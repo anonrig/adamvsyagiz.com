@@ -3,7 +3,7 @@ export const prerender = false
 
 import { env } from 'cloudflare:workers'
 
-import { checkins as seedCheckins, liftLabels, liftUnits, strengthLifts } from '@/data/checkins'
+import { checkins as seedCheckins, liftLabels, liftUnits } from '@/data/checkins'
 import Layout from '@/layouts/Layout.astro'
 import { TOTAL_WEEKS, websiteUrl, weekNumber } from '@/lib/challenge'
 import { secretsReady } from '@/lib/checkin-api'
@@ -138,7 +138,7 @@ const webhookUrl = `${websiteUrl}/api/checkin`
       </label>
       <div class="grid gap-3 sm:grid-cols-2">
         {
-          strengthLifts.map((lift) => (
+          (['pushUps', 'pullUps', 'walkingLunges'] as const).map((lift) => (
             <label class="block">
               <span class="text-[0.72rem] font-semibold tracking-widest text-mute uppercase">
                 {liftLabels[lift]}
@@ -180,12 +180,12 @@ const webhookUrl = `${websiteUrl}/api/checkin`
         </li>
         <li>
           Add <strong class="text-ink">Ask for Input</strong> (Number): Weight (lbs), waist (inches), days at 10k (0–7),
-          then optional push-ups and walking lunges (reps per leg, 30 lb dumbbells). Leave a lift empty to skip it.
+          then optional push-ups, pull-ups, and walking lunges (reps per leg). Leave a lift empty to skip it.
         </li>
         <li>
           Add <strong class="text-ink">Dictionary</strong> with keys <code class="text-gold">weight</code>,
           <code class="text-gold">waist</code>, <code class="text-gold">stepDays</code>,
-          <code class="text-gold">pushUps</code>,
+          <code class="text-gold">pushUps</code>, <code class="text-gold">pullUps</code>,
           <code class="text-gold">walkingLunges</code> pointing at those answers. Omit empty lifts.
         </li>
         <li>
@@ -238,6 +238,7 @@ const webhookUrl = `${websiteUrl}/api/checkin`
             'waist',
             'stepDays',
             'pushUps',
+            'pullUps',
             'walkingLunges',
           ]) {
           const value = String(data.get(key) ?? '').trim()

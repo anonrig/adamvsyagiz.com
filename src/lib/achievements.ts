@@ -1,4 +1,4 @@
-import { TOTAL_WEEKS, prizeLabel, scoreCard, type PersonId } from './challenge.ts'
+import { ACTIVITY_MAX, TOTAL_WEEKS, prizeLabel, type PersonId } from './challenge.ts'
 import { buildStandings, type PersonStats, type Standings } from './scoring.ts'
 
 export type Achievement = {
@@ -109,8 +109,8 @@ export function achievementsFor(id: PersonId, standings = buildStandings()): Ach
     {
       id: 'bonus',
       name: 'Walking Cap',
-      blurb: `${scoreCard[id].steps} activity points.`,
-      earned: person.activityPts >= scoreCard[id].steps,
+      blurb: `${ACTIVITY_MAX} activity points.`,
+      earned: person.activityPts >= ACTIVITY_MAX,
     },
     {
       id: 'perfect',
@@ -134,11 +134,17 @@ export function achievementsFor(id: PersonId, standings = buildStandings()): Ach
     },
     {
       id: 'triple',
-      name: 'Double Threat',
-      blurb: 'Both lifts up from your start.',
+      name: 'Triple Threat',
+      blurb: 'All three lifts up from your start.',
       earned: person.lifts.every(
         (lift) => lift.current !== null && lift.start !== null && lift.current > lift.start,
       ),
+    },
+    {
+      id: 'chin',
+      name: 'Chin Over',
+      blurb: 'A strict pull-up is on the book.',
+      earned: (person.lifts.find((lift) => lift.lift === 'pullUps')?.current ?? 0) >= 1,
     },
     {
       id: 'belt',
@@ -250,13 +256,13 @@ export function weeklyQuests(standings: Standings): {
           ? 'Opening starts are locked. Train. Official retest is April 1.'
           : week === TOTAL_WEEKS
             ? 'Final test. These numbers close the strength card.'
-            : 'Train push-ups and walking lunges. Official retest is April 1.',
+            : 'Train push-ups, pull-ups, and walking lunges. Official retest is April 1.',
       done: (person) => {
         const tested = Object.fromEntries(
           person.lifts.map((lift) => [lift.lift, lift.current !== null]),
         )
         if (week === 1) {
-          return Boolean(tested.pushUps)
+          return Boolean(tested.pushUps && tested.pullUps)
         }
         if (week === TOTAL_WEEKS) {
           return person.lifts.every((lift) => lift.current !== null)
