@@ -150,7 +150,7 @@ describe('opening standings', () => {
   })
 
   it('scores the week 7 cut on the live card', () => {
-    const standings = buildStandings(new Date('2026-10-19T12:00:00-04:00'))
+    const standings = buildStandings(new Date('2026-10-19T12:00:00-04:00'), checkins.slice(0, 7))
     assert.equal(standings.calendarWeek, 7)
     assert.equal(standings.adam.currentWeight, 265.6)
     assert.equal(standings.yagiz.currentWeight, 171.3)
@@ -168,6 +168,29 @@ describe('opening standings', () => {
     assert.equal(checkins[6]?.week, 7)
     assert.equal(checkins[6]?.adam.stepDays, 4)
     assert.equal(checkins[6]?.yagiz.stepDays, 4)
+    assert.equal(standings.rounds.at(-1)?.winner, 'adam')
+  })
+
+  it('scores the week 8 cut on the live card', () => {
+    const standings = buildStandings(new Date('2026-10-26T12:00:00-04:00'))
+    assert.equal(standings.calendarWeek, 8)
+    assert.equal(standings.adam.currentWeight, 268)
+    assert.equal(standings.yagiz.currentWeight, 173)
+    assert.equal(standings.adam.poundsLost, 16.8)
+    assert.equal(standings.yagiz.poundsLost, 5)
+    assert.equal(standings.adam.poundsLeft, 43)
+    assert.equal(standings.yagiz.poundsLeft, 28)
+    assert.equal(standings.leader, 'adam')
+    assert.equal(standings.adam.weightPts, (16.8 / 59.8) * 45)
+    assert.equal(standings.yagiz.weightPts, (5 / 33) * 45)
+    assert.equal(standings.adam.activityPts, 7)
+    assert.equal(standings.yagiz.activityPts, 5)
+    assert.equal(standings.adam.strengthPts, 0)
+    assert.equal(standings.yagiz.strengthPts, 0)
+    assert.equal(checkins[7]?.week, 8)
+    assert.equal(checkins[7]?.date, '2026-10-26')
+    assert.equal(checkins[7]?.adam.stepDays, 4)
+    assert.equal(checkins[7]?.yagiz.stepDays, 4)
     assert.equal(standings.rounds.at(-1)?.winner, 'adam')
   })
 
@@ -239,8 +262,8 @@ describe('strength scoring', () => {
 describe('activity', () => {
   it('ignores the opening weigh-in and scores qualifying weeks', () => {
     assert.equal(activityWeeksEarned('adam', [checkins[0]!]), 0)
-    assert.equal(activityWeeksEarned('adam'), 6)
-    assert.equal(activityWeeksEarned('yagiz'), 4)
+    assert.equal(activityWeeksEarned('adam'), 7)
+    assert.equal(activityWeeksEarned('yagiz'), 5)
   })
 
   it('scores 30 walking points across the 30-week card', () => {
@@ -271,8 +294,8 @@ describe('goal retests', () => {
     const rows = [
       ...checkins,
       {
-        week: 8,
-        date: '2026-10-26',
+        week: 9,
+        date: '2026-11-02',
         adam: { ...emptyLog(), pushUps: 20, pullUps: 2, walkingLunges: 9 },
         yagiz: emptyLog(),
       },
@@ -316,33 +339,33 @@ describe('live rows', () => {
     const rows = [
       ...checkins,
       {
-        week: 8,
-        date: '2026-10-26',
+        week: 9,
+        date: '2026-11-02',
         adam: { ...emptyLog(), weight: 264, stepDays: 5 },
         yagiz: emptyLog(),
       },
     ]
-    const standings = buildStandings(new Date('2026-10-26T12:00:00-04:00'), rows)
-    assert.equal(standings.adam.activityPts, 7)
+    const standings = buildStandings(new Date('2026-11-02T12:00:00-04:00'), rows)
+    assert.equal(standings.adam.activityPts, 8)
     assert.equal(standings.adam.currentWeight, 264)
-    assert.equal(standings.yagiz.currentWeight, 171.3)
-    assert.equal(checkins.length, 7)
-    assert.equal(buildStandings(new Date('2026-10-19T12:00:00-04:00')).adam.activityPts, 6)
+    assert.equal(standings.yagiz.currentWeight, 173)
+    assert.equal(checkins.length, 8)
+    assert.equal(buildStandings(new Date('2026-10-26T12:00:00-04:00')).adam.activityPts, 7)
   })
 
   it('does not double-count a duplicated week row', () => {
     const week = {
-      week: 8,
-      date: '2026-10-26',
+      week: 9,
+      date: '2026-11-02',
       adam: { ...emptyLog(), weight: 264, stepDays: 5 },
       yagiz: emptyLog(),
     }
-    const standings = buildStandings(new Date('2026-10-26T12:00:00-04:00'), [
+    const standings = buildStandings(new Date('2026-11-02T12:00:00-04:00'), [
       ...checkins,
       week,
       week,
     ])
-    assert.equal(standings.rounds.length, 8)
-    assert.equal(standings.adam.activityPts, 7)
+    assert.equal(standings.rounds.length, 9)
+    assert.equal(standings.adam.activityPts, 8)
   })
 })
