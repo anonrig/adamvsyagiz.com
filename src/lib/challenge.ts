@@ -88,8 +88,8 @@ export const yagiz: Contestant = {
   name: 'Yagiz',
   corner: 'Red corner',
   startWeight: 178,
-  goalWeight: 145,
-  toLose: 33,
+  goalWeight: 160,
+  toLose: 18,
 }
 
 export const contestants = { adam, yagiz } as const

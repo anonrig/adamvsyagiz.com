@@ -113,9 +113,9 @@ describe('official cards', () => {
     assert.equal(adam.startWeight, 284.8)
     assert.equal(adam.toLose, 59.8)
     assert.equal(adam.toLose, Math.round((adam.startWeight - adam.goalWeight) * 10) / 10)
-    assert.equal(yagiz.goalWeight, 145)
+    assert.equal(yagiz.goalWeight, 160)
     assert.equal(yagiz.startWeight, 178)
-    assert.equal(yagiz.toLose, 33)
+    assert.equal(yagiz.toLose, 18)
     assert.equal(yagiz.toLose, Math.round((yagiz.startWeight - yagiz.goalWeight) * 10) / 10)
   })
 })
@@ -123,16 +123,16 @@ describe('official cards', () => {
 describe('weightPoints', () => {
   it('awards the personal cap for a completed goal', () => {
     assert.equal(weightPoints(59.8, 59.8, scoreCard.adam.weight), 50)
-    assert.equal(weightPoints(33, 33, scoreCard.yagiz.weight), 20)
+    assert.equal(weightPoints(18, 18, scoreCard.yagiz.weight), 20)
   })
 
   it('is proportional for partial progress', () => {
     assert.equal(weightPoints(29.9, 59.8, 50), 25)
-    assert.equal(weightPoints(16.5, 33, 20), 10)
+    assert.equal(weightPoints(9, 18, 20), 10)
   })
 
   it('caps at the personal weight card', () => {
     assert.equal(weightPoints(80, 59.8, 50), 50)
-    assert.equal(weightPoints(40, 33, 20), 20)
+    assert.equal(weightPoints(40, 18, 20), 20)
   })
 })
