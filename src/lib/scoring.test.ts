@@ -2,14 +2,7 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import { checkins, emptyLog, type StrengthLift } from '../data/checkins.ts'
-import {
-  adam,
-  liftPoints,
-  pullUpPointsPerRep,
-  weekLogDate,
-  weekNumber,
-  weightPoints,
-} from './challenge.ts'
+import { adam, liftPoints, scoreCard, weekLogDate, weekNumber, weightPoints } from './challenge.ts'
 import {
   activityWeeksEarned,
   buildStandings,
@@ -96,8 +89,8 @@ describe('opening standings', () => {
     assert.equal(standings.adam.poundsLeft, 45.4)
     assert.equal(standings.yagiz.poundsLeft, 29)
     assert.equal(standings.leader, 'adam')
-    assert.equal(standings.adam.weightPts, (14.4 / 59.8) * 45)
-    assert.equal(standings.yagiz.weightPts, (4 / 33) * 45)
+    assert.equal(standings.adam.weightPts, (14.4 / 59.8) * scoreCard.adam.weight)
+    assert.equal(standings.yagiz.weightPts, (4 / 33) * scoreCard.yagiz.weight)
     assert.equal(standings.adam.activityPts, 3)
     assert.equal(standings.yagiz.activityPts, 1)
     assert.equal(standings.adam.strengthPts, 0)
@@ -117,8 +110,8 @@ describe('opening standings', () => {
     assert.equal(standings.adam.poundsLeft, 43.6)
     assert.equal(standings.yagiz.poundsLeft, 27)
     assert.equal(standings.leader, 'adam')
-    assert.equal(standings.adam.weightPts, (16.2 / 59.8) * 45)
-    assert.equal(standings.yagiz.weightPts, (6 / 33) * 45)
+    assert.equal(standings.adam.weightPts, (16.2 / 59.8) * scoreCard.adam.weight)
+    assert.equal(standings.yagiz.weightPts, (6 / 33) * scoreCard.yagiz.weight)
     assert.equal(standings.adam.activityPts, 4)
     assert.equal(standings.yagiz.activityPts, 2)
     assert.equal(standings.adam.strengthPts, 0)
@@ -138,8 +131,8 @@ describe('opening standings', () => {
     assert.equal(standings.adam.poundsLeft, 47)
     assert.equal(standings.yagiz.poundsLeft, 26.4)
     assert.equal(standings.leader, 'adam')
-    assert.equal(standings.adam.weightPts, (12.8 / 59.8) * 45)
-    assert.equal(standings.yagiz.weightPts, (6.6 / 33) * 45)
+    assert.equal(standings.adam.weightPts, (12.8 / 59.8) * scoreCard.adam.weight)
+    assert.equal(standings.yagiz.weightPts, (6.6 / 33) * scoreCard.yagiz.weight)
     assert.equal(standings.adam.activityPts, 5)
     assert.equal(standings.yagiz.activityPts, 3)
     assert.equal(standings.adam.strengthPts, 0)
@@ -150,7 +143,8 @@ describe('opening standings', () => {
   })
 
   it('scores the week 7 cut on the live card', () => {
-    const standings = buildStandings(new Date('2026-10-19T12:00:00-04:00'), checkins.slice(0, 7))
+    const throughWeek7 = checkins.filter((row) => row.week <= 7)
+    const standings = buildStandings(new Date('2026-10-19T12:00:00-04:00'), throughWeek7)
     assert.equal(standings.calendarWeek, 7)
     assert.equal(standings.adam.currentWeight, 265.6)
     assert.equal(standings.yagiz.currentWeight, 171.3)
@@ -159,20 +153,21 @@ describe('opening standings', () => {
     assert.equal(standings.adam.poundsLeft, 40.6)
     assert.equal(standings.yagiz.poundsLeft, 26.3)
     assert.equal(standings.leader, 'adam')
-    assert.equal(standings.adam.weightPts, (19.2 / 59.8) * 45)
-    assert.equal(standings.yagiz.weightPts, (6.7 / 33) * 45)
-    assert.equal(standings.adam.activityPts, 6)
-    assert.equal(standings.yagiz.activityPts, 4)
+    assert.equal(standings.adam.weightPts, (19.2 / 59.8) * scoreCard.adam.weight)
+    assert.equal(standings.yagiz.weightPts, (6.7 / 33) * scoreCard.yagiz.weight)
+    assert.equal(standings.adam.activityPts, 7)
+    assert.equal(standings.yagiz.activityPts, 5)
     assert.equal(standings.adam.strengthPts, 0)
     assert.equal(standings.yagiz.strengthPts, 0)
-    assert.equal(checkins[6]?.week, 7)
-    assert.equal(checkins[6]?.adam.stepDays, 4)
-    assert.equal(checkins[6]?.yagiz.stepDays, 4)
+    const week7 = checkins.find((row) => row.week === 7)
+    assert.equal(week7?.adam.stepDays, 4)
+    assert.equal(week7?.yagiz.stepDays, 4)
     assert.equal(standings.rounds.at(-1)?.winner, 'adam')
   })
 
   it('scores the week 8 cut on the live card', () => {
-    const standings = buildStandings(new Date('2026-10-26T12:00:00-04:00'))
+    const throughWeek8 = checkins.filter((row) => row.week <= 8)
+    const standings = buildStandings(new Date('2026-10-26T12:00:00-04:00'), throughWeek8)
     assert.equal(standings.calendarWeek, 8)
     assert.equal(standings.adam.currentWeight, 268)
     assert.equal(standings.yagiz.currentWeight, 173)
@@ -181,17 +176,44 @@ describe('opening standings', () => {
     assert.equal(standings.adam.poundsLeft, 43)
     assert.equal(standings.yagiz.poundsLeft, 28)
     assert.equal(standings.leader, 'adam')
-    assert.equal(standings.adam.weightPts, (16.8 / 59.8) * 45)
-    assert.equal(standings.yagiz.weightPts, (5 / 33) * 45)
-    assert.equal(standings.adam.activityPts, 7)
-    assert.equal(standings.yagiz.activityPts, 5)
+    assert.equal(standings.adam.weightPts, (16.8 / 59.8) * scoreCard.adam.weight)
+    assert.equal(standings.yagiz.weightPts, (5 / 33) * scoreCard.yagiz.weight)
+    assert.equal(standings.adam.activityPts, 8)
+    assert.equal(standings.yagiz.activityPts, 6)
     assert.equal(standings.adam.strengthPts, 0)
     assert.equal(standings.yagiz.strengthPts, 0)
-    assert.equal(checkins[7]?.week, 8)
-    assert.equal(checkins[7]?.date, '2026-10-26')
-    assert.equal(checkins[7]?.adam.stepDays, 4)
-    assert.equal(checkins[7]?.yagiz.stepDays, 4)
+    const week8 = checkins.find((row) => row.week === 8)
+    assert.equal(week8?.date, '2026-10-26')
+    assert.equal(week8?.adam.stepDays, 4)
+    assert.equal(week8?.yagiz.stepDays, 4)
     assert.equal(standings.rounds.at(-1)?.winner, 'adam')
+  })
+
+  it('files week 6 and Yagiz missing steps in week 9', () => {
+    const standings = buildStandings(new Date('2026-11-09T19:00:00-05:00'))
+    const week6 = checkins.find((row) => row.week === 6)
+    const week9 = checkins.find((row) => row.week === 9)
+    assert.equal(standings.calendarWeek, 10)
+    assert.equal(week6?.date, '2026-10-12')
+    assert.equal(week6?.adam.weight, 270.2)
+    assert.equal(week6?.yagiz.weight, 171.8)
+    assert.equal(week6?.adam.stepDays, 4)
+    assert.equal(week6?.yagiz.stepDays, 4)
+    assert.equal(week9?.date, '2026-11-02')
+    assert.equal(week9?.adam.weight, null)
+    assert.equal(week9?.adam.stepDays, null)
+    assert.equal(week9?.yagiz.weight, null)
+    assert.equal(week9?.yagiz.stepDays, 0)
+    assert.equal(standings.adam.currentWeight, 268)
+    assert.equal(standings.yagiz.currentWeight, 173)
+    assert.equal(standings.adam.activityPts, 8)
+    assert.equal(standings.yagiz.activityPts, 6)
+    assert.equal(standings.adam.streak, 8)
+    assert.equal(standings.yagiz.streak, 0)
+    assert.equal(standings.adam.weightPts, (16.8 / 59.8) * scoreCard.adam.weight)
+    assert.equal(standings.yagiz.weightPts, (5 / 33) * scoreCard.yagiz.weight)
+    assert.equal(standings.rounds.find((round) => round.week === 6)?.winner, 'adam')
+    assert.equal(standings.rounds.find((round) => round.week === 9)?.winner, null)
   })
 
   it('keeps the opening weigh-in in the log', () => {
@@ -210,60 +232,55 @@ describe('opening standings', () => {
     assert.equal(adamLifts.pushUps?.goal, 25)
     assert.equal(adamLifts.pushUps?.current, null)
     assert.equal(adamLifts.pushUps?.points, 0)
-    assert.equal(adamLifts.pullUps?.start, 0)
-    assert.equal(adamLifts.pullUps?.goal, 3)
-    assert.equal(adamLifts.pullUps?.current, null)
-    assert.equal(adamLifts.pullUps?.points, 0)
+    assert.equal(adamLifts.pushUps?.maxPoints, 10)
     assert.equal(adamLifts.walkingLunges?.start, null)
     assert.equal(adamLifts.walkingLunges?.startDisplay, 'Unable')
-    assert.equal(adamLifts.walkingLunges?.goalDisplay, '12 / leg · 40 lb')
+    assert.equal(adamLifts.walkingLunges?.goalDisplay, '12 / leg · 30 lb')
+    assert.equal(adamLifts.walkingLunges?.maxPoints, 10)
     assert.equal(yagizLifts.pushUps?.start, 13)
     assert.equal(yagizLifts.pushUps?.goal, 35)
     assert.equal(yagizLifts.pushUps?.current, null)
     assert.equal(yagizLifts.pushUps?.points, 0)
-    assert.equal(yagizLifts.pullUps?.start, 1)
-    assert.equal(yagizLifts.pullUps?.goal, 6)
-    assert.equal(yagizLifts.pullUps?.current, null)
-    assert.equal(yagizLifts.pullUps?.points, 0)
+    assert.equal(yagizLifts.pushUps?.maxPoints, 25)
     assert.equal(yagizLifts.walkingLunges?.startDisplay, 'TBD')
-    assert.equal(yagizLifts.walkingLunges?.goalDisplay, '12 / leg · 50 lb')
+    assert.equal(yagizLifts.walkingLunges?.goalDisplay, '12 / leg · 30 lb')
+    assert.equal(yagizLifts.walkingLunges?.maxPoints, 25)
+    assert.deepEqual(
+      standings.adam.lifts.map((lift) => lift.lift),
+      ['pushUps', 'walkingLunges'],
+    )
   })
 })
 
 describe('strength scoring', () => {
   it('is 0 until a lift has points', () => {
-    assert.equal(strengthPointsFromLifts([liftStub('pushUps', 0)]), 0)
+    assert.equal(strengthPointsFromLifts([liftStub('pushUps', 0)], 20), 0)
   })
 
-  it('adds the three lifts and caps at 25', () => {
+  it('adds both lifts and caps at the personal strength card', () => {
     assert.equal(
-      strengthPointsFromLifts([
-        liftStub('pushUps', 8),
-        liftStub('pullUps', 5),
-        liftStub('walkingLunges', 7.5),
-      ]),
-      20.5,
+      strengthPointsFromLifts([liftStub('pushUps', 8), liftStub('walkingLunges', 7.5)], 20),
+      15.5,
     )
-    assert.equal(strengthPointsFromLifts([liftStub('pushUps', 30)]), 25)
+    assert.equal(strengthPointsFromLifts([liftStub('pushUps', 30)], 20), 20)
+    assert.equal(strengthPointsFromLifts([liftStub('pushUps', 30)], 50), 30)
   })
 
   it('matches the official goal examples', () => {
     assert.equal(liftPoints(20, 25, 10), 8)
-    assert.equal(liftPoints(28, 35, 10), 8)
+    assert.equal(liftPoints(28, 35, 25), 20)
     assert.equal(liftPoints(9, 12, 10), 7.5)
-    assert.ok(Math.abs(liftPoints(10, 12, 10) - (10 / 12) * 10) < 1e-9)
-    assert.ok(Math.abs(pullUpPointsPerRep(3) - 5 / 3) < 1e-9)
-    assert.ok(Math.abs(pullUpPointsPerRep(6) - 5 / 6) < 1e-9)
-    assert.equal(liftPoints(4, 3, 5), 5)
+    assert.ok(Math.abs(liftPoints(9, 12, 25) - (9 / 12) * 25) < 1e-9)
     assert.equal(liftPoints(40, 25, 10), 10)
+    assert.equal(liftPoints(40, 35, 25), 25)
   })
 })
 
 describe('activity', () => {
   it('ignores the opening weigh-in and scores qualifying weeks', () => {
     assert.equal(activityWeeksEarned('adam', [checkins[0]!]), 0)
-    assert.equal(activityWeeksEarned('adam'), 7)
-    assert.equal(activityWeeksEarned('yagiz'), 5)
+    assert.equal(activityWeeksEarned('adam'), 8)
+    assert.equal(activityWeeksEarned('yagiz'), 6)
   })
 
   it('scores 30 walking points across the 30-week card', () => {
@@ -294,9 +311,9 @@ describe('goal retests', () => {
     const rows = [
       ...checkins,
       {
-        week: 9,
-        date: '2026-11-02',
-        adam: { ...emptyLog(), pushUps: 20, pullUps: 2, walkingLunges: 9 },
+        week: 10,
+        date: '2026-11-09',
+        adam: { ...emptyLog(), pushUps: 20, walkingLunges: 9 },
         yagiz: emptyLog(),
       },
     ]
@@ -304,8 +321,6 @@ describe('goal retests', () => {
     assert.equal(lifts.pushUps?.start, 9)
     assert.equal(lifts.pushUps?.current, 20)
     assert.equal(lifts.pushUps?.points, 8)
-    assert.equal(lifts.pullUps?.current, 2)
-    assert.ok(Math.abs((lifts.pullUps?.points ?? 0) - (2 / 3) * 5) < 1e-9)
     assert.equal(lifts.walkingLunges?.current, 9)
     assert.equal(lifts.walkingLunges?.points, 7.5)
     assert.equal(lifts.walkingLunges?.currentDisplay, '9 / leg')
@@ -321,10 +336,10 @@ describe('formatInches', () => {
 })
 
 describe('weight math still holds', () => {
-  it('is proportional on the 45-point card', () => {
-    assert.equal(weightPoints(27.5, 55), 22.5)
-    assert.equal(weightPoints(14.4, 59.8), (14.4 / 59.8) * 45)
-    assert.equal(weightPoints(4, 33), (4 / 33) * 45)
+  it('is proportional on each personal weight card', () => {
+    assert.equal(weightPoints(29.9, 59.8, 50), 25)
+    assert.equal(weightPoints(14.4, 59.8, 50), (14.4 / 59.8) * scoreCard.adam.weight)
+    assert.equal(weightPoints(4, 33, 20), (4 / 33) * scoreCard.yagiz.weight)
   })
 })
 
@@ -339,33 +354,33 @@ describe('live rows', () => {
     const rows = [
       ...checkins,
       {
-        week: 9,
-        date: '2026-11-02',
+        week: 10,
+        date: '2026-11-09',
         adam: { ...emptyLog(), weight: 264, stepDays: 5 },
         yagiz: emptyLog(),
       },
     ]
-    const standings = buildStandings(new Date('2026-11-02T12:00:00-04:00'), rows)
-    assert.equal(standings.adam.activityPts, 8)
+    const standings = buildStandings(new Date('2026-11-09T12:00:00-05:00'), rows)
+    assert.equal(standings.adam.activityPts, 9)
     assert.equal(standings.adam.currentWeight, 264)
     assert.equal(standings.yagiz.currentWeight, 173)
-    assert.equal(checkins.length, 8)
-    assert.equal(buildStandings(new Date('2026-10-26T12:00:00-04:00')).adam.activityPts, 7)
+    assert.equal(checkins.length, 10)
+    assert.equal(buildStandings(new Date('2026-11-09T12:00:00-05:00')).adam.activityPts, 8)
   })
 
   it('does not double-count a duplicated week row', () => {
     const week = {
-      week: 9,
-      date: '2026-11-02',
+      week: 10,
+      date: '2026-11-09',
       adam: { ...emptyLog(), weight: 264, stepDays: 5 },
       yagiz: emptyLog(),
     }
-    const standings = buildStandings(new Date('2026-11-02T12:00:00-04:00'), [
+    const standings = buildStandings(new Date('2026-11-09T12:00:00-05:00'), [
       ...checkins,
       week,
       week,
     ])
-    assert.equal(standings.rounds.length, 9)
-    assert.equal(standings.adam.activityPts, 8)
+    assert.equal(standings.rounds.length, 11)
+    assert.equal(standings.adam.activityPts, 9)
   })
 })

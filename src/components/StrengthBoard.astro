@@ -1,5 +1,6 @@
 ---
 import { liftLabels } from '@/data/checkins'
+import { strengthGoals } from '@/lib/challenge'
 import { formatPts, type Standings } from '@/lib/scoring'
 
 interface Props {
@@ -19,7 +20,7 @@ const { standings } = Astro.props
             <h3 class:list={['m-0 font-display text-3xl leading-none', id === 'adam' ? 'text-adam' : 'text-yagiz']}>
               {person.name}
             </h3>
-            <p class="m-0 text-ink-dim">{formatPts(person.strengthPts)} / 25</p>
+            <p class="m-0 text-ink-dim">{formatPts(person.strengthPts)} / {person.strengthMax}</p>
           </div>
           <ul class="m-0 list-none space-y-3 p-0">
             {person.lifts.map((lift) => {
@@ -57,7 +58,6 @@ const { standings } = Astro.props
 </div>
 <p class="mt-3 text-[0.88rem] text-mute">
   Opening numbers are starts, not a scored test — both cards sit at 0 until someone files an official
-  entry. Push-ups and walking lunges are percent of your own goal. Pull-ups are linear per strict rep.
-  Beat the goal and that lift caps. Lunges are reps per leg at the prescribed load. Official retest is
-  April 1.
+  entry. Each lift is a percent of that person's goal and caps when the goal is beaten. Lunges are reps
+  per leg with {strengthGoals.adam.lungeDumbbellLb} lb dumbbells. Official retest is April 1.
 </p>
