@@ -34,24 +34,18 @@ export const scoreCard: Record<PersonId, ScoreCaps> = {
 export const ACTIVITY_POINTS = scoreCard.adam.steps
 export const ACTIVITY_MAX = scoreCard.adam.steps
 
-export type StrengthLiftId = 'pushUps' | 'walkingLunges'
+export type StrengthLiftId = 'pushUps' | 'pullUps' | 'walkingLunges'
 
-export type PersonStrengthGoals = {
-  pushUps: number
-  walkingLunges: number
-  lungeDumbbellLb: number
-}
-
-/** Strength points split evenly across push-ups and walking lunges. */
-export const liftMaxPoints: Record<PersonId, Record<StrengthLiftId, number>> = {
+/** Adam has no pull-ups. Yagiz's 50 keeps the old 2:1:2 ratio: 20 + 10 + 20. */
+export const liftMaxPoints = {
   adam: { pushUps: 10, walkingLunges: 10 },
-  yagiz: { pushUps: 25, walkingLunges: 25 },
-}
+  yagiz: { pushUps: 20, pullUps: 10, walkingLunges: 20 },
+} as const
 
-export const strengthGoals: Record<PersonId, PersonStrengthGoals> = {
+export const strengthGoals = {
   adam: { pushUps: 25, walkingLunges: 12, lungeDumbbellLb: 30 },
-  yagiz: { pushUps: 35, walkingLunges: 12, lungeDumbbellLb: 30 },
-}
+  yagiz: { pushUps: 35, pullUps: 6, walkingLunges: 12, lungeDumbbellLb: 50 },
+} as const
 
 export const lungeStartLabel: Record<PersonId, string> = {
   adam: 'Unable',

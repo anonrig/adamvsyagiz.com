@@ -2,7 +2,7 @@ import {
   checkins as seedCheckins,
   formatLiftCount,
   liftLogField,
-  strengthLifts,
+  personLifts,
   uniqueCheckins,
   type Checkin,
   type PersonLog,
@@ -190,14 +190,33 @@ function startDisplayFor(id: PersonId, lift: StrengthLift, start: number | null)
   return null
 }
 
+function repGoal(id: PersonId, lift: StrengthLift): number {
+  if (id === 'yagiz') {
+    return strengthGoals.yagiz[lift]
+  }
+  if (lift === 'pullUps') {
+    return 0
+  }
+  return strengthGoals.adam[lift]
+}
+
+function pointsCap(id: PersonId, lift: StrengthLift): number {
+  if (id === 'yagiz') {
+    return liftMaxPoints.yagiz[lift]
+  }
+  if (lift === 'pullUps') {
+    return 0
+  }
+  return liftMaxPoints.adam[lift]
+}
+
 export function liftProgress(id: PersonId, rows: Checkin[] = seedCheckins): LiftProgress[] {
-  const goals = strengthGoals[id]
-  return strengthLifts.map((lift) => {
+  return personLifts[id].map((lift) => {
     const field = liftLogField[lift]
     const start = firstNumber(rows, id, field)
     const current = latestScoredLift(rows, id, field)
-    const goal = goals[lift]
-    const maxPoints = liftMaxPoints[id][lift]
+    const goal = repGoal(id, lift)
+    const maxPoints = pointsCap(id, lift)
     const points = liftPoints(current, goal, maxPoints)
     const goalPct = current === null || goal <= 0 ? null : Math.min(100, (current / goal) * 100)
     return {

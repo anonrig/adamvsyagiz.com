@@ -129,7 +129,7 @@ const standings = buildStandings(new Date(), rows)
         title="Strength"
       />
       <p class="mb-4 max-w-2xl text-ink-dim">
-        Push-ups and walking lunges with {strengthGoals.adam.lungeDumbbellLb} lb dumbbells. Adam's card is {scoreCard.adam.strength} ({liftMaxPoints.adam.pushUps} + {liftMaxPoints.adam.walkingLunges}). Yagiz's is {scoreCard.yagiz.strength} ({liftMaxPoints.yagiz.pushUps} + {liftMaxPoints.yagiz.walkingLunges}). Opening numbers lock the start. They do not score until an official entry. Official retest is April 1.
+        Adam's card is {scoreCard.adam.strength}: push-ups and walking lunges with {strengthGoals.adam.lungeDumbbellLb} lb dumbbells ({liftMaxPoints.adam.pushUps} + {liftMaxPoints.adam.walkingLunges}). Yagiz's is {scoreCard.yagiz.strength}: push-ups, pull-ups, and walking lunges with {strengthGoals.yagiz.lungeDumbbellLb} lb dumbbells ({liftMaxPoints.yagiz.pushUps} + {liftMaxPoints.yagiz.pullUps} + {liftMaxPoints.yagiz.walkingLunges}). Opening numbers lock the start. They do not score until an official entry. Official retest is April 1.
       </p>
       <StrengthBoard standings={standings} />
     </section>
@@ -175,10 +175,10 @@ const standings = buildStandings(new Date(), rows)
           </tr>
           <tr>
             <td class="border-t border-line px-4 py-3">
-              Strength · push-ups + lunges
+              Strength · the lifts on your card
               <span class="block text-[0.78rem] text-mute">
                 Adam {liftMaxPoints.adam.pushUps} + {liftMaxPoints.adam.walkingLunges}. Yagiz{' '}
-                {liftMaxPoints.yagiz.pushUps} + {liftMaxPoints.yagiz.walkingLunges}.
+                {liftMaxPoints.yagiz.pushUps} + {liftMaxPoints.yagiz.pullUps} + {liftMaxPoints.yagiz.walkingLunges}.
               </span>
             </td>
             <td class="border-t border-line px-4 py-3 text-right text-adam">{scoreCard.adam.strength}</td>

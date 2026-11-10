@@ -1,4 +1,4 @@
-import { TOTAL_WEEKS, prizeLabel, scoreCard, type PersonId } from './challenge.ts'
+import { TOTAL_WEEKS, prizeLabel, scoreCard, strengthGoals, type PersonId } from './challenge.ts'
 import { buildStandings, type PersonStats, type Standings } from './scoring.ts'
 
 export type Achievement = {
@@ -134,12 +134,25 @@ export function achievementsFor(id: PersonId, standings = buildStandings()): Ach
     },
     {
       id: 'triple',
-      name: 'Double Threat',
-      blurb: 'Both lifts up from your start.',
+      name: person.lifts.length > 2 ? 'Triple Threat' : 'Double Threat',
+      blurb:
+        person.lifts.length > 2
+          ? 'All three lifts up from your start.'
+          : 'Both lifts up from your start.',
       earned: person.lifts.every(
         (lift) => lift.current !== null && lift.start !== null && lift.current > lift.start,
       ),
     },
+    ...(person.lifts.some((lift) => lift.lift === 'pullUps')
+      ? [
+          {
+            id: 'chin',
+            name: 'Chin Over',
+            blurb: 'A strict pull-up is on the book.',
+            earned: (person.lifts.find((lift) => lift.lift === 'pullUps')?.current ?? 0) >= 1,
+          },
+        ]
+      : []),
     {
       id: 'belt',
       name: 'The Belt',
@@ -250,13 +263,14 @@ export function weeklyQuests(standings: Standings): {
           ? 'Opening starts are locked. Train. Official retest is April 1.'
           : week === TOTAL_WEEKS
             ? 'Final test. These numbers close the strength card.'
-            : 'Train push-ups and walking lunges. Official retest is April 1.',
+            : `Train the lifts on your card. Adam: push-ups and ${strengthGoals.adam.lungeDumbbellLb} lb lunges. Yagiz: push-ups, pull-ups, and ${strengthGoals.yagiz.lungeDumbbellLb} lb lunges.`,
       done: (person) => {
         const tested = Object.fromEntries(
           person.lifts.map((lift) => [lift.lift, lift.current !== null]),
         )
         if (week === 1) {
-          return Boolean(tested.pushUps)
+          const needsPullUps = person.lifts.some((lift) => lift.lift === 'pullUps')
+          return Boolean(tested.pushUps && (!needsPullUps || tested.pullUps))
         }
         if (week === TOTAL_WEEKS) {
           return person.lifts.every((lift) => lift.current !== null)

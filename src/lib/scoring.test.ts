@@ -241,13 +241,22 @@ describe('opening standings', () => {
     assert.equal(yagizLifts.pushUps?.goal, 35)
     assert.equal(yagizLifts.pushUps?.current, null)
     assert.equal(yagizLifts.pushUps?.points, 0)
-    assert.equal(yagizLifts.pushUps?.maxPoints, 25)
+    assert.equal(yagizLifts.pushUps?.maxPoints, 20)
+    assert.equal(yagizLifts.pullUps?.start, 1)
+    assert.equal(yagizLifts.pullUps?.goal, 6)
+    assert.equal(yagizLifts.pullUps?.current, null)
+    assert.equal(yagizLifts.pullUps?.points, 0)
+    assert.equal(yagizLifts.pullUps?.maxPoints, 10)
     assert.equal(yagizLifts.walkingLunges?.startDisplay, 'TBD')
-    assert.equal(yagizLifts.walkingLunges?.goalDisplay, '12 / leg · 30 lb')
-    assert.equal(yagizLifts.walkingLunges?.maxPoints, 25)
+    assert.equal(yagizLifts.walkingLunges?.goalDisplay, '12 / leg · 50 lb')
+    assert.equal(yagizLifts.walkingLunges?.maxPoints, 20)
     assert.deepEqual(
       standings.adam.lifts.map((lift) => lift.lift),
       ['pushUps', 'walkingLunges'],
+    )
+    assert.deepEqual(
+      standings.yagiz.lifts.map((lift) => lift.lift),
+      ['pushUps', 'pullUps', 'walkingLunges'],
     )
   })
 })
@@ -268,11 +277,13 @@ describe('strength scoring', () => {
 
   it('matches the official goal examples', () => {
     assert.equal(liftPoints(20, 25, 10), 8)
-    assert.equal(liftPoints(28, 35, 25), 20)
+    assert.equal(liftPoints(28, 35, 20), 16)
+    assert.equal(liftPoints(3, 6, 10), 5)
     assert.equal(liftPoints(9, 12, 10), 7.5)
-    assert.ok(Math.abs(liftPoints(9, 12, 25) - (9 / 12) * 25) < 1e-9)
+    assert.equal(liftPoints(9, 12, 20), 15)
     assert.equal(liftPoints(40, 25, 10), 10)
-    assert.equal(liftPoints(40, 35, 25), 25)
+    assert.equal(liftPoints(40, 35, 20), 20)
+    assert.equal(liftPoints(12, 6, 10), 10)
   })
 })
 

@@ -156,6 +156,9 @@ const webhookUrl = `${websiteUrl}/api/checkin`
           ))
         }
       </div>
+      <p class="m-0 text-[0.82rem] text-mute">
+        Pull-ups are Yagiz's card. Walking lunges are reps per leg: Adam 30 lb dumbbells, Yagiz 50 lb.
+      </p>
       <button
         class="w-full bg-gold px-4 py-3 font-bold text-[#1a1406]"
         type="submit"
@@ -180,13 +183,14 @@ const webhookUrl = `${websiteUrl}/api/checkin`
         </li>
         <li>
           Add <strong class="text-ink">Ask for Input</strong> (Number): Weight (lbs), waist (inches), days at 10k (0–7),
-          then optional push-ups and walking lunges (reps per leg, 30 lb dumbbells). Leave a lift empty to skip it.
+          then optional push-ups, pull-ups (Yagiz only), and walking lunges (reps per leg; Adam 30 lb dumbbells, Yagiz 50 lb). Leave a lift empty to skip it.
         </li>
         <li>
           Add <strong class="text-ink">Dictionary</strong> with keys <code class="text-gold">weight</code>,
           <code class="text-gold">waist</code>, <code class="text-gold">stepDays</code>,
           <code class="text-gold">pushUps</code>,
-          <code class="text-gold">walkingLunges</code> pointing at those answers. Omit empty lifts.
+          <code class="text-gold">pullUps</code>,
+          <code class="text-gold">walkingLunges</code> pointing at those answers. Omit empty lifts. Pull-ups score for Yagiz only.
         </li>
         <li>
           Add <strong class="text-ink">Get Contents of URL</strong>:
@@ -238,6 +242,7 @@ const webhookUrl = `${websiteUrl}/api/checkin`
             'waist',
             'stepDays',
             'pushUps',
+            'pullUps',
             'walkingLunges',
           ]) {
           const value = String(data.get(key) ?? '').trim()

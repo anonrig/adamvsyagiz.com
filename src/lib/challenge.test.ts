@@ -73,7 +73,8 @@ describe('calendar window', () => {
       const card = scoreCard[id]
       assert.equal(card.weight + card.strength + card.steps, NORMAL_SCORE)
       assert.equal(card.steps, ACTIVITY_MAX)
-      assert.equal(liftMaxPoints[id].pushUps + liftMaxPoints[id].walkingLunges, card.strength)
+      const liftSum = Object.values(liftMaxPoints[id]).reduce((sum, points) => sum + points, 0)
+      assert.equal(liftSum, card.strength)
     }
   })
 })
@@ -90,18 +91,19 @@ describe('score card', () => {
     assert.deepEqual(scoreCard.adam, { weight: 50, strength: 20, steps: 30 })
     assert.deepEqual(scoreCard.yagiz, { weight: 20, strength: 50, steps: 30 })
     assert.deepEqual(liftMaxPoints.adam, { pushUps: 10, walkingLunges: 10 })
-    assert.deepEqual(liftMaxPoints.yagiz, { pushUps: 25, walkingLunges: 25 })
+    assert.deepEqual(liftMaxPoints.yagiz, { pushUps: 20, pullUps: 10, walkingLunges: 20 })
   })
 })
 
 describe('strength goals', () => {
-  it('keeps the rep targets, drops pull-ups, and uses 30 lb lunges', () => {
+  it('keeps the rep targets, Yagiz pull-ups, and each lunge load', () => {
     assert.equal(strengthGoals.adam.pushUps, 25)
     assert.equal(strengthGoals.yagiz.pushUps, 35)
+    assert.equal(strengthGoals.yagiz.pullUps, 6)
     assert.equal(strengthGoals.adam.walkingLunges, 12)
     assert.equal(strengthGoals.yagiz.walkingLunges, 12)
     assert.equal(strengthGoals.adam.lungeDumbbellLb, 30)
-    assert.equal(strengthGoals.yagiz.lungeDumbbellLb, 30)
+    assert.equal(strengthGoals.yagiz.lungeDumbbellLb, 50)
     assert.equal('pullUps' in strengthGoals.adam, false)
     assert.equal(liftPoints(null, 25, 10), 0)
   })
